@@ -1,0 +1,59 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { fetchDiscoveryPreview, isSanityConfigured } from '../lib/sanity';
+
+const { artists, releases, events } = await fetchDiscoveryPreview();
+---
+
+<Layout>
+  <main class="mx-auto flex max-w-5xl flex-col gap-12 px-6 py-16">
+    <header class="space-y-4">
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-amber-300">
+        Christian Music Europe
+      </p>
+      <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        Discover Christian music across Europe
+      </h1>
+      <p class="max-w-2xl text-lg text-slate-300">
+        A local Astro + Sanity workspace for artists, releases, and events. The
+        WordPress site is unchanged; this app is not deployed yet.
+      </p>
+    </header>
+
+    {
+      !isSanityConfigured && (
+        <p class="rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-amber-100">
+          Add your Sanity project ID and dataset to <code>apps/web/.env</code> (see
+          <code>.env.example</code>) to load content.
+        </p>
+      )
+    }
+
+    <section class="grid gap-8 md:grid-cols-3">
+      <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
+        <h2 class="text-xl font-semibold text-white">Artists</h2>
+        <p class="mt-2 text-sm text-slate-400">{artists.length} loaded</p>
+        <ul class="mt-4 space-y-2 text-slate-200">
+          {artists.length === 0 && <li>No artists yet.</li>}
+          {artists.map((artist) => <li>{artist.name}</li>)}
+        </ul>
+      </article>
+      <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
+        <h2 class="text-xl font-semibold text-white">Releases</h2>
+        <p class="mt-2 text-sm text-slate-400">{releases.length} loaded</p>
+        <ul class="mt-4 space-y-2 text-slate-200">
+          {releases.length === 0 && <li>No releases yet.</li>}
+          {releases.map((release) => <li>{release.title}</li>)}
+        </ul>
+      </article>
+      <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
+        <h2 class="text-xl font-semibold text-white">Events</h2>
+        <p class="mt-2 text-sm text-slate-400">{events.length} loaded</p>
+        <ul class="mt-4 space-y-2 text-slate-200">
+          {events.length === 0 && <li>No events yet.</li>}
+          {events.map((event) => <li>{event.title}</li>)}
+        </ul>
+      </article>
+    </section>
+  </main>
+</Layout>

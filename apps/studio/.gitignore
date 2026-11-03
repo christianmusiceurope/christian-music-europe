@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.sanity/
+schema.json
+schema.timestamp
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store

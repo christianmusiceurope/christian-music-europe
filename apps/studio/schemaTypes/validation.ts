@@ -46,6 +46,23 @@ export function validateImageExpiry(expiresAt: string | undefined) {
   return true
 }
 
+/** Warn when a social URL is set but the host is not the expected platform. Empty values are fine. */
+export function validateSocialHost(value: string | undefined, hosts: readonly string[]) {
+  if (!value?.trim()) return true
+  let hostname: string
+  try {
+    hostname = new URL(value).hostname.toLowerCase().replace(/^www\./, '')
+  } catch {
+    return true
+  }
+  const matches = hosts.some((host) => hostname === host || hostname.endsWith(`.${host}`))
+  if (!matches) {
+    const names = hosts.join(' or ')
+    return `This does not look like a ${names} link.`
+  }
+  return true
+}
+
 export function validateCountryAssociations(
   associations: CountryAssociationValue[] | undefined,
 ) {

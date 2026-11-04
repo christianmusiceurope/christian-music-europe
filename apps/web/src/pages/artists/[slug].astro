@@ -33,9 +33,15 @@ const pageArtist: ArtistPageData = {
 const biography = portablePlainText(pageArtist.biography);
 const description =
   firstSentence(biography) || `${pageArtist.name} on Christian Music Europe.`;
-const sameAs = [pageArtist.website, spotifyArtistUrl(pageArtist.spotifyArtistId), pageArtist.youtubeUrl].filter(
-  (url): url is string => Boolean(url),
-);
+const sameAs = [
+  pageArtist.website,
+  spotifyArtistUrl(pageArtist.spotifyArtistId),
+  pageArtist.youtubeUrl,
+  pageArtist.instagramUrl,
+  pageArtist.tiktokUrl,
+  pageArtist.xUrl,
+  pageArtist.facebookUrl,
+].filter((url): url is string => Boolean(url));
 const origin = pageArtist.countries.find(
   (country) => country.relationshipType === 'origin' || country.relationshipType === 'formed_in',
 );

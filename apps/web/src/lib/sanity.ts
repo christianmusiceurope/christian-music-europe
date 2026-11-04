@@ -67,6 +67,10 @@ export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
     website,
     spotifyArtistId,
     youtubeUrl,
+    instagramUrl,
+    tiktokUrl,
+    xUrl,
+    facebookUrl,
     image{${LICENSED_IMAGE_FIELDS}},
     countryAssociations[]{
       _key,

@@ -20,6 +20,10 @@ type SanityArtist = {
   website?: string;
   spotifyArtistId?: string;
   youtubeUrl?: string;
+  instagramUrl?: string;
+  tiktokUrl?: string;
+  xUrl?: string;
+  facebookUrl?: string;
   image?: LicensedImage | null;
   countryAssociations?: Array<{
     _key?: string;
@@ -103,6 +107,10 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
     website: doc.website,
     spotifyArtistId: doc.spotifyArtistId,
     youtubeUrl: doc.youtubeUrl,
+    instagramUrl: doc.instagramUrl,
+    tiktokUrl: doc.tiktokUrl,
+    xUrl: doc.xUrl,
+    facebookUrl: doc.facebookUrl,
     image: imageForSite(doc.image),
     countries: asArray(doc.countryAssociations).flatMap((association) => {
       const name = association?.country?.name;

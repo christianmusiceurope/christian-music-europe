@@ -134,6 +134,10 @@ export type ArtistPageData = {
   website?: string;
   spotifyArtistId?: string;
   youtubeUrl?: string;
+  instagramUrl?: string;
+  tiktokUrl?: string;
+  xUrl?: string;
+  facebookUrl?: string;
   image?: LicensedImage;
   countries: CountryAssociationView[];
   genres: GenreView[];

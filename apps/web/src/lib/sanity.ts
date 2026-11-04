@@ -107,15 +107,52 @@ export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
       releaseDate,
       coverArtwork{${LICENSED_IMAGE_FIELDS}}
     },
-    "events": *[_type == "event" && references(^._id) && startDateTime >= now()] | order(startDateTime asc)[0...8]{
+    "events": *[
+      _type == "event" &&
+      (
+        references(^._id) ||
+        references(string::split(^._id, "drafts.")[1])
+      ) &&
+      startDateTime >= now() &&
+      eventStatus != "cancelled"
+    ] | order(startDateTime asc)[0...20]{
       _id,
       title,
       "slug": slug.current,
-      startDateTime,
       eventType,
-      "city": venue->city,
-      "countryName": venue->country->name,
-      "venueName": venue->name
+      startDateTime,
+      timezone,
+      eventStatus,
+      ticketStatus,
+      ticketUrl,
+      officialSourceUrl,
+      "venue": coalesce(
+        *[_id == "drafts." + ^.venue._ref][0]{
+          name,
+          city,
+          "countryName": coalesce(
+            *[_id == "drafts." + ^.country._ref][0].name,
+            country->name
+          )
+        },
+        venue->{
+          name,
+          city,
+          "countryName": country->name
+        }
+      ),
+      "festival": coalesce(
+        *[_id == "drafts." + ^.festival._ref][0]{
+          name,
+          "slug": slug.current,
+          website
+        },
+        festival->{
+          name,
+          "slug": slug.current,
+          website
+        }
+      )
     },
     "videoGroups": *[_type == "article" && references(^._id)]{
       "embeds": body[_type == "youtubeEmbed"]{

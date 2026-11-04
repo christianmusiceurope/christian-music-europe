@@ -101,10 +101,20 @@ export type EventCard = {
   title: string;
   slug?: string;
   startDateTime?: string;
+  timezone?: string;
   eventType?: string;
+  eventStatus?: string;
+  ticketStatus?: string;
+  ticketUrl?: string;
+  officialSourceUrl?: string;
   city?: string;
   countryName?: string;
   venueName?: string;
+  festivalName?: string;
+  festivalSlug?: string;
+  festivalWebsite?: string;
+  /** Local fixture copy of unpublished draft data. */
+  development?: boolean;
 };
 
 export type ArtistVideo = {

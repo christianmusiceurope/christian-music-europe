@@ -51,10 +51,14 @@ type SanityArtist = {
     title?: string;
     slug?: string;
     startDateTime?: string;
+    timezone?: string;
     eventType?: string;
-    city?: string;
-    countryName?: string;
-    venueName?: string;
+    eventStatus?: string;
+    ticketStatus?: string;
+    ticketUrl?: string;
+    officialSourceUrl?: string;
+    venue?: { name?: string; city?: string; countryName?: string } | null;
+    festival?: { name?: string; slug?: string; website?: string } | null;
   } | null>;
   videoGroups?: Array<{ embeds?: Array<{ _key?: string; url?: string; title?: string } | null> | null } | null>;
 };
@@ -144,17 +148,25 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
       ];
     }),
     events: (doc.events ?? []).flatMap((event) => {
-      if (!event?.title || !event._id) return [];
+      if (!event?.title || !event._id || event.eventStatus === 'cancelled') return [];
       return [
         {
           id: event._id,
           title: event.title,
           slug: event.slug,
           startDateTime: event.startDateTime,
+          timezone: event.timezone,
           eventType: event.eventType,
-          city: event.city,
-          countryName: event.countryName,
-          venueName: event.venueName,
+          eventStatus: event.eventStatus,
+          ticketStatus: event.ticketStatus,
+          ticketUrl: event.ticketUrl,
+          officialSourceUrl: event.officialSourceUrl,
+          venueName: event.venue?.name,
+          city: event.venue?.city,
+          countryName: event.venue?.countryName,
+          festivalName: event.festival?.name,
+          festivalSlug: event.festival?.slug,
+          festivalWebsite: event.festival?.website,
         },
       ];
     }),

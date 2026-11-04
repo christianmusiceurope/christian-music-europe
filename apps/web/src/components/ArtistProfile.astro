@@ -7,7 +7,7 @@ import PortableText from './PortableText.astro';
 import SectionHead from './SectionHead.astro';
 import SpotifyEmbed from './SpotifyEmbed.astro';
 import YouTubeEmbed from './YouTubeEmbed.astro';
-import { eventDateParts, formatLongDate, formatShortDate } from '../lib/dates';
+import { formatEventWhen, formatLongDate, formatShortDate } from '../lib/dates';
 import { articleTypeLabel, releaseTypeLabel } from '../lib/labels';
 import { firstSentence, portablePlainText } from '../lib/text';
 import { spotifyArtistUrl } from '../lib/youtube';
@@ -23,6 +23,13 @@ const kicker = [artist.artistTypeLabel, primary?.name, artist.genres[0]?.name].f
 const biographyText = portablePlainText(artist.biography);
 const standfirst = firstSentence(biographyText);
 const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
+
+function ticketLabel(status: string | undefined): string {
+  if (status === 'on_sale') return 'On sale';
+  if (status === 'sold_out') return 'Sold out';
+  if (status === 'announced') return 'Announced';
+  return 'Tickets';
+}
 ---
 
 <article class="artist-page">
@@ -230,25 +237,57 @@ const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
     {
       artist.events.length === 0 ? (
         <EmptyState
-          title="No upcoming events are listed yet"
+          title="No upcoming dates announced"
           body="Concerts and festival dates linked to this artist will appear here once they are on the calendar."
         />
       ) : (
-        <div class="catalog-list">
+        <div class="upcoming-list">
           {artist.events.map((event) => {
-            const when = eventDateParts(event.startDateTime);
-            const place = [event.city, event.countryName].filter(Boolean).join(', ');
+            const when = formatEventWhen(event.startDateTime, event.timezone);
+            const place = [event.venueName, event.city, event.countryName].filter(Boolean).join(', ');
             return (
-              <article class="event-row">
-                <div class="d">
-                  {when?.day ?? '00'}
-                  <small>{when?.weekday ?? 'DATE'}</small>
+              <article class="upcoming">
+                {when && <p class="upcoming-when">{when}</p>}
+                <div class="upcoming-main">
+                  <h3>
+                    {event.title}
+                    {event.eventStatus === 'postponed' && <span class="badge">Postponed</span>}
+                    {event.development && <span class="ph">Development</span>}
+                  </h3>
+                  {place && <p class="upcoming-place">{place}</p>}
+                  {event.festivalName && (
+                    <p class="upcoming-festival">
+                      <span class="meta">Festival</span>
+                      {event.festivalWebsite ? (
+                        <a href={event.festivalWebsite} rel="noopener noreferrer" target="_blank">
+                          {event.festivalName}
+                        </a>
+                      ) : (
+                        event.festivalName
+                      )}
+                    </p>
+                  )}
+                  {event.development && (
+                    <p class="upcoming-note">Development data from the local fixture, matching an unpublished draft.</p>
+                  )}
+                  {event.officialSourceUrl && (
+                    <p class="upcoming-source">
+                      <a href={event.officialSourceUrl} rel="noopener noreferrer" target="_blank">Source</a>
+                    </p>
+                  )}
                 </div>
-                <div>
-                  <h3>{event.title}</h3>
-                  {event.venueName && <p class="muted">{event.venueName}</p>}
-                </div>
-                {place && <p class="meta">{place}</p>}
+                {event.ticketUrl && (
+                  <div class="upcoming-actions">
+                    <a
+                      class:list={['btn', event.ticketStatus === 'sold_out' ? 'ghost' : 'pur']}
+                      href={event.ticketUrl}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {ticketLabel(event.ticketStatus)}
+                    </a>
+                  </div>
+                )}
               </article>
             );
           })}

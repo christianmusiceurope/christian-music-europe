@@ -119,7 +119,29 @@ export function linDFixture(): ArtistPageData {
     genres: genreViews,
     articles: [],
     releases: [],
-    events: [],
+    events: [
+      {
+        id: 'development-event-lin-d-get-focused-2026',
+        title: 'LIN D at Get Focused 2026',
+        slug: 'lin-d-get-focused-2026',
+        startDateTime: '2026-11-06T23:00:00+01:00',
+        timezone: 'Europe/Oslo',
+        eventType: 'festival',
+        eventStatus: 'scheduled',
+        ticketStatus: 'on_sale',
+        ticketUrl: 'https://tikket.no/get-focused/get-focused-2026',
+        officialSourceUrl: 'https://www.getfocused.no/program',
+        venueName: 'Oslofjord Convention Center',
+        city: 'Melsomvik',
+        countryName: 'Norway',
+        festivalName: 'Get Focused',
+        festivalSlug: 'get-focused',
+        development: true,
+      },
+    ].filter((event) => {
+      if (event.eventStatus === 'cancelled' || !event.startDateTime) return false;
+      return new Date(event.startDateTime).getTime() >= Date.now();
+    }),
     videos: videosInPortableText(biography),
     sources: (doc.sources ?? []).flatMap((source) => {
       if (!source.label) return [];

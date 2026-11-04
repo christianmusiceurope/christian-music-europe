@@ -72,11 +72,15 @@ function dedupeVideos(videos: ArtistVideo[]): ArtistVideo[] {
   });
 }
 
+function asArray<T>(value: T[] | null | undefined): T[] {
+  return Array.isArray(value) ? value.filter((item) => item != null) : [];
+}
+
 function fromSanity(doc: SanityArtist): ArtistPageData | null {
   if (!doc.name || !doc.slug) return null;
   const biography = presentPortableText(doc.biography);
-  const relatedVideos = (doc.videoGroups ?? []).flatMap((group) =>
-    (group?.embeds ?? []).flatMap((embed) => {
+  const relatedVideos = asArray(doc.videoGroups).flatMap((group) =>
+    asArray(group?.embeds).flatMap((embed) => {
       if (!embed?.url) return [];
       return [
         {
@@ -94,13 +98,13 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
     slug: doc.slug,
     artistType: doc.artistType ?? 'solo',
     artistTypeLabel: artistTypeLabel(doc.artistType),
-    languages: (doc.languages ?? []).filter((language): language is string => Boolean(language)),
+    languages: asArray(doc.languages).filter((language): language is string => Boolean(language)),
     biography,
     website: doc.website,
     spotifyArtistId: doc.spotifyArtistId,
     youtubeUrl: doc.youtubeUrl,
     image: imageForSite(doc.image),
-    countries: (doc.countryAssociations ?? []).flatMap((association) => {
+    countries: asArray(doc.countryAssociations).flatMap((association) => {
       const name = association?.country?.name;
       if (!name) return [];
       const relationshipType = association.relationshipType ?? 'other';
@@ -116,11 +120,11 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
         },
       ];
     }),
-    genres: (doc.genres ?? []).flatMap((genre) => {
+    genres: asArray(doc.genres).flatMap((genre) => {
       if (!genre?.name || !genre._id) return [];
       return [{ id: genre._id, name: genre.name, slug: genre.slug }];
     }),
-    articles: (doc.articles ?? []).flatMap((article) => {
+    articles: asArray(doc.articles).flatMap((article) => {
       if (!article?.title || !article._id) return [];
       return [
         {
@@ -134,7 +138,7 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
         },
       ];
     }),
-    releases: (doc.releases ?? []).flatMap((release) => {
+    releases: asArray(doc.releases).flatMap((release) => {
       if (!release?.title || !release._id) return [];
       return [
         {
@@ -147,7 +151,7 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
         },
       ];
     }),
-    events: (doc.events ?? []).flatMap((event) => {
+    events: asArray(doc.events).flatMap((event) => {
       if (!event?.title || !event._id || event.eventStatus === 'cancelled') return [];
       return [
         {
@@ -171,7 +175,7 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
       ];
     }),
     videos: dedupeVideos([...videosInPortableText(biography), ...relatedVideos]),
-    sources: (doc.sources ?? []).flatMap((source) => {
+    sources: asArray(doc.sources).flatMap((source) => {
       if (!source?.label) return [];
       return [
         {
@@ -187,8 +191,13 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
 
 export async function getArtistSlugs(): Promise<string[]> {
   if (contentSource === 'fixture') return ['lin-d'];
-  const rows = await sanityClient.fetch<Array<{ slug?: string }>>(ARTIST_SLUGS_QUERY);
-  return rows.flatMap((row) => (row.slug ? [row.slug] : []));
+  const rows = await sanityClient.fetch<Array<{ slug?: string }> | null>(ARTIST_SLUGS_QUERY);
+  if (!Array.isArray(rows)) {
+    throw new Error(
+      'Sanity did not return a list of published artists. Check that project rg6onak7, dataset production, is publicly readable.',
+    );
+  }
+  return rows.flatMap((row) => (row?.slug ? [row.slug] : []));
 }
 
 export async function getArtist(slug: string): Promise<ArtistPageData | null> {

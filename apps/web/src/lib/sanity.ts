@@ -20,14 +20,14 @@ function readServerToken(): string | undefined {
 const readToken = readServerToken();
 
 /**
- * `PUBLIC_CME_DATA_SOURCE=fixture` (default) uses local fixtures so draft
- * documents such as LIN D render without a token.
- * `sanity` reads the dataset. Drafts are included only when
- * `SANITY_API_READ_TOKEN` is set in the server environment. Never prefix that
- * token with PUBLIC_.
+ * Unset uses Sanity (project rg6onak7, dataset production).
+ * Published documents only, unless `SANITY_API_READ_TOKEN` is set, which
+ * switches the client to the drafts perspective. Never prefix that token
+ * with PUBLIC_.
+ * `PUBLIC_CME_DATA_SOURCE=fixture` is the offline opt-in.
  */
 export const contentSource: ContentSource =
-  import.meta.env.PUBLIC_CME_DATA_SOURCE === 'sanity' ? 'sanity' : 'fixture';
+  import.meta.env.PUBLIC_CME_DATA_SOURCE === 'fixture' ? 'fixture' : 'sanity';
 
 export const sanityReadsDrafts = contentSource === 'sanity' && Boolean(readToken);
 

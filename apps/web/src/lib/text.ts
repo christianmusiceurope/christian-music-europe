@@ -1,7 +1,7 @@
 import type { PortableTextBlock, PtTextBlock } from './types';
 
 export function blockPlainText(block: PtTextBlock): string {
-  return (block.children ?? []).map((child) => child.text ?? '').join('');
+  return (block.children ?? []).map((child) => child?.text ?? '').join('');
 }
 
 export function portablePlainText(blocks: PortableTextBlock[] | undefined): string {

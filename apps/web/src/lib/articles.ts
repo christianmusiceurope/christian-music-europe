@@ -23,9 +23,14 @@ type SanityArticle = {
 export async function getArticleSlugs(): Promise<string[]> {
   const slugs = [PLACEHOLDER_ARTICLE_SLUG];
   if (contentSource !== 'sanity') return slugs;
-  const rows = await sanityClient.fetch<Array<{ slug?: string }>>(ARTICLE_SLUGS_QUERY);
+  const rows = await sanityClient.fetch<Array<{ slug?: string }> | null>(ARTICLE_SLUGS_QUERY);
+  if (!Array.isArray(rows)) {
+    throw new Error(
+      'Sanity did not return a list of published articles. Check that project rg6onak7, dataset production, is publicly readable.',
+    );
+  }
   for (const row of rows) {
-    if (row.slug && !slugs.includes(row.slug)) slugs.push(row.slug);
+    if (row?.slug && !slugs.includes(row.slug)) slugs.push(row.slug);
   }
   return slugs;
 }

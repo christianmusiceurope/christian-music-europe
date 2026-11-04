@@ -33,11 +33,12 @@ export function imageForSite(image: LicensedImage | null | undefined): LicensedI
   return undefined;
 }
 
-export function presentPortableText(blocks: PortableTextBlock[] | undefined): PortableTextBlock[] {
-  return (blocks ?? []).map((block) => {
-    if (block._type !== 'image' && block._type !== 'licensedImage') return block;
+export function presentPortableText(blocks: PortableTextBlock[] | null | undefined): PortableTextBlock[] {
+  const list = Array.isArray(blocks) ? blocks : [];
+  return list.flatMap((block) => {
+    if (!block || (block._type !== 'image' && block._type !== 'licensedImage')) return block ? [block] : [];
     const image = imageForSite(block);
-    if (!image) return { ...block, url: undefined };
-    return { ...block, ...image };
+    if (!image) return [{ ...block, url: undefined }];
+    return [{ ...block, ...image }];
   });
 }

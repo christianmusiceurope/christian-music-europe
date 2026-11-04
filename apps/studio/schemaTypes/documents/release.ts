@@ -62,9 +62,8 @@ export const release = defineType({
     defineField({
       name: 'coverArtwork',
       title: 'Cover artwork',
-      type: 'image',
+      type: 'licensedImage',
       group: 'editorial',
-      options: {hotspot: true},
     }),
     defineField({
       name: 'genres',

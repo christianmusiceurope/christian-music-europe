@@ -36,9 +36,10 @@ const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
     </p>
     <div class="grid artist-hero-grid">
       {
-        artist.imageUrl ? (
+        artist.image?.url ? (
           <figure class="artist-hero-media has-photo">
-            <img src={artist.imageUrl} alt={`${artist.name}`} />
+            <img src={artist.image.url} alt={artist.image.alt ?? ''} />
+            {artist.image.credit && <figcaption class="photo-credit">Photo: {artist.image.credit}</figcaption>}
           </figure>
         ) : (
           <div class="artist-hero-media">
@@ -203,8 +204,8 @@ const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
           {artist.releases.map((release) => (
             <article class="release-row">
               {
-                release.coverUrl ? (
-                  <img src={release.coverUrl} alt="" width="160" height="160" />
+                release.cover?.url ? (
+                  <img src={release.cover.url} alt={release.cover.alt ?? ''} width="160" height="160" />
                 ) : (
                   <PhotoPlaceholder ratio="r1" label="Cover artwork goes here" />
                 )
@@ -213,6 +214,7 @@ const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
                 <p class="kicker">{releaseTypeLabel(release.releaseType)}</p>
                 <h3>{release.title}</h3>
                 {formatShortDate(release.releaseDate) && <p class="meta">{formatShortDate(release.releaseDate)}</p>}
+                {release.cover?.credit && <p class="photo-credit">Photo: {release.cover.credit}</p>}
               </div>
             </article>
           ))}
@@ -266,8 +268,8 @@ const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
           {artist.articles.map((story) => (
             <article>
               {
-                story.heroUrl ? (
-                  <img src={story.heroUrl} alt="" width="160" height="106" />
+                story.heroImage?.url ? (
+                  <img src={story.heroImage.url} alt={story.heroImage.alt ?? ''} width="160" height="106" />
                 ) : (
                   <PhotoPlaceholder ratio="r32" />
                 )
@@ -278,6 +280,7 @@ const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
                   {story.slug ? <a href={`/articles/${story.slug}`}>{story.title}</a> : story.title}
                 </h3>
                 {formatShortDate(story.publishedAt) && <p class="meta">{formatShortDate(story.publishedAt)}</p>}
+                {story.heroImage?.credit && <p class="photo-credit">Photo: {story.heroImage.credit}</p>}
               </div>
             </article>
           ))}

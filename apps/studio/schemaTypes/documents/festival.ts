@@ -62,9 +62,8 @@ export const festival = defineType({
     defineField({
       name: 'heroImage',
       title: 'Hero image',
-      type: 'image',
+      type: 'licensedImage',
       group: 'editorial',
-      options: {hotspot: true},
     }),
     defineField({
       name: 'genres',

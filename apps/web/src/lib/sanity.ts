@@ -40,6 +40,18 @@ export const sanityClient: SanityClient = createClient({
   perspective: readToken ? 'drafts' : 'published',
 });
 
+export const LICENSED_IMAGE_FIELDS = /* groq */ `
+  alt,
+  credit,
+  sourceType,
+  sourceUrl,
+  licence,
+  permissionNotes,
+  expiresAt,
+  rightsStatus,
+  "url": asset->url
+`;
+
 export const ARTIST_SLUGS_QUERY = defineQuery(/* groq */ `
   *[_type == "artist" && defined(slug.current)]{ "slug": slug.current }
 `);
@@ -55,7 +67,7 @@ export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
     website,
     spotifyArtistId,
     youtubeUrl,
-    "imageUrl": image.asset->url,
+    image{${LICENSED_IMAGE_FIELDS}},
     countryAssociations[]{
       _key,
       relationshipType,
@@ -85,7 +97,7 @@ export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
       articleType,
       excerpt,
       publishedAt,
-      "heroUrl": heroImage.asset->url
+      heroImage{${LICENSED_IMAGE_FIELDS}}
     },
     "releases": *[_type == "release" && references(^._id)] | order(releaseDate desc)[0...8]{
       _id,
@@ -93,7 +105,7 @@ export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
       "slug": slug.current,
       releaseType,
       releaseDate,
-      "coverUrl": coverArtwork.asset->url
+      coverArtwork{${LICENSED_IMAGE_FIELDS}}
     },
     "events": *[_type == "event" && references(^._id) && startDateTime >= now()] | order(startDateTime asc)[0...8]{
       _id,
@@ -128,13 +140,12 @@ export const ARTICLE_BY_SLUG_QUERY = defineQuery(/* groq */ `
     author,
     publishedAt,
     excerpt,
-    "heroUrl": heroImage.asset->url,
+    heroImage{${LICENSED_IMAGE_FIELDS}},
     body[]{
       ...,
-      _type == "image" => {
+      _type in ["image", "licensedImage"] => {
         ...,
-        "url": asset->url,
-        alt
+        ${LICENSED_IMAGE_FIELDS}
       }
     },
     "artists": relatedArtists[]->{ name, "slug": slug.current },

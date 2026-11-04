@@ -32,7 +32,7 @@ Inclusion is decided by editors (`inclusionStatus` on artists). **Never automati
 
 - Prefer a source URL for facts (dates, tickets, identifiers).
 - Campaign channel fields prepare website/Instagram/TikTok/X/YouTube copy. Social APIs are not connected. Do not mark content published externally unless a real URL exists.
-- Media rights must be recorded before public reuse of assets.
+- Media rights must be recorded before public reuse of assets. Public photos use `licensedImage` (alt text, credit, source, licence, permission notes, rights status). Only a Cleared photo is shown on the site. Keep originals and proof in Google Drive `CME Media` and on the `CME Photo log` sheet. Campaign `mediaRights` is a separate workflow record, not a substitute for those photo fields.
 
 ## Draft vs workflow status
 

@@ -21,6 +21,31 @@ type CountryAssociationValue = {
   primary?: boolean
 }
 
+const CREDIT_REQUIRED_LICENCES = new Set(['cc_by', 'cc_by_sa'])
+
+export function validateImageCredit(credit: string | undefined, licence: string | undefined) {
+  if (licence && CREDIT_REQUIRED_LICENCES.has(licence) && !credit?.trim()) {
+    return 'Name the photographer or rights holder. CC BY and CC BY-SA require a credit.'
+  }
+  return true
+}
+
+export function validateImageRightsStatus(status: string | undefined) {
+  if (status !== 'cleared') {
+    return 'This photo is not cleared for the website. Choose Cleared only when the licence proof is on file.'
+  }
+  return true
+}
+
+export function validateImageExpiry(expiresAt: string | undefined) {
+  if (!expiresAt) return true
+  const today = new Date().toISOString().slice(0, 10)
+  if (expiresAt < today) {
+    return 'This permission date has passed. Renew it before treating the photo as cleared.'
+  }
+  return true
+}
+
 export function validateCountryAssociations(
   associations: CountryAssociationValue[] | undefined,
 ) {

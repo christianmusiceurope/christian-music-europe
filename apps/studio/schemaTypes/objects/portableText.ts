@@ -36,17 +36,7 @@ export const portableText = defineType({
         ],
       },
     }),
-    defineArrayMember({
-      type: 'image',
-      options: {hotspot: true},
-      fields: [
-        {
-          name: 'alt',
-          type: 'string',
-          title: 'Alternative text',
-        },
-      ],
-    }),
+    defineArrayMember({type: 'licensedImage'}),
     defineArrayMember({type: 'spotifyEmbed'}),
     defineArrayMember({type: 'youtubeEmbed'}),
   ],

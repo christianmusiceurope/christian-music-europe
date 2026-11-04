@@ -1,5 +1,6 @@
+import { clearedForSite, presentPortableText } from './images';
 import { ARTICLE_BY_SLUG_QUERY, ARTICLE_SLUGS_QUERY, contentSource, sanityClient } from './sanity';
-import type { ArticleDocument, PortableTextBlock } from './types';
+import type { ArticleDocument, LicensedImage, PortableTextBlock } from './types';
 
 export const PLACEHOLDER_ARTICLE_SLUG = 'placeholder-interview';
 
@@ -11,7 +12,7 @@ type SanityArticle = {
   author?: string;
   publishedAt?: string;
   excerpt?: string;
-  heroUrl?: string;
+  heroImage?: LicensedImage | null;
   body?: PortableTextBlock[];
   artists?: Array<{ name?: string; slug?: string } | null>;
   countries?: Array<{ name?: string; slug?: string } | null>;
@@ -41,8 +42,8 @@ export async function getArticle(slug: string): Promise<ArticleDocument | null> 
     author: doc.author,
     publishedAt: doc.publishedAt,
     excerpt: doc.excerpt,
-    heroUrl: doc.heroUrl,
-    body: doc.body ?? [],
+    heroImage: clearedForSite(doc.heroImage),
+    body: presentPortableText(doc.body),
     artists: (doc.artists ?? []).flatMap((artist) => (artist?.name ? [{ name: artist.name, slug: artist.slug }] : [])),
     countries: (doc.countries ?? []).flatMap((country) => (country?.name ? [{ name: country.name, slug: country.slug }] : [])),
     genres: (doc.genres ?? []).flatMap((genre) => (genre?.name ? [{ name: genre.name, slug: genre.slug }] : [])),

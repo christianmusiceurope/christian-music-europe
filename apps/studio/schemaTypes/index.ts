@@ -14,6 +14,7 @@ import {channelContent} from './objects/channelContent'
 import {chartEntry} from './objects/chartEntry'
 import {countryAssociation} from './objects/countryAssociation'
 import {editorialVerification} from './objects/editorialVerification'
+import {licensedImage} from './objects/licensedImage'
 import {externalIdentifiers} from './objects/externalIdentifiers'
 import {mediaRights} from './objects/mediaRights'
 import {musicCharacteristics} from './objects/musicCharacteristics'
@@ -33,6 +34,7 @@ export const schemaTypes = [
   mediaRights,
   channelContent,
   editorialVerification,
+  licensedImage,
   spotifyEmbed,
   youtubeEmbed,
   portableText,

@@ -61,6 +61,14 @@ Drafts are not on the public API. To read them, set `SANITY_API_READ_TOKEN` in t
 
 The night photograph used in the masthead, country map and footer is `apps/web/public/brand/night-europe.jpg`. Its licence is unconfirmed. It is marked on the page as a placeholder image and must be replaced before launch.
 
+### Photo workflow
+
+Every editorial photo uses the `licensedImage` type in Studio: alt text, credit, source, licence, permission notes, optional expiry, and rights status. The public site shows a Sanity photo only when rights status is Cleared. Fixture and design placeholders are unchanged.
+
+Keep the originals and the licence proof in the Google Drive folder `CME Media`, and record each photo on the `CME Photo log` sheet. Upload the publishing copy to Sanity and fill the licensed image fields, including where that proof is kept. Alt text is required before publish. CC BY and CC BY-SA warn when the credit is empty. A status other than Cleared warns, and the site will not render that photo.
+
+Campaign channel assets stay on the campaign `mediaRights` record. That object is the campaign workflow, not the public photo licence.
+
 Run Sanity Studio:
 
 ```bash

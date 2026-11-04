@@ -46,10 +46,11 @@ function isText(block: PortableTextBlock): block is PtTextBlock {
         return <p>{children}</p>;
       }
 
-      if (block._type === 'image') {
+      if (block._type === 'image' || block._type === 'licensedImage') {
         return block.url ? (
           <figure>
             <img src={block.url} alt={block.alt ?? ''} />
+            {block.credit && <figcaption class="photo-credit">Photo: {block.credit}</figcaption>}
           </figure>
         ) : (
           <PhotoPlaceholder ratio="r169" label={block.alt || 'Licensed photo goes here'} />

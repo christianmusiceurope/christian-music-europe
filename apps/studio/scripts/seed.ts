@@ -3,6 +3,10 @@ import {loadStudioEnv} from './loadEnv'
 
 loadStudioEnv()
 
+// This script does not upload photos. Publishing copies belong in Studio as
+// licensedImage values. Originals and licence proof stay in Google Drive
+// 'CME Media', recorded on the 'CME Photo log' sheet.
+
 const BLOCKED_DATASETS = new Set(['production', 'prod'])
 
 function requiredEnv(name: string) {

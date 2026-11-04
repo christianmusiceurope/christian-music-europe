@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 import {
   ARTIST_TYPES,
   catalogGroup,
@@ -84,16 +84,15 @@ export const artist = defineType({
     defineField({
       name: 'image',
       title: 'Artist image',
-      type: 'image',
+      type: 'licensedImage',
       group: 'editorial',
-      options: {hotspot: true},
     }),
     defineField({
       name: 'gallery',
       title: 'Gallery',
       type: 'array',
       group: 'editorial',
-      of: [{type: 'image', options: {hotspot: true}}],
+      of: [defineArrayMember({type: 'licensedImage'})],
     }),
     defineField({
       name: 'website',

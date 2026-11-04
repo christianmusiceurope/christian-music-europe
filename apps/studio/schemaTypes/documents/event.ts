@@ -129,9 +129,8 @@ export const event = defineType({
     defineField({
       name: 'image',
       title: 'Event image',
-      type: 'image',
+      type: 'licensedImage',
       group: 'editorial',
-      options: {hotspot: true},
     }),
     defineField({
       name: 'officialSourceUrl',

@@ -13,4 +13,6 @@ Copy `apps/web/.env.example` to `apps/web/.env` for local values. The example pr
 
 The homepage and `/articles/placeholder-interview` are the approved page templates. Placeholder badges mark example copy. They are not catalogue records.
 
+Sanity photos are requested with their licence fields. A photo is rendered only when `rightsStatus` is `cleared`. The LIN D fixture has no photograph, so the artist page keeps the image placeholder.
+
 `npm run typecheck --workspace=web` runs `astro check`. `npm run build:web` from the repository root builds the site.

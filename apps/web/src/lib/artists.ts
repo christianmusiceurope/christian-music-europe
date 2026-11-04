@@ -1,4 +1,5 @@
 import { linDFixture } from '../fixtures/resolve';
+import { clearedForSite, presentPortableText } from './images';
 import { artistTypeLabel, relationshipLabel } from './labels';
 import {
   ARTIST_BY_SLUG_QUERY,
@@ -7,7 +8,7 @@ import {
   sanityClient,
 } from './sanity';
 import { videosInPortableText } from './text';
-import type { ArtistPageData, ArtistVideo, PortableTextBlock } from './types';
+import type { ArtistPageData, ArtistVideo, LicensedImage, PortableTextBlock } from './types';
 
 type SanityArtist = {
   _id?: string;
@@ -19,7 +20,7 @@ type SanityArtist = {
   website?: string;
   spotifyArtistId?: string;
   youtubeUrl?: string;
-  imageUrl?: string;
+  image?: LicensedImage | null;
   countryAssociations?: Array<{
     _key?: string;
     relationshipType?: string;
@@ -35,7 +36,7 @@ type SanityArtist = {
     articleType?: string;
     excerpt?: string;
     publishedAt?: string;
-    heroUrl?: string;
+    heroImage?: LicensedImage | null;
   } | null>;
   releases?: Array<{
     _id?: string;
@@ -43,7 +44,7 @@ type SanityArtist = {
     slug?: string;
     releaseType?: string;
     releaseDate?: string;
-    coverUrl?: string;
+    coverArtwork?: LicensedImage | null;
   } | null>;
   events?: Array<{
     _id?: string;
@@ -69,7 +70,7 @@ function dedupeVideos(videos: ArtistVideo[]): ArtistVideo[] {
 
 function fromSanity(doc: SanityArtist): ArtistPageData | null {
   if (!doc.name || !doc.slug) return null;
-  const biography = doc.biography ?? [];
+  const biography = presentPortableText(doc.biography);
   const relatedVideos = (doc.videoGroups ?? []).flatMap((group) =>
     (group?.embeds ?? []).flatMap((embed) => {
       if (!embed?.url) return [];
@@ -94,7 +95,7 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
     website: doc.website,
     spotifyArtistId: doc.spotifyArtistId,
     youtubeUrl: doc.youtubeUrl,
-    imageUrl: doc.imageUrl,
+    image: clearedForSite(doc.image),
     countries: (doc.countryAssociations ?? []).flatMap((association) => {
       const name = association?.country?.name;
       if (!name) return [];
@@ -125,7 +126,7 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
           articleType: article.articleType,
           excerpt: article.excerpt,
           publishedAt: article.publishedAt,
-          heroUrl: article.heroUrl,
+          heroImage: clearedForSite(article.heroImage),
         },
       ];
     }),
@@ -138,7 +139,7 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
           slug: release.slug,
           releaseType: release.releaseType,
           releaseDate: release.releaseDate,
-          coverUrl: release.coverUrl,
+          cover: clearedForSite(release.coverArtwork),
         },
       ];
     }),

@@ -38,6 +38,7 @@ const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
       {
         artist.image?.url ? (
           <figure class="artist-hero-media has-photo">
+            {artist.image.rightsStatus === 'restricted' && <span class="ph permission-pending">Permission pending</span>}
             <img src={artist.image.url} alt={artist.image.alt ?? ''} />
             {artist.image.credit && <figcaption class="photo-credit">Photo: {artist.image.credit}</figcaption>}
           </figure>
@@ -215,6 +216,7 @@ const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
                 <h3>{release.title}</h3>
                 {formatShortDate(release.releaseDate) && <p class="meta">{formatShortDate(release.releaseDate)}</p>}
                 {release.cover?.credit && <p class="photo-credit">Photo: {release.cover.credit}</p>}
+                {release.cover?.rightsStatus === 'restricted' && <p class="ph">Permission pending</p>}
               </div>
             </article>
           ))}
@@ -281,6 +283,7 @@ const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
                 </h3>
                 {formatShortDate(story.publishedAt) && <p class="meta">{formatShortDate(story.publishedAt)}</p>}
                 {story.heroImage?.credit && <p class="photo-credit">Photo: {story.heroImage.credit}</p>}
+                {story.heroImage?.rightsStatus === 'restricted' && <p class="ph">Permission pending</p>}
               </div>
             </article>
           ))}

@@ -316,8 +316,7 @@ button.meta {
 .photo-credit {
   margin-top: 8px;
   font: 700 12px/1.4 var(--body);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--muted);
 }
 
@@ -542,8 +541,17 @@ button.meta {
   width: 100%;
   flex: 1;
   height: auto;
-  min-height: 480px;
+  min-height: 0;
+  aspect-ratio: 2 / 3;
   object-fit: cover;
+  object-position: center center;
+}
+
+.permission-pending {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  left: 16px;
 }
 
 .artist-hero-media.has-photo .photo-credit {
@@ -808,9 +816,13 @@ html[data-theme="light"] .article-canvas .toc ol {
     font-size: 48px;
   }
 
-  .artist-hero-media,
-  .artist-hero-media.has-photo img {
+  .artist-hero-media {
     min-height: 300px;
+  }
+
+  .artist-hero-media.has-photo,
+  .artist-hero-media.has-photo img {
+    min-height: 0;
   }
 
   .artist-hero-mark {

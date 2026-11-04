@@ -1,4 +1,4 @@
-import { clearedForSite, presentPortableText } from './images';
+import { imageForSite, presentPortableText } from './images';
 import { ARTICLE_BY_SLUG_QUERY, ARTICLE_SLUGS_QUERY, contentSource, sanityClient } from './sanity';
 import type { ArticleDocument, LicensedImage, PortableTextBlock } from './types';
 
@@ -42,7 +42,7 @@ export async function getArticle(slug: string): Promise<ArticleDocument | null> 
     author: doc.author,
     publishedAt: doc.publishedAt,
     excerpt: doc.excerpt,
-    heroImage: clearedForSite(doc.heroImage),
+    heroImage: imageForSite(doc.heroImage),
     body: presentPortableText(doc.body),
     artists: (doc.artists ?? []).flatMap((artist) => (artist?.name ? [{ name: artist.name, slug: artist.slug }] : [])),
     countries: (doc.countries ?? []).flatMap((country) => (country?.name ? [{ name: country.name, slug: country.slug }] : [])),

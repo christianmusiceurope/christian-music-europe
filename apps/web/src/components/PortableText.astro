@@ -51,6 +51,7 @@ function isText(block: PortableTextBlock): block is PtTextBlock {
           <figure>
             <img src={block.url} alt={block.alt ?? ''} />
             {block.credit && <figcaption class="photo-credit">Photo: {block.credit}</figcaption>}
+            {block.rightsStatus === 'restricted' && <p class="ph">Permission pending</p>}
           </figure>
         ) : (
           <PhotoPlaceholder ratio="r169" label={block.alt || 'Licensed photo goes here'} />

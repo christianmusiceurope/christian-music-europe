@@ -1,5 +1,5 @@
 import { linDFixture } from '../fixtures/resolve';
-import { clearedForSite, presentPortableText } from './images';
+import { imageForSite, presentPortableText } from './images';
 import { artistTypeLabel, relationshipLabel } from './labels';
 import {
   ARTIST_BY_SLUG_QUERY,
@@ -95,7 +95,7 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
     website: doc.website,
     spotifyArtistId: doc.spotifyArtistId,
     youtubeUrl: doc.youtubeUrl,
-    image: clearedForSite(doc.image),
+    image: imageForSite(doc.image),
     countries: (doc.countryAssociations ?? []).flatMap((association) => {
       const name = association?.country?.name;
       if (!name) return [];
@@ -126,7 +126,7 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
           articleType: article.articleType,
           excerpt: article.excerpt,
           publishedAt: article.publishedAt,
-          heroImage: clearedForSite(article.heroImage),
+          heroImage: imageForSite(article.heroImage),
         },
       ];
     }),
@@ -139,7 +139,7 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
           slug: release.slug,
           releaseType: release.releaseType,
           releaseDate: release.releaseDate,
-          cover: clearedForSite(release.coverArtwork),
+          cover: imageForSite(release.coverArtwork),
         },
       ];
     }),
@@ -182,7 +182,12 @@ export async function getArtistSlugs(): Promise<string[]> {
 export async function getArtist(slug: string): Promise<ArtistPageData | null> {
   if (contentSource === 'fixture') {
     const fixture = linDFixture();
-    return fixture.slug === slug ? fixture : null;
+    if (fixture.slug !== slug) return null;
+    return {
+      ...fixture,
+      image: imageForSite(fixture.image),
+      biography: presentPortableText(fixture.biography),
+    };
   }
 
   const doc = await sanityClient.fetch<SanityArtist | null>(ARTIST_BY_SLUG_QUERY, { slug });

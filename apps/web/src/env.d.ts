@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   readonly PUBLIC_SANITY_API_VERSION: string;
   /** `fixture` (default) or `sanity`. */
   readonly PUBLIC_CME_DATA_SOURCE?: string;
+  /** `true` shows restricted photos in dev and preview builds. Ignored when MODE is production. */
+  readonly PUBLIC_CME_ALLOW_PENDING_IMAGES?: string;
 }
 
 interface ImportMeta {

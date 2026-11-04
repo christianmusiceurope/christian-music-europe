@@ -63,7 +63,9 @@ The night photograph used in the masthead, country map and footer is `apps/web/p
 
 ### Photo workflow
 
-Every editorial photo uses the `licensedImage` type in Studio: alt text, credit, source, licence, permission notes, optional expiry, and rights status. The public site shows a Sanity photo only when rights status is Cleared. Fixture and design placeholders are unchanged.
+Every editorial photo uses the `licensedImage` type in Studio: alt text, credit, source, licence, permission notes, optional expiry, and rights status. A production build shows a photo only when rights status is Cleared. The same rule applies in fixture mode and Sanity mode.
+
+`PUBLIC_CME_ALLOW_PENDING_IMAGES=true` also shows photos marked `restricted`, with a visible Permission pending label. That flag applies to dev and preview builds only (`astro dev`, or `astro build --mode preview`). A production build ignores it. Leave the flag unset for launch. The LIN D studio portrait is restricted: permission from the artist's management is still pending, so it appears only when this flag is on.
 
 Keep the originals and the licence proof in the Google Drive folder `CME Media`, and record each photo on the `CME Photo log` sheet. Upload the publishing copy to Sanity and fill the licensed image fields, including where that proof is kept. Alt text is required before publish. CC BY and CC BY-SA warn when the credit is empty. A status other than Cleared warns, and the site will not render that photo.
 

@@ -53,6 +53,7 @@ const featuredRelease = article.releases[0];
         : 'No hero image is stored on this article.'}
     </span>
     {article.heroImage?.credit && <span class="meta">Photo: {article.heroImage.credit}</span>}
+    {article.heroImage?.rightsStatus === 'restricted' && <span class="ph">Permission pending</span>}
   </figcaption>
 </figure>
 

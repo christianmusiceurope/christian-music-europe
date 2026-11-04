@@ -1,0 +1,52 @@
+---
+import PlaceholderBadge from './PlaceholderBadge.astro';
+
+interface Props {
+  title: string;
+  lede: string;
+  showField?: boolean;
+}
+
+const { title, lede, showField = false } = Astro.props;
+const cards = [
+  { number: '01', name: 'Artist name', meta: 'Country · Genre' },
+  { number: '02', name: 'Artist name', meta: 'Country · Genre' },
+  { number: '03', name: 'Artist name', meta: 'Country · Genre' },
+];
+---
+
+<div class="band" id="discovery-lab">
+  <div class="wrap">
+    <div class="grid" style="align-items:end">
+      <div class="lab-copy">
+        <div class="meta" style="color:#fff">Discovery Lab</div>
+        <h2>{title}</h2>
+        <p>{lede}</p>
+        {
+          showField && (
+            <div class="row">
+              <span class="field ph-text">If you like… Artist name</span>
+              <button class="btn char" type="button" aria-disabled="true">
+                Find artists →
+              </button>
+            </div>
+          )
+        }
+      </div>
+      <div class="try-row">
+        {
+          cards.map((card) => (
+            <div class="tryc">
+              <span class="n">{card.number}</span>
+              <b>{card.name}</b>
+              <span style="font:500 14px/1.4 var(--body)">{card.meta}</span>
+              <span>
+                <PlaceholderBadge tone="inverse" />
+              </span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</div>

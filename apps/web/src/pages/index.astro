@@ -1,59 +1,310 @@
 ---
+/**
+ * Homepage strings marked "From the site" are reproduced from the approved
+ * mockup, which labels them as titles already published on the existing site.
+ * Orange Placeholder badges are example slots, not new reporting.
+ */
+import DiscoveryLab from '../components/DiscoveryLab.astro';
 import Layout from '../layouts/Layout.astro';
-import { fetchDiscoveryPreview, isSanityConfigured } from '../lib/sanity';
+import NewsletterBand from '../components/NewsletterBand.astro';
+import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
+import PlaceholderBadge from '../components/PlaceholderBadge.astro';
+import SectionHead from '../components/SectionHead.astro';
+import { previewCountries } from '../content/navigation';
 
-const { artists, releases, events } = await fetchDiscoveryPreview();
+const pins = [
+  { x: 35.4, y: 43.4 },
+  { x: 59.8, y: 38 },
+  { x: 39.1, y: 51.3 },
+  { x: 13.8, y: 82 },
+  { x: 24.4, y: 82 },
+  { x: 52.6, y: 20.5 },
+  { x: 64.2, y: 18 },
+  { x: 77.9, y: 20.5, label: 'Finland' },
+  { x: 54.4, y: 32 },
+  { x: 45.4, y: 44 },
+  { x: 49.8, y: 63 },
+  { x: 62.4, y: 59 },
+];
+
+const latest = [
+  { title: 'New single “Nation” released by Drulo', date: '25 Feb 2025', source: 'site' as const },
+  { title: 'Kirk Franklin World Tour heads to northern Europe this September', date: '25 Feb 2025', source: 'site' as const },
+  { title: 'Good Weather Forecast: Energizing fusion of rock, pop and electro from Germany', date: '23 Mar 2025', source: 'site' as const },
+  { title: 'DJ Padre Guilherme: Village priest from northern Portugal', date: '24 Feb 2025', source: 'site' as const },
+  { title: 'Placeholder headline for a news story', date: '', source: 'placeholder' as const },
+];
+
+const moreStories = [
+  { kicker: 'United Kingdom', title: 'Lion of Judah: Indie-pop band from Brighton, England', date: '8 Feb 2025' },
+  { kicker: 'Finland', title: 'Juhani Tikkanen: Singer-songwriter from Finland', date: '19 Jan 2025' },
+  { kicker: 'Portugal', title: 'DJ Padre Guilherme: Village priest from northern Portugal', date: '24 Feb 2025' },
+];
 ---
 
-<Layout>
-  <main class="mx-auto flex max-w-5xl flex-col gap-12 px-6 py-16">
-    <header class="space-y-4">
-      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-amber-300">
-        Christian Music Europe
-      </p>
-      <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-        Discover Christian music across Europe
-      </h1>
-      <p class="max-w-2xl text-lg text-slate-300">
-        A local Astro + Sanity workspace for artists, releases, and events. The
-        WordPress site is unchanged; this app is not deployed yet.
-      </p>
-    </header>
+<Layout
+  title="Christian Music Europe"
+  description="Christian music from every corner of Europe: artists, releases and live dates."
+  header="home"
+  current="home"
+  tab="home"
+>
+  <section class="cover">
+    <div class="wrap">
+      <div class="grid">
+        <div class="ph-wrap">
+          <PhotoPlaceholder ratio="r32" label="Licensed photo goes here" credit="Photo: credit / licence" />
+        </div>
+        <div class="txt">
+          <div class="kicker">Artist profile · Sweden · Metal</div>
+          <h1>Narnia: Sweden’s Melodic Metal Powerhouse</h1>
+          <p class="standfirst">Placeholder standfirst: one or two sentences that set up the cover story go here.</p>
+          <div class="byline">
+            <span class="meta" style="color:#fff">By JK Way</span>
+            <span class="meta">19 Jan 2025</span>
+            <PlaceholderBadge tone="site" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    {
-      !isSanityConfigured && (
-        <p class="rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-amber-100">
-          Add your Sanity project ID and dataset to <code>apps/web/.env</code> (see
-          <code>.env.example</code>) to load content.
-        </p>
-      )
-    }
+  <section class="feat" id="features">
+    <div class="wrap">
+      <SectionHead title="Features" href="#features" linkLabel="All features" />
+      <div class="grid">
+        <article class="card" style="grid-column:1/6">
+          <PhotoPlaceholder ratio="r45" />
+          <div class="kicker k">Artist profile · Germany · Hip-hop</div>
+          <h3>O’Bros: German brothers redefining hiphop through faith and collaboration</h3>
+          <p><PlaceholderBadge tone="site" /> &nbsp;15 Mar 2025</p>
+        </article>
+        <article class="card" style="grid-column:6/10">
+          <PhotoPlaceholder ratio="r32" />
+          <div class="kicker k">Artist profile · United Kingdom</div>
+          <h3>Philippa Hanna: UK singer-songwriter inspiring faith, bridging genres, and touching hearts</h3>
+          <p><PlaceholderBadge tone="site" /> &nbsp;6 Apr 2025</p>
+          <div class="quote" style="margin-top:32px">
+            <span class="mark">&ldquo;</span>
+            <q>Placeholder pull quote: a short line from an interview goes here.</q>
+            <span class="meta">Artist name · Country</span> &nbsp;<PlaceholderBadge />
+          </div>
+        </article>
+        <aside class="latest" id="latest" style="grid-column:10/13">
+          <div class="meta" style="color:#fff;margin-bottom:14px">Latest news</div>
+          <ol>
+            {
+              latest.map((item) => (
+                <li>
+                  <div>
+                    <h4>{item.title}</h4>
+                    {item.source === 'site' ? (
+                      <span class="meta">{item.date}</span>
+                    ) : (
+                      <PlaceholderBadge />
+                    )}
+                    {item.source === 'site' && (
+                      <>
+                        {' '}
+                        <PlaceholderBadge tone="site" />
+                      </>
+                    )}
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </aside>
+      </div>
+    </div>
+  </section>
 
-    <section class="grid gap-8 md:grid-cols-3">
-      <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
-        <h2 class="text-xl font-semibold text-white">Artists</h2>
-        <p class="mt-2 text-sm text-slate-400">{artists.length} loaded</p>
-        <ul class="mt-4 space-y-2 text-slate-200">
-          {artists.length === 0 && <li>No artists yet.</li>}
-          {artists.map((artist) => <li>{artist.name}</li>)}
-        </ul>
-      </article>
-      <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
-        <h2 class="text-xl font-semibold text-white">Releases</h2>
-        <p class="mt-2 text-sm text-slate-400">{releases.length} loaded</p>
-        <ul class="mt-4 space-y-2 text-slate-200">
-          {releases.length === 0 && <li>No releases yet.</li>}
-          {releases.map((release) => <li>{release.title}</li>)}
-        </ul>
-      </article>
-      <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
-        <h2 class="text-xl font-semibold text-white">Events</h2>
-        <p class="mt-2 text-sm text-slate-400">{events.length} loaded</p>
-        <ul class="mt-4 space-y-2 text-slate-200">
-          {events.length === 0 && <li>No events yet.</li>}
-          {events.map((event) => <li>{event.title}</li>)}
-        </ul>
-      </article>
-    </section>
-  </main>
+  <section class="rel" id="releases">
+    <div class="wrap">
+      <SectionHead title="New releases" href="#releases" linkLabel="All releases" />
+      <div class="grid">
+        <div class="big">
+          <div class="art">
+            <PhotoPlaceholder ratio="r1" label="Cover artwork goes here" />
+            <span class="badge">New</span>
+          </div>
+          <div class="kicker" style="margin-top:18px">Single</div>
+          <div class="ttl" style="font-size:30px">Drulo: “Nation”</div>
+          <p class="muted">Posted 25 Feb 2025 &nbsp;<PlaceholderBadge tone="site" /></p>
+        </div>
+        <div class="small p1">
+          <div class="art"><div class="photo r1"></div><span class="badge">New</span></div>
+          <div class="ttl">Release title</div>
+          <span class="meta">Artist name · EP</span><br /><br /><PlaceholderBadge />
+        </div>
+        <div class="small p2">
+          <div class="art"><div class="photo r1"></div><span class="badge">New</span></div>
+          <div class="ttl">Release title</div>
+          <span class="meta">Artist name · Album</span><br /><br /><PlaceholderBadge />
+        </div>
+        <div class="small p3">
+          <div class="art"><div class="photo r1"></div></div>
+          <div class="ttl">Release title</div>
+          <span class="meta">Artist name · Single</span><br /><br /><PlaceholderBadge />
+        </div>
+        <div class="small p4">
+          <div class="art"><div class="photo r1"></div></div>
+          <div class="ttl">Release title</div>
+          <span class="meta">Artist name · Single</span><br /><br /><PlaceholderBadge />
+        </div>
+        <div class="small p5">
+          <div class="art"><div class="photo r1"></div></div>
+          <div class="ttl">Release title</div>
+          <span class="meta">Artist name · Album</span><br /><br /><PlaceholderBadge />
+        </div>
+        <div class="small p6">
+          <div class="art"><div class="photo r1"></div></div>
+          <div class="ttl">Release title</div>
+          <span class="meta">Artist name · EP</span><br /><br /><PlaceholderBadge />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="country" id="countries">
+    <div class="wrap">
+      <SectionHead title="Discover by country" href="#countries" linkLabel="All countries" />
+      <div class="grid">
+        <div class="mapbox">
+          <img
+            src="/brand/night-europe.jpg"
+            alt="Placeholder night map of Europe. Licensing is unconfirmed and this image must be replaced."
+          />
+          {
+            pins.map((pin) => (
+              <>
+                <span class:list={['pin', pin.label && 'on']} style={`left:${pin.x}%;top:${pin.y}%`}></span>
+                {pin.label && (
+                  <span class="pinlabel" style={`left:${pin.x}%;top:${pin.y}%`}>
+                    {pin.label}
+                  </span>
+                )}
+              </>
+            ))
+          }
+          <div class="map-note">
+            <span class="meta">Map preview · pin positions approximate</span>
+            <PlaceholderBadge label="Placeholder image" />
+          </div>
+        </div>
+        <div class="clist">
+          <div class="meta" style="margin-bottom:12px">12 countries</div>
+          <ul>
+            {
+              previewCountries.map((country) => (
+                <li class={country === 'Finland' ? 'on' : undefined}>
+                  <span>{country}</span>
+                  <i>&rarr;</i>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="muted" style="margin-top:18px;font-size:15px;line-height:1.5">
+            Selected: Juhani Tikkanen: Singer-songwriter from Finland <PlaceholderBadge tone="site" />
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <DiscoveryLab
+    title="If you like them, try these."
+    lede="Type an artist you already love and get three European Christian artists to try next."
+    showField
+  />
+
+  <section class="live" id="live">
+    <div class="wrap">
+      <SectionHead title="Live in Europe" href="#live" linkLabel="Full calendar" />
+      <div class="chips">
+        <span class="chip on">All countries</span>
+        <span class="chip">This month</span>
+        <span class="chip">Festivals</span>
+        <span class="chip">Tours</span>
+        <span class="chip">Germany</span>
+        <span class="chip">Finland</span>
+        <span class="chip">United Kingdom</span>
+      </div>
+      <div class="ev">
+        <div class="d">00<small>MON</small></div>
+        <div>
+          <h4>Event name <span class="badge" style="margin-left:8px">Live</span></h4>
+          <span class="muted">Artist name · Venue name</span>
+        </div>
+        <div class="meta">City, Country</div>
+        <div class="t"><button class="btn ghost" type="button" aria-disabled="true">Tickets</button></div>
+      </div>
+      <div class="ev">
+        <div class="d">00<small>MON</small></div>
+        <div>
+          <h4>Event name</h4>
+          <span class="muted">Artist name · Venue name</span>
+        </div>
+        <div class="meta">City, Country</div>
+        <div class="t"><button class="btn ghost" type="button" aria-disabled="true">Tickets</button></div>
+      </div>
+      <div class="ev">
+        <div class="d">00<small>MON</small></div>
+        <div>
+          <h4>Festival name</h4>
+          <span class="muted">Line-up to be confirmed</span>
+        </div>
+        <div class="meta">City, Country</div>
+        <div class="t"><button class="btn ghost" type="button" aria-disabled="true">Details</button></div>
+      </div>
+      <p style="margin-top:18px">
+        <PlaceholderBadge /> &nbsp;<span class="muted">Example rows only. Real dates come from the events calendar.</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="irf" id="stories">
+    <div class="wrap">
+      <div class="grid">
+        <div style="grid-column:1/6" id="interviews">
+          <SectionHead title="Interviews" href="#interviews" linkLabel="All" />
+          <article class="card">
+            <PhotoPlaceholder ratio="r32" />
+            <div class="kicker k">Interview · Country · Genre</div>
+            <h3>
+              <a href="/articles/placeholder-interview">Placeholder headline for an interview with an artist</a>
+            </h3>
+            <p>Placeholder standfirst for the interview. <PlaceholderBadge /></p>
+          </article>
+        </div>
+        <div style="grid-column:6/10" id="reviews">
+          <SectionHead title="Reviews" href="#reviews" linkLabel="All" />
+          <article class="card">
+            <PhotoPlaceholder ratio="r1" class="review-art" />
+            <div class="kicker k">Album review</div>
+            <h3>Placeholder headline for a review</h3>
+            <p>Artist name · Release title &nbsp;<PlaceholderBadge /></p>
+          </article>
+        </div>
+        <div style="grid-column:10/13">
+          <SectionHead title="More" href="#stories" linkLabel="All" />
+          <ol class="stack-list">
+            {
+              moreStories.map((story) => (
+                <li>
+                  <div class="kicker">{story.kicker}</div>
+                  <h3>{story.title}</h3>
+                  <span class="meta">{story.date}</span>
+                  {' '}
+                  <PlaceholderBadge tone="site" />
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <NewsletterBand />
 </Layout>

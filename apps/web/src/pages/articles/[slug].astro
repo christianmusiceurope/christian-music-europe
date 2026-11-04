@@ -1,0 +1,42 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PlaceholderArticle from '../../components/PlaceholderArticle.astro';
+import SanityArticle from '../../components/SanityArticle.astro';
+import { getArticle, getArticleSlugs, PLACEHOLDER_ARTICLE_SLUG } from '../../lib/articles';
+
+export async function getStaticPaths() {
+  const slugs = await getArticleSlugs();
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const slug = Astro.params.slug;
+if (!slug) {
+  throw new Error('Article slug is missing.');
+}
+
+const isPlaceholder = slug === PLACEHOLDER_ARTICLE_SLUG;
+const article = isPlaceholder ? null : await getArticle(slug);
+if (!isPlaceholder && !article) {
+  throw new Error(`No article content for slug "${slug}".`);
+}
+
+const title = isPlaceholder
+  ? 'Placeholder headline for an interview feature | Christian Music Europe'
+  : `${article?.title} | Christian Music Europe`;
+const description = isPlaceholder
+  ? 'Placeholder standfirst for an interview template. This page is development content, not a published story.'
+  : article?.excerpt || `${article?.title} on Christian Music Europe.`;
+---
+
+<Layout
+  title={title}
+  description={description}
+  header="compact"
+  current="interviews"
+  mainClass="article-canvas"
+  noindex={isPlaceholder}
+  ogType="article"
+>
+  {isPlaceholder && <PlaceholderArticle />}
+  {article && <SanityArticle article={article} />}
+</Layout>

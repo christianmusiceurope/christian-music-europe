@@ -1,0 +1,109 @@
+---
+import { menuNav, previewCountries, sectionHref } from '../content/navigation';
+
+interface Props {
+  current?: string;
+  highlightFinland?: boolean;
+}
+
+const { current, highlightFinland = false } = Astro.props;
+const onHome = Astro.url.pathname === '/';
+---
+
+<div class="mmenu" id="menu">
+  <div class="mhead">
+    <a class="compact" href="/" aria-label="Christian Music Europe, home">
+      <img class="g" src="/brand/globe-192.png" alt="" width="34" height="34" />
+      <img class="w" src="/brand/wordmark-straight-white.png" alt="Christian Music Europe" />
+    </a>
+    <div class="icons">
+      <button class="icon-btn" type="button" aria-label="Search">
+        <svg class="ico"><use href="#i-search" /></svg>
+      </button>
+      <a id="menu-close" class="icon-btn" href="#main" data-menu-close aria-label="Close menu">
+        <svg class="ico"><use href="#i-close" /></svg>
+      </a>
+    </div>
+  </div>
+  <div class="mm-body">
+    <ul class="mm-list">
+      {
+        menuNav.map((item) => (
+          <li class={item.id === current ? 'on' : undefined}>
+            <a href={sectionHref(item, onHome, current, Astro.url.pathname)}>{item.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="meta" style="margin:28px 0 12px">Countries</div>
+    <div class="chips">
+      {
+        previewCountries.map((country) => (
+          <a
+            class:list={['chip', highlightFinland && country === 'Finland' && 'on']}
+            href={onHome ? '#countries' : '/#countries'}
+          >
+            {country}
+          </a>
+        ))
+      }
+    </div>
+    <div class="meta" style="margin:16px 0 12px">Follow</div>
+    <div class="follow-row">
+      <span>X</span>
+      <span>Instagram</span>
+      <span>YouTube</span>
+      <span>Spotify</span>
+    </div>
+    <a class="btn pur" href="#submit-music">Submit your music</a>
+  </div>
+  <div class="mm-strip"></div>
+</div>
+
+<script>
+  const menu = document.getElementById('menu');
+  let lastOpener: Element | null = null;
+
+  const openers = () => document.querySelectorAll('[data-menu-open]');
+
+  function setOpen(open: boolean) {
+    if (!menu) return;
+    menu.classList.toggle('is-open', open);
+    document.body.classList.toggle('menu-open', open);
+    openers().forEach((opener) => opener.setAttribute('aria-expanded', open ? 'true' : 'false'));
+    if (open) {
+      document.getElementById('menu-close')?.focus();
+    } else if (lastOpener instanceof HTMLElement) {
+      lastOpener.focus();
+    }
+  }
+
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const opener = target.closest('[data-menu-open]');
+    if (opener) {
+      event.preventDefault();
+      lastOpener = opener;
+      setOpen(true);
+      return;
+    }
+
+    if (target.closest('[data-menu-close]')) {
+      event.preventDefault();
+      setOpen(false);
+      return;
+    }
+
+    if (menu?.classList.contains('is-open') && target.closest('#menu a')) {
+      setOpen(false);
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && menu?.classList.contains('is-open')) {
+      setOpen(false);
+    }
+  });
+</script>

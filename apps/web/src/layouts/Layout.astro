@@ -1,29 +1,69 @@
 ---
 import '../styles/global.css';
+import EmbedController from '../components/EmbedController.astro';
+import Icons from '../components/Icons.astro';
+import MobileMenu from '../components/MobileMenu.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import TabBar from '../components/TabBar.astro';
 
 interface Props {
   title?: string;
   description?: string;
+  header?: 'home' | 'compact';
+  current?: string;
+  tab?: 'home' | 'discover' | 'live';
+  mainClass?: string;
+  noindex?: boolean;
+  ogType?: string;
+  jsonLd?: Record<string, unknown> | null;
 }
 
 const {
   title = 'Christian Music Europe',
-  description = 'Discover Christian music, artists, releases, and events across Europe.',
+  description = 'Christian music from every corner of Europe: artists, releases and live dates.',
+  header = 'home',
+  current,
+  tab,
+  mainClass,
+  noindex = false,
+  ogType = 'website',
+  jsonLd = null,
 } = Astro.props;
+
+const json = jsonLd ? JSON.stringify(jsonLd).replaceAll('<', '\\u003c') : '';
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#121212" />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta name="twitter:card" content="summary" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/brand/globe-192.png" />
+    <link rel="preload" href="/fonts/Unbounded-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="/fonts/Manrope-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin />
     <title>{title}</title>
+    {json && <script type="application/ld+json" set:html={json} />}
   </head>
-  <body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
-    <slot />
+  <body class="bg-charcoal font-sans text-ink antialiased">
+    <a class="skip" href="#main">Skip to content</a>
+    <Icons />
+    <SiteHeader variant={header} current={current} />
+    <main id="main" class={mainClass}>
+      <slot />
+    </main>
+    <SiteFooter />
+    <TabBar current={tab} />
+    <MobileMenu current={current} highlightFinland={header === 'home'} />
+    <EmbedController />
   </body>
 </html>

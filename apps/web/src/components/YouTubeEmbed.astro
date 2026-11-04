@@ -1,0 +1,39 @@
+---
+import { youtubeEmbedSrc, youtubeVideoId } from '../lib/youtube';
+
+interface Props {
+  url?: string;
+  title: string;
+  placeholder?: boolean;
+  eyebrow?: string;
+  note?: string;
+  id?: string;
+}
+
+const { url, title, placeholder = false, eyebrow = 'Listen', note, id } = Astro.props;
+const videoId = placeholder ? null : youtubeVideoId(url);
+const src = videoId ? youtubeEmbedSrc(videoId) : '';
+const isPlaceholder = placeholder || !src;
+const detail =
+  note ??
+  (isPlaceholder
+    ? 'Development placeholder. Nothing is loaded from YouTube.'
+    : 'Nothing loads from YouTube until you press play. The player uses the youtube-nocookie domain.');
+---
+
+<div
+  class="embed"
+  id={id}
+  data-embed
+  data-kind="youtube"
+  data-src={src}
+  data-title={title}
+  data-placeholder={isPlaceholder ? 'true' : 'false'}
+>
+  <div>
+    <div class="meta" style="color:#fff">{eyebrow}</div>
+    <b>{title}</b>
+    <p class="muted">{detail}</p>
+  </div>
+  <button class="btn pur" type="button" data-embed-load>&#9654;&nbsp; Load player</button>
+</div>

@@ -1,0 +1,160 @@
+---
+import { compactNav, homeNav, sectionHref, swipeNav } from '../content/navigation';
+import { europeEditionLabel } from '../lib/dates';
+
+interface Props {
+  variant?: 'home' | 'compact';
+  current?: string;
+}
+
+const { variant = 'home', current } = Astro.props;
+const onHome = Astro.url.pathname === '/';
+const items = variant === 'home' ? homeNav : compactNav;
+const edition = europeEditionLabel();
+---
+
+{
+  variant === 'home' ? (
+    <header>
+      <div class="mhead">
+        <a class="compact" href="/" aria-label="Christian Music Europe, home">
+          <img class="g" src="/brand/globe-192.png" alt="" width="34" height="34" />
+          <img class="w" src="/brand/wordmark-straight-white.png" alt="Christian Music Europe" />
+        </a>
+        <div class="icons">
+          <button class="icon-btn" type="button" aria-label="Search">
+            <svg class="ico"><use href="#i-search" /></svg>
+          </button>
+          <a class="icon-btn menu-btn" href="#menu" data-menu-open aria-expanded="false" aria-controls="menu" aria-label="Open menu">
+            <svg class="ico"><use href="#i-menu" /></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="util d-only">
+        <div class="wrap">
+          <span class="meta">{edition}</span>
+          <div class="r">
+            <button class="meta" type="button">Search</button>
+            <a class="meta" href="#newsletter" style="color:#fff">Newsletter</a>
+            <a class="btn pur" href="#submit-music">Submit your music</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="mast">
+        {/* night-europe.jpg is an approved mockup asset with unconfirmed licensing. Replace before launch. */}
+        <img
+          class="sat"
+          src="/brand/night-europe.jpg"
+          alt="Placeholder night photograph of Europe. Licensing is unconfirmed and this image must be replaced."
+        />
+        <span class="mast-flag ph">Placeholder image</span>
+        <img class="logo" src="/brand/logo-full-light.png" alt="Christian Music Europe" />
+        <div class="tag d-only">
+          <p>Christian music from every corner of Europe: artists, releases and live dates.</p>
+        </div>
+      </div>
+
+      <nav class="nav d-only" aria-label="Sections">
+        <div class="wrap">
+          <ul>
+            {items.map((item) => (
+              <li class={item.id === current ? 'on' : undefined}>
+                <a
+                  href={sectionHref(item, onHome, current, Astro.url.pathname)}
+                  aria-current={item.id === current ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <div class="icons">
+            <button class="icon-btn" type="button" aria-label="Search">
+              <svg class="ico"><use href="#i-search" /></svg>
+            </button>
+            <a class="icon-btn" href="#menu" data-menu-open aria-expanded="false" aria-controls="menu" aria-label="Open menu">
+              <svg class="ico"><use href="#i-menu" /></svg>
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      <nav class="swipe m-only" aria-label="Sections">
+        {swipeNav.map((item) => (
+          <a
+            href={sectionHref(item, onHome, current, Astro.url.pathname)}
+            class={item.id === current ? 'on' : undefined}
+            aria-current={item.id === current ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
+    </header>
+  ) : (
+    <header class="snav d-only">
+      <div class="wrap">
+        <a class="compact" href="/" aria-label="Christian Music Europe, home">
+          <img class="g" src="/brand/globe-192.png" alt="" width="40" height="40" />
+          <img class="w" src="/brand/wordmark-straight-white.png" alt="Christian Music Europe" />
+        </a>
+        <ul>
+          {items.map((item) => (
+            <li class={item.id === current ? 'on' : undefined}>
+              <a
+                href={sectionHref(item, onHome, current, Astro.url.pathname)}
+                aria-current={item.id === current ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <div class="icons">
+          <button class="icon-btn" type="button" aria-label="Search">
+            <svg class="ico"><use href="#i-search" /></svg>
+          </button>
+          <a class="btn pur" href="/#newsletter">Newsletter</a>
+        </div>
+      </div>
+      <div class="progress" aria-hidden="true"><span data-progress></span></div>
+    </header>
+  )
+}
+
+{
+  variant === 'compact' && (
+    <div class="mhead">
+      <a class="compact" href="/" aria-label="Christian Music Europe, home">
+        <img class="g" src="/brand/globe-192.png" alt="" width="34" height="34" />
+        <img class="w" src="/brand/wordmark-straight-white.png" alt="Christian Music Europe" />
+      </a>
+      <div class="icons">
+        <button class="icon-btn" type="button" aria-label="Search">
+          <svg class="ico"><use href="#i-search" /></svg>
+        </button>
+        <a class="icon-btn menu-btn" href="#menu" data-menu-open aria-expanded="false" aria-controls="menu" aria-label="Open menu">
+          <svg class="ico"><use href="#i-menu" /></svg>
+        </a>
+      </div>
+    </div>
+  )
+}
+
+{
+  variant === 'compact' && (
+    <script>
+      const bar = document.querySelector('[data-progress]');
+      if (bar instanceof HTMLElement) {
+        const update = () => {
+          const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+          const progress = scrollable > 0 ? Math.min(100, (window.scrollY / scrollable) * 100) : 0;
+          bar.style.width = `${progress}%`;
+        };
+        window.addEventListener('scroll', update, { passive: true });
+      }
+    </script>
+  )
+}

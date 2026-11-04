@@ -1,0 +1,70 @@
+---
+import SpotifyEmbed from './SpotifyEmbed.astro';
+import YouTubeEmbed from './YouTubeEmbed.astro';
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import type { PortableTextBlock, PtTextBlock } from '../lib/types';
+
+interface Props {
+  value?: PortableTextBlock[];
+}
+
+const blocks = Astro.props.value ?? [];
+
+function isText(block: PortableTextBlock): block is PtTextBlock {
+  return block._type === 'block';
+}
+---
+
+<div class="prose">
+  {
+    blocks.map((block) => {
+      if (isText(block)) {
+        const style = block.style ?? 'normal';
+        const id = block._key && (style === 'h2' || style === 'h3') ? `h-${block._key}` : undefined;
+        const children = (block.children ?? []).map((span) => {
+          const marks = span.marks ?? [];
+          const link = block.markDefs?.find((mark) => mark._type === 'link' && marks.includes(mark._key));
+          const strong = marks.includes('strong');
+          const emphasis = marks.includes('em');
+          const text = span.text ?? '';
+          const inner = emphasis ? <em>{text}</em> : text;
+          const weighted = strong ? <strong>{inner}</strong> : inner;
+          if (link?.href) {
+            const external = !link.href.startsWith('/') && !link.href.startsWith('#');
+            return (
+              <a href={link.href} class="link" rel={external ? 'noopener noreferrer' : undefined} target={external ? '_blank' : undefined}>
+                {weighted}
+              </a>
+            );
+          }
+          return weighted;
+        });
+
+        if (style === 'h2') return <h2 id={id}>{children}</h2>;
+        if (style === 'h3') return <h3 id={id}>{children}</h3>;
+        if (style === 'blockquote') return <blockquote>{children}</blockquote>;
+        return <p>{children}</p>;
+      }
+
+      if (block._type === 'image') {
+        return block.url ? (
+          <figure>
+            <img src={block.url} alt={block.alt ?? ''} />
+          </figure>
+        ) : (
+          <PhotoPlaceholder ratio="r169" label={block.alt || 'Licensed photo goes here'} />
+        );
+      }
+
+      if (block._type === 'youtubeEmbed') {
+        return <YouTubeEmbed url={block.url} title={block.title || 'YouTube video'} />;
+      }
+
+      if (block._type === 'spotifyEmbed') {
+        return <SpotifyEmbed url={block.url} title={block.title || 'Spotify player'} />;
+      }
+
+      return null;
+    })
+  }
+</div>

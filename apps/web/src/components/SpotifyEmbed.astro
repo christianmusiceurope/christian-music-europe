@@ -1,0 +1,36 @@
+---
+import { spotifyEmbedSrc } from '../lib/youtube';
+
+interface Props {
+  artistId?: string;
+  url?: string;
+  title: string;
+  note?: string;
+  id?: string;
+}
+
+const { artistId, url, title, note, id } = Astro.props;
+const src = spotifyEmbedSrc({ artistId, url }) ?? '';
+const detail =
+  note ??
+  (src
+    ? 'Nothing loads from Spotify until you press play.'
+    : 'Development placeholder. No Spotify player is loaded.');
+---
+
+<div
+  class="embed listen-slot"
+  id={id}
+  data-embed
+  data-kind="spotify"
+  data-src={src}
+  data-title={title}
+  data-placeholder={src ? 'false' : 'true'}
+>
+  <div>
+    <div class="meta" style="color:#fff">Listen</div>
+    <b>{title}</b>
+    <p class="muted">{detail}</p>
+  </div>
+  <button class="btn pur" type="button" data-embed-load>&#9654;&nbsp; Load player</button>
+</div>

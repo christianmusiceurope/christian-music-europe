@@ -1,0 +1,97 @@
+---
+import ArticleTools from './ArticleTools.astro';
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import PortableText from './PortableText.astro';
+import { articleTypeLabel } from '../lib/labels';
+import { formatLongDate } from '../lib/dates';
+import { headingsFromPortableText } from '../lib/text';
+import type { ArticleDocument } from '../lib/types';
+
+interface Props {
+  article: ArticleDocument;
+}
+
+const { article } = Astro.props;
+const headings = headingsFromPortableText(article.body);
+const published = formatLongDate(article.publishedAt);
+const country = article.countries[0]?.name;
+const genre = article.genres[0]?.name;
+const kicker = [articleTypeLabel(article.articleType), country, genre].filter(Boolean).join(' · ');
+const hasPlayer = article.body.some((block) => block._type === 'youtubeEmbed' || block._type === 'spotifyEmbed');
+const featured = article.artists[0];
+const featuredRelease = article.releases[0];
+---
+
+<div class="wrap ahead">
+  <div class="kicker">{kicker || articleTypeLabel(article.articleType)}</div>
+  <h1>{article.title}</h1>
+  {article.excerpt && <p class="standfirst sf">{article.excerpt}</p>}
+  <div class="bl">
+    <div class="who">
+      <span class="av" aria-hidden="true"></span>
+      <div>
+        <b>{article.author ? `By ${article.author}` : 'Christian Music Europe'}</b>
+        {published && <span class="meta">{published}</span>}
+      </div>
+    </div>
+    <ArticleTools listenHref={hasPlayer ? '#article-body' : undefined} />
+  </div>
+</div>
+
+<figure class="wrap hero">
+  {
+    article.heroUrl ? (
+      <img src={article.heroUrl} alt={article.title} />
+    ) : (
+      <PhotoPlaceholder ratio="r169" label="Licensed photo goes here" />
+    )
+  }
+  <figcaption>
+    <span>{article.heroUrl ? 'Image from the article record.' : 'No hero image is stored on this article.'}</span>
+    <span class="meta">{article.heroUrl ? 'Photo credit is not recorded on this article.' : 'Photo: not recorded'}</span>
+  </figcaption>
+</figure>
+
+<div class="wrap body" id="article-body">
+  <div class="grid">
+    <aside class="toc">
+      <div class="meta">In this article</div>
+      <ol>
+        {
+          headings.length === 0 ? (
+            <li class="on">Story</li>
+          ) : (
+            headings.map((heading, index) => (
+              <li class={index === 0 ? 'on' : undefined}>
+                <a href={`#${heading.id}`}>{heading.text}</a>
+              </li>
+            ))
+          )
+        }
+      </ol>
+    </aside>
+    <article class="txt">
+      <PortableText value={article.body} />
+    </article>
+    <aside class="artist">
+      <div class="meta">The artist</div>
+      <PhotoPlaceholder ratio="r1" label="Licensed photo" />
+      <h4>{featured?.name ?? 'Artist not linked'}</h4>
+      <dl>
+        <dt>Country</dt>
+        <dd>{country ?? 'Not linked'}</dd>
+        <dt>Genre</dt>
+        <dd>{genre ?? 'Not linked'}</dd>
+        <dt>Latest release</dt>
+        <dd>{featuredRelease?.title ?? 'Not linked'}</dd>
+      </dl>
+      {
+        featured?.slug && (
+          <div style="display:flex;gap:10px;margin-top:18px">
+            <a class="btn ghost" href={`/artists/${featured.slug}`}>Profile</a>
+          </div>
+        )
+      }
+    </aside>
+  </div>
+</div>

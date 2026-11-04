@@ -1,0 +1,11 @@
+---
+interface Props {
+  tone?: 'placeholder' | 'site' | 'inverse';
+  label?: string;
+}
+
+const tone = Astro.props.tone ?? 'placeholder';
+const label = Astro.props.label ?? (tone === 'site' ? 'From the site' : 'Placeholder');
+---
+
+<span class:list={[tone === 'inverse' ? 'phw' : 'ph', tone === 'site' && 'real']}>{label}</span>

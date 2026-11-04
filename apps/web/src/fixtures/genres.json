@@ -1,0 +1,282 @@
+[
+ {
+  "_id": "genre-pop",
+  "_type": "genre",
+  "name": "Pop",
+  "slug": {
+   "_type": "slug",
+   "current": "pop"
+  },
+  "description": "Melody-led popular music built around catchy songs, hooks and contemporary production."
+ },
+ {
+  "_id": "genre-rock",
+  "_type": "genre",
+  "name": "Rock",
+  "slug": {
+   "_type": "slug",
+   "current": "rock"
+  },
+  "description": "Guitar, bass and drum based music rooted in rock and roll, from classic to modern styles."
+ },
+ {
+  "_id": "genre-hard-rock",
+  "_type": "genre",
+  "name": "Hard rock",
+  "slug": {
+   "_type": "slug",
+   "current": "hard-rock"
+  },
+  "description": "Loud, riff-driven rock with distorted guitars and powerful vocals."
+ },
+ {
+  "_id": "genre-metal",
+  "_type": "genre",
+  "name": "Metal",
+  "slug": {
+   "_type": "slug",
+   "current": "metal"
+  },
+  "description": "Heavy, high-intensity music with distorted guitars and forceful drums, covering styles from heavy metal to metalcore."
+ },
+ {
+  "_id": "genre-alternative",
+  "_type": "genre",
+  "name": "Alternative",
+  "slug": {
+   "_type": "slug",
+   "current": "alternative"
+  },
+  "description": "Independent-minded rock and pop outside the mainstream, including indie rock and indie pop."
+ },
+ {
+  "_id": "genre-punk",
+  "_type": "genre",
+  "name": "Punk",
+  "slug": {
+   "_type": "slug",
+   "current": "punk"
+  },
+  "description": "Fast, raw and direct rock music with short songs and a do-it-yourself attitude."
+ },
+ {
+  "_id": "genre-hip-hop",
+  "_type": "genre",
+  "name": "Hip hop",
+  "slug": {
+   "_type": "slug",
+   "current": "hip-hop"
+  },
+  "description": "Rhythm-driven music centred on rapping over beats, samples and programmed drums."
+ },
+ {
+  "_id": "genre-r-and-b",
+  "_type": "genre",
+  "name": "R&B",
+  "slug": {
+   "_type": "slug",
+   "current": "r-and-b"
+  },
+  "description": "Contemporary rhythm and blues with smooth vocals, groove-based rhythms and modern production."
+ },
+ {
+  "_id": "genre-soul-and-funk",
+  "_type": "genre",
+  "name": "Soul and funk",
+  "slug": {
+   "_type": "slug",
+   "current": "soul-and-funk"
+  },
+  "description": "Groove-heavy music driven by expressive vocals, bass lines and horn or rhythm sections."
+ },
+ {
+  "_id": "genre-electronic",
+  "_type": "genre",
+  "name": "Electronic",
+  "slug": {
+   "_type": "slug",
+   "current": "electronic"
+  },
+  "description": "Music made mainly with synthesisers, drum machines and computers, from electronica to ambient textures."
+ },
+ {
+  "_id": "genre-dance",
+  "_type": "genre",
+  "name": "Dance",
+  "slug": {
+   "_type": "slug",
+   "current": "dance"
+  },
+  "description": "Club-oriented music made for dancing, such as house, EDM, trance and dance pop."
+ },
+ {
+  "_id": "genre-afrobeats",
+  "_type": "genre",
+  "name": "Afrobeats",
+  "slug": {
+   "_type": "slug",
+   "current": "afrobeats"
+  },
+  "description": "Contemporary West African popular music built on syncopated rhythms, blending highlife, dancehall, hip hop and R&B."
+ },
+ {
+  "_id": "genre-gospel",
+  "_type": "genre",
+  "name": "Gospel",
+  "slug": {
+   "_type": "slug",
+   "current": "gospel"
+  },
+  "description": "Vocal-led music with roots in African American church traditions, often featuring choirs and call and response."
+ },
+ {
+  "_id": "genre-worship",
+  "_type": "genre",
+  "name": "Worship",
+  "slug": {
+   "_type": "slug",
+   "current": "worship"
+  },
+  "description": "Songs written for congregational singing, typically with band arrangements and singable melodies."
+ },
+ {
+  "_id": "genre-choral",
+  "_type": "genre",
+  "name": "Choral",
+  "slug": {
+   "_type": "slug",
+   "current": "choral"
+  },
+  "description": "Music written for and performed by choirs or vocal ensembles."
+ },
+ {
+  "_id": "genre-a-cappella",
+  "_type": "genre",
+  "name": "A cappella",
+  "slug": {
+   "_type": "slug",
+   "current": "a-cappella"
+  },
+  "description": "Vocal music performed without instrumental accompaniment, from small vocal groups to larger ensembles."
+ },
+ {
+  "_id": "genre-singer-songwriter",
+  "_type": "genre",
+  "name": "Singer-songwriter",
+  "slug": {
+   "_type": "slug",
+   "current": "singer-songwriter"
+  },
+  "description": "Song-focused music performed by the writer, usually with acoustic guitar or piano."
+ },
+ {
+  "_id": "genre-easy-listening",
+  "_type": "genre",
+  "name": "Easy listening",
+  "slug": {
+   "_type": "slug",
+   "current": "easy-listening"
+  },
+  "description": "Gentle, melodic music with an emphasis on vocals and smooth arrangements, including vocal standards."
+ },
+ {
+  "_id": "genre-folk",
+  "_type": "genre",
+  "name": "Folk",
+  "slug": {
+   "_type": "slug",
+   "current": "folk"
+  },
+  "description": "Acoustic and traditional music drawing on regional folk songs, instruments and storytelling."
+ },
+ {
+  "_id": "genre-country",
+  "_type": "genre",
+  "name": "Country",
+  "slug": {
+   "_type": "slug",
+   "current": "country"
+  },
+  "description": "Song-driven music from the American country tradition, including Americana and bluegrass."
+ },
+ {
+  "_id": "genre-blues",
+  "_type": "genre",
+  "name": "Blues",
+  "slug": {
+   "_type": "slug",
+   "current": "blues"
+  },
+  "description": "Music built on blues scales, chord progressions and expressive vocal and guitar playing."
+ },
+ {
+  "_id": "genre-celtic",
+  "_type": "genre",
+  "name": "Celtic",
+  "slug": {
+   "_type": "slug",
+   "current": "celtic"
+  },
+  "description": "Music rooted in the traditions of Ireland, Scotland, Brittany and other Celtic regions, often featuring fiddle, pipes and whistle."
+ },
+ {
+  "_id": "genre-jazz",
+  "_type": "genre",
+  "name": "Jazz",
+  "slug": {
+   "_type": "slug",
+   "current": "jazz"
+  },
+  "description": "Improvisation-based music with swing, rich harmony and instrumental solos."
+ },
+ {
+  "_id": "genre-classical",
+  "_type": "genre",
+  "name": "Classical",
+  "slug": {
+   "_type": "slug",
+   "current": "classical"
+  },
+  "description": "Composed art music for orchestra, ensembles or soloists, from early music to contemporary works."
+ },
+ {
+  "_id": "genre-reggae",
+  "_type": "genre",
+  "name": "Reggae",
+  "slug": {
+   "_type": "slug",
+   "current": "reggae"
+  },
+  "description": "Jamaican-rooted music with offbeat rhythms, heavy bass lines and relaxed grooves."
+ },
+ {
+  "_id": "genre-instrumental",
+  "_type": "genre",
+  "name": "Instrumental",
+  "slug": {
+   "_type": "slug",
+   "current": "instrumental"
+  },
+  "description": "Music without vocals, where melody is carried by instruments."
+ },
+ {
+  "_id": "genre-ambient",
+  "_type": "genre",
+  "name": "Ambient",
+  "slug": {
+   "_type": "slug",
+   "current": "ambient"
+  },
+  "description": "Atmospheric, slow-moving music focused on texture and mood rather than rhythm."
+ },
+ {
+  "_id": "genre-soundtrack",
+  "_type": "genre",
+  "name": "Soundtrack",
+  "slug": {
+   "_type": "slug",
+   "current": "soundtrack"
+  },
+  "description": "Music written for film, television, games or stage productions."
+ }
+]

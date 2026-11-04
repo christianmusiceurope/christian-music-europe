@@ -73,9 +73,8 @@ export const venue = defineType({
     defineField({
       name: 'image',
       title: 'Venue image',
-      type: 'image',
+      type: 'licensedImage',
       group: 'editorial',
-      options: {hotspot: true},
     }),
   ],
   preview: {

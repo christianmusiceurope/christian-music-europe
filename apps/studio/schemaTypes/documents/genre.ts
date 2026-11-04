@@ -51,9 +51,8 @@ export const genre = defineType({
     defineField({
       name: 'image',
       title: 'Image',
-      type: 'image',
+      type: 'licensedImage',
       group: 'editorial',
-      options: {hotspot: true},
     }),
     defineField({
       name: 'seo',

@@ -20,14 +20,14 @@ function readServerToken(): string | undefined {
 const readToken = readServerToken();
 
 /**
- * `PUBLIC_CME_DATA_SOURCE=fixture` (default) uses local fixtures so draft
- * documents such as LIN D render without a token.
- * `sanity` reads the dataset. Drafts are included only when
- * `SANITY_API_READ_TOKEN` is set in the server environment. Never prefix that
- * token with PUBLIC_.
+ * Unset uses Sanity (project rg6onak7, dataset production).
+ * Published documents only, unless `SANITY_API_READ_TOKEN` is set, which
+ * switches the client to the drafts perspective. Never prefix that token
+ * with PUBLIC_.
+ * `PUBLIC_CME_DATA_SOURCE=fixture` is the offline opt-in.
  */
 export const contentSource: ContentSource =
-  import.meta.env.PUBLIC_CME_DATA_SOURCE === 'sanity' ? 'sanity' : 'fixture';
+  import.meta.env.PUBLIC_CME_DATA_SOURCE === 'fixture' ? 'fixture' : 'sanity';
 
 export const sanityReadsDrafts = contentSource === 'sanity' && Boolean(readToken);
 
@@ -39,6 +39,18 @@ export const sanityClient: SanityClient = createClient({
   token: readToken,
   perspective: readToken ? 'drafts' : 'published',
 });
+
+export const LICENSED_IMAGE_FIELDS = /* groq */ `
+  alt,
+  credit,
+  sourceType,
+  sourceUrl,
+  licence,
+  permissionNotes,
+  expiresAt,
+  rightsStatus,
+  "url": asset->url
+`;
 
 export const ARTIST_SLUGS_QUERY = defineQuery(/* groq */ `
   *[_type == "artist" && defined(slug.current)]{ "slug": slug.current }
@@ -55,7 +67,11 @@ export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
     website,
     spotifyArtistId,
     youtubeUrl,
-    "imageUrl": image.asset->url,
+    instagramUrl,
+    tiktokUrl,
+    xUrl,
+    facebookUrl,
+    image{${LICENSED_IMAGE_FIELDS}},
     countryAssociations[]{
       _key,
       relationshipType,
@@ -85,7 +101,7 @@ export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
       articleType,
       excerpt,
       publishedAt,
-      "heroUrl": heroImage.asset->url
+      heroImage{${LICENSED_IMAGE_FIELDS}}
     },
     "releases": *[_type == "release" && references(^._id)] | order(releaseDate desc)[0...8]{
       _id,
@@ -93,17 +109,54 @@ export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
       "slug": slug.current,
       releaseType,
       releaseDate,
-      "coverUrl": coverArtwork.asset->url
+      coverArtwork{${LICENSED_IMAGE_FIELDS}}
     },
-    "events": *[_type == "event" && references(^._id) && startDateTime >= now()] | order(startDateTime asc)[0...8]{
+    "events": *[
+      _type == "event" &&
+      (
+        references(^._id) ||
+        references(string::split(^._id, "drafts.")[1])
+      ) &&
+      startDateTime >= now() &&
+      eventStatus != "cancelled"
+    ] | order(startDateTime asc)[0...20]{
       _id,
       title,
       "slug": slug.current,
-      startDateTime,
       eventType,
-      "city": venue->city,
-      "countryName": venue->country->name,
-      "venueName": venue->name
+      startDateTime,
+      timezone,
+      eventStatus,
+      ticketStatus,
+      ticketUrl,
+      officialSourceUrl,
+      "venue": coalesce(
+        *[_id == "drafts." + ^.venue._ref][0]{
+          name,
+          city,
+          "countryName": coalesce(
+            *[_id == "drafts." + ^.country._ref][0].name,
+            country->name
+          )
+        },
+        venue->{
+          name,
+          city,
+          "countryName": country->name
+        }
+      ),
+      "festival": coalesce(
+        *[_id == "drafts." + ^.festival._ref][0]{
+          name,
+          "slug": slug.current,
+          website
+        },
+        festival->{
+          name,
+          "slug": slug.current,
+          website
+        }
+      )
     },
     "videoGroups": *[_type == "article" && references(^._id)]{
       "embeds": body[_type == "youtubeEmbed"]{
@@ -128,13 +181,12 @@ export const ARTICLE_BY_SLUG_QUERY = defineQuery(/* groq */ `
     author,
     publishedAt,
     excerpt,
-    "heroUrl": heroImage.asset->url,
+    heroImage{${LICENSED_IMAGE_FIELDS}},
     body[]{
       ...,
-      _type == "image" => {
+      _type in ["image", "licensedImage"] => {
         ...,
-        "url": asset->url,
-        alt
+        ${LICENSED_IMAGE_FIELDS}
       }
     },
     "artists": relatedArtists[]->{ name, "slug": slug.current },

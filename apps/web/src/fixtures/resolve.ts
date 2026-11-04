@@ -1,6 +1,7 @@
 import genresJson from './genres.json';
 import linDProposal from './lin-d-proposal.json';
 import { artistTypeLabel, relationshipLabel } from '../lib/labels';
+import { sizedSanityImage } from '../lib/images';
 import { videosInPortableText } from '../lib/text';
 import type { ArtistPageData, PortableTextBlock } from '../lib/types';
 
@@ -101,11 +102,46 @@ export function linDFixture(): ArtistPageData {
     website: doc.website,
     spotifyArtistId: doc.spotifyArtistId,
     youtubeUrl: doc.youtubeUrl,
+    image: {
+      url: sizedSanityImage(
+        'https://cdn.sanity.io/images/rg6onak7/production/5141d58598c9508542ba5bfd7951a3ba9aac94a7-2500x3750.webp',
+      ),
+      alt: 'The three members of LIN D in a studio portrait against a dark blue background',
+      credit: 'Jona Granath',
+      sourceType: 'official_promo',
+      sourceUrl: 'https://www.lin-d.com/',
+      licence: 'other',
+      rightsStatus: 'restricted',
+      permissionNotes:
+        "Permission from LIN D's management is pending. Approved for the development site only until written clearance. Asset image-5141d58598c9508542ba5bfd7951a3ba9aac94a7-2500x3750-webp on drafts.artist-lin-d.",
+    },
     countries,
     genres: genreViews,
     articles: [],
     releases: [],
-    events: [],
+    events: [
+      {
+        id: 'development-event-lin-d-get-focused-2026',
+        title: 'LIN D at Get Focused 2026',
+        slug: 'lin-d-get-focused-2026',
+        startDateTime: '2026-11-06T23:00:00+01:00',
+        timezone: 'Europe/Oslo',
+        eventType: 'festival',
+        eventStatus: 'scheduled',
+        ticketStatus: 'on_sale',
+        ticketUrl: 'https://tikket.no/get-focused/get-focused-2026',
+        officialSourceUrl: 'https://www.getfocused.no/program',
+        venueName: 'Oslofjord Convention Center',
+        city: 'Melsomvik',
+        countryName: 'Norway',
+        festivalName: 'Get Focused',
+        festivalSlug: 'get-focused',
+        development: true,
+      },
+    ].filter((event) => {
+      if (event.eventStatus === 'cancelled' || !event.startDateTime) return false;
+      return new Date(event.startDateTime).getTime() >= Date.now();
+    }),
     videos: videosInPortableText(biography),
     sources: (doc.sources ?? []).flatMap((source) => {
       if (!source.label) return [];

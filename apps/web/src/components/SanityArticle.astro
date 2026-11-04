@@ -40,15 +40,20 @@ const featuredRelease = article.releases[0];
 
 <figure class="wrap hero">
   {
-    article.heroUrl ? (
-      <img src={article.heroUrl} alt={article.title} />
+    article.heroImage?.url ? (
+      <img src={article.heroImage.url} alt={article.heroImage.alt ?? ''} />
     ) : (
       <PhotoPlaceholder ratio="r169" label="Licensed photo goes here" />
     )
   }
   <figcaption>
-    <span>{article.heroUrl ? 'Image from the article record.' : 'No hero image is stored on this article.'}</span>
-    <span class="meta">{article.heroUrl ? 'Photo credit is not recorded on this article.' : 'Photo: not recorded'}</span>
+    <span>
+      {article.heroImage?.url
+        ? article.heroImage.alt || 'Photograph'
+        : 'No hero image is stored on this article.'}
+    </span>
+    {article.heroImage?.credit && <span class="meta">Photo: {article.heroImage.credit}</span>}
+    {article.heroImage?.rightsStatus === 'restricted' && <span class="ph">Permission pending</span>}
   </figcaption>
 </figure>
 

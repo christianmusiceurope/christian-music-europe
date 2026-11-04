@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 import {
   ARTIST_TYPES,
   catalogGroup,
@@ -9,7 +9,7 @@ import {
   seoGroup,
   verificationGroup,
 } from '../constants'
-import {uniqueSlug, validateCountryAssociations} from '../validation'
+import {uniqueSlug, validateCountryAssociations, validateSocialHost} from '../validation'
 
 export const artist = defineType({
   name: 'artist',
@@ -84,16 +84,15 @@ export const artist = defineType({
     defineField({
       name: 'image',
       title: 'Artist image',
-      type: 'image',
+      type: 'licensedImage',
       group: 'editorial',
-      options: {hotspot: true},
     }),
     defineField({
       name: 'gallery',
       title: 'Gallery',
       type: 'array',
       group: 'editorial',
-      of: [{type: 'image', options: {hotspot: true}}],
+      of: [defineArrayMember({type: 'licensedImage'})],
     }),
     defineField({
       name: 'website',
@@ -114,6 +113,55 @@ export const artist = defineType({
       type: 'url',
       group: 'catalog',
       validation: (rule) => rule.uri({scheme: ['http', 'https']}),
+    }),
+    defineField({
+      name: 'instagramUrl',
+      title: 'Instagram URL',
+      type: 'url',
+      group: 'catalog',
+      validation: (rule) => [
+        rule.uri({scheme: ['http', 'https']}),
+        rule.custom((value) => validateSocialHost(typeof value === 'string' ? value : undefined, ['instagram.com'])).warning(),
+      ],
+    }),
+    defineField({
+      name: 'tiktokUrl',
+      title: 'TikTok URL',
+      type: 'url',
+      group: 'catalog',
+      validation: (rule) => [
+        rule.uri({scheme: ['http', 'https']}),
+        rule.custom((value) => validateSocialHost(typeof value === 'string' ? value : undefined, ['tiktok.com'])).warning(),
+      ],
+    }),
+    defineField({
+      name: 'xUrl',
+      title: 'X URL',
+      type: 'url',
+      group: 'catalog',
+      description: 'twitter.com links are fine.',
+      validation: (rule) => [
+        rule.uri({scheme: ['http', 'https']}),
+        rule
+          .custom((value) =>
+            validateSocialHost(typeof value === 'string' ? value : undefined, ['x.com', 'twitter.com']),
+          )
+          .warning(),
+      ],
+    }),
+    defineField({
+      name: 'facebookUrl',
+      title: 'Facebook URL',
+      type: 'url',
+      group: 'catalog',
+      validation: (rule) => [
+        rule.uri({scheme: ['http', 'https']}),
+        rule
+          .custom((value) =>
+            validateSocialHost(typeof value === 'string' ? value : undefined, ['facebook.com', 'fb.com']),
+          )
+          .warning(),
+      ],
     }),
     defineField({
       name: 'musicBrainzId',

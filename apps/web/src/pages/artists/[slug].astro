@@ -17,38 +17,56 @@ if (!slug) throw new Error('Artist slug is missing.');
 const artist = await getArtist(slug);
 if (!artist) throw new Error(`No artist content for slug "${slug}".`);
 
-const biography = portablePlainText(artist.biography);
+const pageArtist: ArtistPageData = {
+  ...artist,
+  languages: artist.languages ?? [],
+  biography: artist.biography ?? [],
+  countries: artist.countries ?? [],
+  genres: artist.genres ?? [],
+  articles: artist.articles ?? [],
+  releases: artist.releases ?? [],
+  events: artist.events ?? [],
+  videos: artist.videos ?? [],
+  sources: artist.sources ?? [],
+};
+
+const biography = portablePlainText(pageArtist.biography);
 const description =
-  firstSentence(biography) || `${artist.name} on Christian Music Europe.`;
-const sameAs = [artist.website, spotifyArtistUrl(artist.spotifyArtistId), artist.youtubeUrl].filter(
-  (url): url is string => Boolean(url),
-);
-const origin = artist.countries.find(
+  firstSentence(biography) || `${pageArtist.name} on Christian Music Europe.`;
+const sameAs = [
+  pageArtist.website,
+  spotifyArtistUrl(pageArtist.spotifyArtistId),
+  pageArtist.youtubeUrl,
+  pageArtist.instagramUrl,
+  pageArtist.tiktokUrl,
+  pageArtist.xUrl,
+  pageArtist.facebookUrl,
+].filter((url): url is string => Boolean(url));
+const origin = pageArtist.countries.find(
   (country) => country.relationshipType === 'origin' || country.relationshipType === 'formed_in',
 );
 
 const jsonLd: Record<string, unknown> = {
   '@context': 'https://schema.org',
-  '@type': artist.artistType === 'solo' ? 'Person' : 'MusicGroup',
-  name: artist.name,
+  '@type': pageArtist.artistType === 'solo' ? 'Person' : 'MusicGroup',
+  name: pageArtist.name,
   description: biography || description,
-  genre: artist.genres.map((genre) => genre.name),
+  genre: pageArtist.genres.map((genre) => genre.name),
   sameAs,
-  url: artist.website,
+  url: pageArtist.website,
 };
 
-if (origin && artist.artistType !== 'solo') {
+if (origin && pageArtist.artistType !== 'solo') {
   jsonLd.foundingLocation = {
     '@type': 'Country',
     name: origin.name,
   };
 }
 
-const pageArtist: ArtistPageData = artist;
 ---
 
 <Layout
-  title={`${artist.name} | Christian Music Europe`}
+  title={`${pageArtist.name} | Christian Music Europe`}
   description={description}
   header="compact"
   ogType="profile"

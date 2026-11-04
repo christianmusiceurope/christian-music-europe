@@ -54,12 +54,22 @@ Astro defaults to [http://localhost:4321](http://localhost:4321).
 
 | Value | Behaviour |
 | --- | --- |
-| `fixture` (default) | Render local fixtures in `apps/web/src/fixtures`. This includes the LIN D artist at `/artists/lin-d`, built from the proposal document. Use this while LIN D and the genre documents are still drafts. |
-| `sanity` | Fetch published documents from project `rg6onak7`, dataset `production`, with GROQ. |
+| unset or `sanity` (default) | Fetch published documents from project `rg6onak7`, dataset `production`, with GROQ. One page is built for every published artist. |
+| `fixture` | Offline opt-in. Renders local fixtures in `apps/web/src/fixtures`, including LIN D, with no network call. Use this for offline dev and tests. |
 
-Drafts are not on the public API. To read them, set `SANITY_API_READ_TOKEN` in the server environment (no `PUBLIC_` prefix) and set `PUBLIC_CME_DATA_SOURCE=sanity`. Never commit the token. The homepage and the interview template at `/articles/placeholder-interview` are design pages: orange Placeholder badges are example slots, and grey From the site badges repeat titles from the approved homepage mockup.
+Drafts are not on the public API. To read them, set `SANITY_API_READ_TOKEN` in the server environment (no `PUBLIC_` prefix). The client then uses the drafts perspective. Never commit the token. The homepage and the interview template at `/articles/placeholder-interview` are design pages: orange Placeholder badges are example slots, and grey From the site badges repeat titles from the approved homepage mockup.
 
 The night photograph used in the masthead, country map and footer is `apps/web/public/brand/night-europe.jpg`. Its licence is unconfirmed. It is marked on the page as a placeholder image and must be replaced before launch.
+
+### Photo workflow
+
+Every editorial photo uses the `licensedImage` type in Studio: alt text, credit, source, licence, permission notes, optional expiry, and rights status. A production build shows a photo only when rights status is Cleared. The same rule applies in fixture mode and Sanity mode.
+
+`PUBLIC_CME_ALLOW_PENDING_IMAGES=true` also shows photos marked `restricted`, with a visible Permission pending label. That flag applies to dev and preview builds only (`astro dev`, or `astro build --mode preview`). A production build ignores it. Leave the flag unset for launch. The LIN D studio portrait is restricted: permission from the artist's management is still pending, so it appears only when this flag is on.
+
+Keep the originals and the licence proof in the Google Drive folder `CME Media`, and record each photo on the `CME Photo log` sheet. Upload the publishing copy to Sanity and fill the licensed image fields, including where that proof is kept. Alt text is required before publish. CC BY and CC BY-SA warn when the credit is empty. A status other than Cleared warns, and the site will not render that photo.
+
+Campaign channel assets stay on the campaign `mediaRights` record. That object is the campaign workflow, not the public photo licence.
 
 Run Sanity Studio:
 

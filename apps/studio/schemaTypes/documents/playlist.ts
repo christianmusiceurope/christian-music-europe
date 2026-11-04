@@ -37,9 +37,8 @@ export const playlist = defineType({
     defineField({
       name: 'coverImage',
       title: 'Cover image',
-      type: 'image',
+      type: 'licensedImage',
       group: 'editorial',
-      options: {hotspot: true},
     }),
     defineField({
       name: 'songs',

@@ -104,6 +104,31 @@ export const CHANNEL_APPROVAL_STATUSES = [
   {title: 'Published', value: 'published'},
 ] as const
 
+export const IMAGE_SOURCE_TYPES = [
+  {title: 'Official promo', value: 'official_promo'},
+  {title: 'Given by artist or label', value: 'given_by_artist_or_label'},
+  {title: 'Own photo', value: 'own_photo'},
+  {title: 'Free licence', value: 'free_licence'},
+  {title: 'Other', value: 'other'},
+] as const
+
+export const IMAGE_LICENCES = [
+  {title: 'All rights reserved, with permission', value: 'all_rights_reserved_with_permission'},
+  {title: 'CC0', value: 'cc0'},
+  {title: 'CC BY', value: 'cc_by'},
+  {title: 'CC BY-SA', value: 'cc_by_sa'},
+  {title: 'Unsplash', value: 'unsplash'},
+  {title: 'Pexels', value: 'pexels'},
+  {title: 'Other', value: 'other'},
+] as const
+
+export const IMAGE_RIGHTS_STATUSES = [
+  {title: 'Unknown', value: 'unknown'},
+  {title: 'Cleared', value: 'cleared'},
+  {title: 'Restricted', value: 'restricted'},
+  {title: 'Not cleared', value: 'not_cleared'},
+] as const
+
 export const MEDIA_RIGHTS_STATUSES = [
   {title: 'Unknown', value: 'unknown'},
   {title: 'Cleared', value: 'cleared'},

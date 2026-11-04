@@ -21,11 +21,21 @@ export type PtTextBlock = {
   markDefs?: PtLinkMark[];
 };
 
-export type PtImageBlock = {
-  _key?: string;
-  _type: 'image';
-  alt?: string;
+export type LicensedImage = {
   url?: string;
+  alt?: string;
+  credit?: string;
+  sourceType?: string;
+  sourceUrl?: string;
+  licence?: string;
+  permissionNotes?: string;
+  expiresAt?: string;
+  rightsStatus?: string;
+};
+
+export type PtImageBlock = LicensedImage & {
+  _key?: string;
+  _type: 'image' | 'licensedImage';
 };
 
 export type PtYouTubeBlock = {
@@ -74,7 +84,7 @@ export type ArticleCard = {
   articleType?: string;
   excerpt?: string;
   publishedAt?: string;
-  heroUrl?: string;
+  heroImage?: LicensedImage;
 };
 
 export type ReleaseCard = {
@@ -83,7 +93,7 @@ export type ReleaseCard = {
   slug?: string;
   releaseType?: string;
   releaseDate?: string;
-  coverUrl?: string;
+  cover?: LicensedImage;
 };
 
 export type EventCard = {
@@ -91,10 +101,20 @@ export type EventCard = {
   title: string;
   slug?: string;
   startDateTime?: string;
+  timezone?: string;
   eventType?: string;
+  eventStatus?: string;
+  ticketStatus?: string;
+  ticketUrl?: string;
+  officialSourceUrl?: string;
   city?: string;
   countryName?: string;
   venueName?: string;
+  festivalName?: string;
+  festivalSlug?: string;
+  festivalWebsite?: string;
+  /** Local fixture copy of unpublished draft data. */
+  development?: boolean;
 };
 
 export type ArtistVideo = {
@@ -114,7 +134,11 @@ export type ArtistPageData = {
   website?: string;
   spotifyArtistId?: string;
   youtubeUrl?: string;
-  imageUrl?: string;
+  instagramUrl?: string;
+  tiktokUrl?: string;
+  xUrl?: string;
+  facebookUrl?: string;
+  image?: LicensedImage;
   countries: CountryAssociationView[];
   genres: GenreView[];
   articles: ArticleCard[];
@@ -132,7 +156,7 @@ export type ArticleDocument = {
   author?: string;
   publishedAt?: string;
   excerpt?: string;
-  heroUrl?: string;
+  heroImage?: LicensedImage;
   body: PortableTextBlock[];
   artists: Array<{ name: string; slug?: string }>;
   countries: Array<{ name: string; slug?: string }>;

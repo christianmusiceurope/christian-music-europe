@@ -1,0 +1,198 @@
+---
+import ArticleTools from './ArticleTools.astro';
+import DiscoveryLab from './DiscoveryLab.astro';
+import NewsletterBand from './NewsletterBand.astro';
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import PlaceholderBadge from './PlaceholderBadge.astro';
+import SectionHead from './SectionHead.astro';
+import YouTubeEmbed from './YouTubeEmbed.astro';
+---
+
+<div class="wrap ahead">
+  <div class="kicker">
+    Interview · Country · Genre <PlaceholderBadge />
+  </div>
+  <h1>Placeholder headline for an interview feature</h1>
+  <p class="standfirst sf">
+    Placeholder standfirst: two sentences that tell the reader who the artist is and why this conversation matters now.
+  </p>
+  <div class="bl">
+    <div class="who">
+      <span class="av" aria-hidden="true"></span>
+      <div>
+        <b>By Writer name</b>
+        <span class="meta">Date · 8 min read</span>
+      </div>
+    </div>
+    <ArticleTools listenHref="#listen" />
+  </div>
+</div>
+
+<figure class="wrap hero">
+  <PhotoPlaceholder ratio="r169" label="Licensed photo goes here" />
+  <figcaption>
+    <span>Placeholder caption describing the photo.</span>
+    <span class="meta">Photo: Photographer name / licence</span>
+  </figcaption>
+</figure>
+
+<div class="wrap body">
+  <div class="grid">
+    <aside class="toc">
+      <div class="meta">In this article</div>
+      <ol>
+        <li class="done">Introduction</li>
+        <li class="on">Section heading</li>
+        <li>Section heading</li>
+        <li>Section heading</li>
+        <li>Credits and sources</li>
+      </ol>
+    </aside>
+    <article class="txt">
+      <p class="lede">
+        Placeholder opening paragraph, set slightly larger. It introduces the artist and the setting of the interview. The final text goes here.
+      </p>
+      <p>
+        Placeholder body text. This paragraph shows the reading measure of about 66 characters per line, set in Manrope at 19 px with a generous line height, so long interviews stay comfortable to read. The final article text goes here.
+      </p>
+      <p>
+        A second placeholder paragraph. Links inside the text look like <a class="link" href="#">this example link</a>: white text with a purple underline, so they stay readable on charcoal. Real copy replaces this paragraph.
+      </p>
+      <h2>Section heading</h2>
+      <div class="qa">
+        <span class="q">Q</span>
+        <p class="qq">Placeholder interviewer question about the new music?</p>
+      </div>
+      <p class="ans">
+        Placeholder answer from the artist. Answers sit in regular body text so the question stands out, and longer answers simply run on in the same measure.
+      </p>
+      <div class="qa">
+        <span class="q">Q</span>
+        <p class="qq">Placeholder follow-up question about faith and songwriting?</p>
+      </div>
+      <p class="ans">
+        Placeholder answer from the artist. Real quotes will only be used once they are confirmed by the writer.
+      </p>
+    </article>
+    <aside class="artist" id="artist-card">
+      <div class="meta">The artist</div>
+      <PhotoPlaceholder ratio="r1" label="Licensed photo" />
+      <h4>Artist name</h4>
+      <dl>
+        <dt>Country</dt>
+        <dd>Country</dd>
+        <dt>Genre</dt>
+        <dd>Genre</dd>
+        <dt>Latest release</dt>
+        <dd>Release title</dd>
+      </dl>
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button class="btn pur" type="button" aria-disabled="true">Follow artist</button>
+        <a class="btn ghost" href="#artist-card">Profile</a>
+      </div>
+      <p style="margin-top:14px"><PlaceholderBadge /></p>
+    </aside>
+  </div>
+  <div class="grid">
+    <blockquote class="pq">
+      <span class="mk">&ldquo;</span>
+      Placeholder pull quote: one strong line from the interview, set large.
+      <cite class="meta">Artist name</cite>
+    </blockquote>
+  </div>
+  <div class="grid">
+    <div class="txt c2">
+      <h2>Section heading</h2>
+      <p>
+        Placeholder body text. This paragraph shows the reading measure of about 66 characters per line, set in Manrope at 19 px with a generous line height, so long interviews stay comfortable to read. The final article text goes here.
+      </p>
+      <YouTubeEmbed
+        id="listen"
+        placeholder
+        title="Placeholder player"
+        note="Loads content from the streaming service. Nothing is loaded until you click."
+      />
+      <p>
+        A second placeholder paragraph. Links inside the text look like <a class="link" href="#">this example link</a>: white text with a purple underline, so they stay readable on charcoal. Real copy replaces this paragraph.
+      </p>
+      <div class="credits">
+        <h3>Credits and sources</h3>
+        <p class="muted">
+          Interview by Writer name. Photos: Photographer name / licence. Sources: Source title, Source title.
+          <PlaceholderBadge />
+        </p>
+        <div class="chips" style="margin-top:20px">
+          <span class="chip">Interview</span>
+          <span class="chip">Country</span>
+          <span class="chip">Genre</span>
+          <span class="chip">Artist name</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="wrap more">
+  <SectionHead title="More from this artist" linkLabel="Artist profile" href="#artist-card" />
+  <div class="grid">
+    <article class="card" style="grid-column:1/5">
+      <PhotoPlaceholder ratio="r32" />
+      <div class="kicker k">Release · Single</div>
+      <h4>Placeholder headline for a related story</h4>
+      <PlaceholderBadge />
+    </article>
+    <article class="card" style="grid-column:5/9">
+      <PhotoPlaceholder ratio="r32" />
+      <div class="kicker k">Live</div>
+      <h4>Placeholder headline for a related story</h4>
+      <PlaceholderBadge />
+    </article>
+    <article class="card" style="grid-column:9/13">
+      <PhotoPlaceholder ratio="r32" />
+      <div class="kicker k">Review</div>
+      <h4>Placeholder headline for a related story</h4>
+      <PlaceholderBadge />
+    </article>
+  </div>
+</section>
+
+<DiscoveryLab
+  title="If you like this, try…"
+  lede="Three European Christian artists picked to sit next to this one."
+/>
+
+<section class="wrap fromc">
+  <SectionHead title="More from Country" linkLabel="All Country stories" href="#countries-map" />
+  <div class="grid">
+    <div class="mapcrop" id="countries-map">
+      <img
+        src="/brand/night-europe.jpg"
+        alt="Placeholder night map of Europe. Licensing is unconfirmed and this image must be replaced."
+      />
+      <span class="pin on" style="left:50%;top:50%"></span>
+      <span class="pinlabel" style="left:50%;top:50%">Country</span>
+    </div>
+    <ol class="latest" style="grid-column:7/13">
+      <li>
+        <div>
+          <h4>Placeholder headline for a story from this country</h4>
+          <span class="meta">Date</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Placeholder headline for a story from this country</h4>
+          <span class="meta">Date</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Placeholder headline for a story from this country</h4>
+          <span class="meta">Date &nbsp;<PlaceholderBadge /></span>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<NewsletterBand />

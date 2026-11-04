@@ -1,0 +1,117 @@
+{
+ "_id": "drafts.artist-lin-d",
+ "_type": "artist",
+ "name": "LIN D",
+ "slug": {
+  "_type": "slug",
+  "current": "lin-d"
+ },
+ "artistType": "band",
+ "countryAssociations": [
+  {
+   "_key": "3802680b7b7d",
+   "_type": "countryAssociation",
+   "country": {
+    "_type": "reference",
+    "_ref": "country-se"
+   },
+   "relationshipType": "origin",
+   "primary": true
+  }
+ ],
+ "genres": [
+  {
+   "_key": "493e0d12a9b0",
+   "_type": "reference",
+   "_ref": "genre-pop"
+  },
+  {
+   "_key": "0e5b2fe3a018",
+   "_type": "reference",
+   "_ref": "genre-r-and-b"
+  },
+  {
+   "_key": "cb4fd30f3518",
+   "_type": "reference",
+   "_ref": "genre-gospel"
+  }
+ ],
+ "languages": [
+  "English"
+ ],
+ "biography": [
+  {
+   "_key": "983156331420",
+   "_type": "block",
+   "style": "normal",
+   "markDefs": [],
+   "children": [
+    {
+     "_key": "8cf132cea0a4",
+     "_type": "span",
+     "marks": [],
+     "text": "LIN D is a pop trio of siblings Dennis, Emmy and Ella Lindéh from Örebro, Sweden. Their sound blends pop, R&B and gospel with Swedish pop melodies, and all three write the songs while Dennis produces. In 2024 they played 38 US arena shows on the Winter Jam tour, and their 2025 single Move became their breakthrough. Their albums Honest To God (2025) and Honest To God II (2026) are out now."
+    }
+   ]
+  }
+ ],
+ "website": "https://www.lin-d.com",
+ "spotifyArtistId": "5LOZTJ6I1sTLRiK14eSWDr",
+ "youtubeUrl": "https://www.youtube.com/@LINDOFFICIAL",
+ "inclusionStatus": "in_scope",
+ "internalNotes": "Other confirmed links (from lin-d.com): Instagram and TikTok @lin.d.official, Apple Music artist 1301439365, shop lin-dshop.myshopify.com. No Facebook or X linked. Unverified, single source only: start year around 2017 or 2018; earlier kids' albums; CMW Rhythmic No. 1 for Anything; Polish TV appearance; Simon Miles feat. LIN D may be a different act. Upcoming: 6 Nov 2026 Oslofjord Convention Center, Melsomvik, Norway (Bandsintown only).",
+ "sources": [
+  {
+   "_key": "48a178bf1426",
+   "_type": "sourceReference",
+   "label": "LIN D official site, About",
+   "url": "https://www.lin-d.com/about",
+   "accessedAt": "2026-11-03T18:00:00Z",
+   "notes": "Members, roles, Move breakthrough, social links"
+  },
+  {
+   "_key": "5dcb8db16d41",
+   "_type": "sourceReference",
+   "label": "Dagen: Svenska LIN D på stor arenaturné i USA",
+   "url": "https://www.dagen.se/kultur/svenska-lin-d-pa-stor-arenaturne-i-usa/3591570",
+   "accessedAt": "2026-11-03T18:00:00Z",
+   "notes": "Örebro; 2024 Winter Jam, 38 arena shows"
+  },
+  {
+   "_key": "6f8d5a503d17",
+   "_type": "sourceReference",
+   "label": "Dagen: Josiah Queen besöker två svenska städer",
+   "url": "https://www.dagen.se/kultur/josiah-queen-besoker-tva-svenska-stader/9643846",
+   "accessedAt": "2026-11-03T18:00:00Z",
+   "notes": "Opened for Josiah Queen in Sweden, March 2025"
+  },
+  {
+   "_key": "379acab18437",
+   "_type": "sourceReference",
+   "label": "TBN UK: Big Church Festival 2023",
+   "url": "https://tbn.uk/tv/big-church-festival-2023/big-church-festival-episode-5/",
+   "accessedAt": "2026-11-03T18:00:00Z",
+   "notes": "Big Church Festival UK 2023"
+  },
+  {
+   "_key": "883ac9ee0875",
+   "_type": "sourceReference",
+   "label": "Apple Music: Honest To God",
+   "url": "https://music.apple.com/us/album/honest-to-god/1836521156",
+   "accessedAt": "2026-11-03T18:00:00Z",
+   "notes": "Released 3 Oct 2025, Wings Music Group"
+  },
+  {
+   "_key": "de4f0ddef195",
+   "_type": "sourceReference",
+   "label": "NewReleaseToday: Honest To God II",
+   "url": "https://www.newreleasetoday.com/album/37911-honest-to-god-ii",
+   "accessedAt": "2026-11-03T18:00:00Z",
+   "notes": "Released 4 Sep 2026, Wings Music Group"
+  }
+ ],
+ "verification": {
+  "_type": "editorialVerification",
+  "status": "unverified"
+ }
+}

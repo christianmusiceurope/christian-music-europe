@@ -1,0 +1,290 @@
+---
+import EmptyState from './EmptyState.astro';
+import NewsletterBand from './NewsletterBand.astro';
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import PlaceholderBadge from './PlaceholderBadge.astro';
+import PortableText from './PortableText.astro';
+import SectionHead from './SectionHead.astro';
+import SpotifyEmbed from './SpotifyEmbed.astro';
+import YouTubeEmbed from './YouTubeEmbed.astro';
+import { eventDateParts, formatLongDate, formatShortDate } from '../lib/dates';
+import { articleTypeLabel, releaseTypeLabel } from '../lib/labels';
+import { firstSentence, portablePlainText } from '../lib/text';
+import { spotifyArtistUrl } from '../lib/youtube';
+import type { ArtistPageData } from '../lib/types';
+
+interface Props {
+  artist: ArtistPageData;
+}
+
+const { artist } = Astro.props;
+const primary = artist.countries.find((country) => country.primary) ?? artist.countries[0];
+const kicker = [artist.artistTypeLabel, primary?.name, artist.genres[0]?.name].filter(Boolean).join(' · ');
+const biographyText = portablePlainText(artist.biography);
+const standfirst = firstSentence(biographyText);
+const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
+---
+
+<article class="artist-page">
+  <header class="wrap">
+    <p class="crumb meta">
+      <a href="/">Home</a>
+      <span>/</span>
+      Artists
+      <span>/</span>
+      {artist.name}
+    </p>
+    <div class="grid artist-hero-grid">
+      {
+        artist.imageUrl ? (
+          <figure class="artist-hero-media has-photo">
+            <img src={artist.imageUrl} alt={`${artist.name}`} />
+          </figure>
+        ) : (
+          <div class="artist-hero-media">
+            <div class="artist-hero-mark">
+              <img src="/brand/globe-192.png" alt="" />
+            </div>
+            <span class="artist-accent"></span>
+            <PlaceholderBadge />
+            <p class="artist-hero-note">Image placeholder. No licensed photograph is available for this artist.</p>
+          </div>
+        )
+      }
+      <div class="artist-hero-copy">
+        {kicker && <p class="kicker">{kicker}</p>}
+        <h1>{artist.name}</h1>
+        {standfirst && <p class="standfirst">{standfirst}</p>}
+        <dl class="artist-facts">
+          <dt>Artist type</dt>
+          <dd>{artist.artistTypeLabel}</dd>
+          {
+            artist.countries.map((country) => (
+              <>
+                <dt>Country</dt>
+                <dd>
+                  {country.name} · {country.relationshipLabel}
+                  {country.primary ? ' · primary' : ''}
+                </dd>
+              </>
+            ))
+          }
+          {
+            artist.genres.length > 0 && (
+              <>
+                <dt>Genres</dt>
+                <dd>{artist.genres.map((genre) => genre.name).join(', ')}</dd>
+              </>
+            )
+          }
+          {
+            artist.languages.length > 0 && (
+              <>
+                <dt>Languages</dt>
+                <dd>{artist.languages.join(', ')}</dd>
+              </>
+            )
+          }
+        </dl>
+        <div class="artist-links">
+          {
+            artist.website && (
+              <a class="btn pur" href={artist.website} rel="noopener noreferrer" target="_blank">
+                Website
+              </a>
+            )
+          }
+          {
+            spotifyUrl && (
+              <a class="btn ghost" href={spotifyUrl} rel="noopener noreferrer" target="_blank">
+                Spotify
+              </a>
+            )
+          }
+          {
+            artist.youtubeUrl && (
+              <a class="btn ghost" href={artist.youtubeUrl} rel="noopener noreferrer" target="_blank">
+                YouTube
+              </a>
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="wrap" id="biography">
+    <SectionHead title="Biography" />
+    {
+      artist.biography.length > 0 ? (
+        <PortableText value={artist.biography} />
+      ) : (
+        <EmptyState title="No biography is published yet" body="The biography from the artist record will appear in this column." />
+      )
+    }
+    {
+      artist.sources.length > 0 && (
+        <div class="credits">
+          <h3>Sources</h3>
+          <ul class="source-list">
+            {artist.sources.map((source) => (
+              <li>
+                {
+                  source.url ? (
+                    <a href={source.url} rel="noopener noreferrer" target="_blank">
+                      {source.label}
+                    </a>
+                  ) : (
+                    <span>{source.label}</span>
+                  )
+                }
+                {formatLongDate(source.accessedAt) && <span class="meta">Accessed {formatLongDate(source.accessedAt)}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+  </section>
+
+  <section class="wrap" id="listen">
+    <SectionHead title="Listen" />
+    {
+      spotifyUrl && artist.spotifyArtistId ? (
+        <SpotifyEmbed artistId={artist.spotifyArtistId} title={`${artist.name} on Spotify`} />
+      ) : (
+        <EmptyState
+          title="No Spotify player yet"
+          body="When a Spotify artist id is stored on the profile, a player will load here after a click."
+        />
+      )
+    }
+  </section>
+
+  <section class="wrap" id="videos">
+    <SectionHead title="Videos" />
+    {
+      artist.videos.length === 0 ? (
+        <EmptyState
+          title="No videos are linked yet"
+          body="YouTube videos connected to this artist will play in a privacy-friendly player. Nothing loads until someone presses play."
+        />
+      ) : (
+        <div class="catalog-list">
+          {artist.videos.map((video) => (
+            <YouTubeEmbed url={video.url} title={video.title} />
+          ))}
+        </div>
+      )
+    }
+    {
+      artist.videos.length === 0 && (
+        <div class="dev-sample">
+          <PlaceholderBadge />
+          <p>
+            Development preview of the video player. It is not a {artist.name} video, and it does not contact YouTube.
+          </p>
+          <YouTubeEmbed placeholder title="Placeholder video title" eyebrow="Preview" />
+        </div>
+      )
+    }
+  </section>
+
+  <section class="wrap" id="releases">
+    <SectionHead title="Releases" />
+    {
+      artist.releases.length === 0 ? (
+        <EmptyState
+          title="No releases are listed yet"
+          body="Albums, EPs and singles published for this artist will be listed in this section."
+        />
+      ) : (
+        <div class="catalog-list">
+          {artist.releases.map((release) => (
+            <article class="release-row">
+              {
+                release.coverUrl ? (
+                  <img src={release.coverUrl} alt="" width="160" height="160" />
+                ) : (
+                  <PhotoPlaceholder ratio="r1" label="Cover artwork goes here" />
+                )
+              }
+              <div>
+                <p class="kicker">{releaseTypeLabel(release.releaseType)}</p>
+                <h3>{release.title}</h3>
+                {formatShortDate(release.releaseDate) && <p class="meta">{formatShortDate(release.releaseDate)}</p>}
+              </div>
+            </article>
+          ))}
+        </div>
+      )
+    }
+  </section>
+
+  <section class="wrap" id="events">
+    <SectionHead title="Upcoming events" />
+    {
+      artist.events.length === 0 ? (
+        <EmptyState
+          title="No upcoming events are listed yet"
+          body="Concerts and festival dates linked to this artist will appear here once they are on the calendar."
+        />
+      ) : (
+        <div class="catalog-list">
+          {artist.events.map((event) => {
+            const when = eventDateParts(event.startDateTime);
+            const place = [event.city, event.countryName].filter(Boolean).join(', ');
+            return (
+              <article class="event-row">
+                <div class="d">
+                  {when?.day ?? '00'}
+                  <small>{when?.weekday ?? 'DATE'}</small>
+                </div>
+                <div>
+                  <h3>{event.title}</h3>
+                  {event.venueName && <p class="muted">{event.venueName}</p>}
+                </div>
+                {place && <p class="meta">{place}</p>}
+              </article>
+            );
+          })}
+        </div>
+      )
+    }
+  </section>
+
+  <section class="wrap" id="related">
+    <SectionHead title="Related articles" />
+    {
+      artist.articles.length === 0 ? (
+        <EmptyState
+          title="No related articles yet"
+          body="Stories that reference this artist will be collected in this section."
+        />
+      ) : (
+        <div class="catalog-list">
+          {artist.articles.map((story) => (
+            <article>
+              {
+                story.heroUrl ? (
+                  <img src={story.heroUrl} alt="" width="160" height="106" />
+                ) : (
+                  <PhotoPlaceholder ratio="r32" />
+                )
+              }
+              <div>
+                <p class="kicker">{articleTypeLabel(story.articleType)}</p>
+                <h3>
+                  {story.slug ? <a href={`/articles/${story.slug}`}>{story.title}</a> : story.title}
+                </h3>
+                {formatShortDate(story.publishedAt) && <p class="meta">{formatShortDate(story.publishedAt)}</p>}
+              </div>
+            </article>
+          ))}
+        </div>
+      )
+    }
+  </section>
+
+  <NewsletterBand />
+</article>

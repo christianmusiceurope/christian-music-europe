@@ -48,6 +48,19 @@ npm run dev:web
 
 Astro defaults to [http://localhost:4321](http://localhost:4321).
 
+### Where pages get their content
+
+`PUBLIC_CME_DATA_SOURCE` chooses the source for artist and article records:
+
+| Value | Behaviour |
+| --- | --- |
+| `fixture` (default) | Render local fixtures in `apps/web/src/fixtures`. This includes the LIN D artist at `/artists/lin-d`, built from the proposal document. Use this while LIN D and the genre documents are still drafts. |
+| `sanity` | Fetch published documents from project `rg6onak7`, dataset `production`, with GROQ. |
+
+Drafts are not on the public API. To read them, set `SANITY_API_READ_TOKEN` in the server environment (no `PUBLIC_` prefix) and set `PUBLIC_CME_DATA_SOURCE=sanity`. Never commit the token. The homepage and the interview template at `/articles/placeholder-interview` are design pages: orange Placeholder badges are example slots, and grey From the site badges repeat titles from the approved homepage mockup.
+
+The night photograph used in the masthead, country map and footer is `apps/web/public/brand/night-europe.jpg`. Its licence is unconfirmed. It is marked on the page as a placeholder image and must be replaced before launch.
+
 Run Sanity Studio:
 
 ```bash

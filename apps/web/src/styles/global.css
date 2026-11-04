@@ -1,1 +1,32 @@
 @import "tailwindcss";
+@import "./mockup.css";
+@import "./site.css";
+
+@font-face {
+  font-family: "CME Unbounded";
+  src: url("/fonts/Unbounded-VariableFont_wght.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "CME Manrope";
+  src: url("/fonts/Manrope-VariableFont_wght.ttf") format("truetype");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: block;
+}
+
+@theme {
+  --font-sans: "CME Manrope", sans-serif;
+  --font-heading: "CME Unbounded", sans-serif;
+  --font-body: "CME Manrope", sans-serif;
+  --color-charcoal: #121212;
+  --color-raised: #1a1a1a;
+  --color-ink: #ffffff;
+  --color-muted: #b8b8b8;
+  --color-rule: #2e2e2e;
+  --color-purple: #7b2ff7;
+  --color-orange: #ff6a00;
+}

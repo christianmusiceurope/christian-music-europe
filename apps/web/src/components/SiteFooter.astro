@@ -1,0 +1,58 @@
+---
+import { sectionHref } from '../content/navigation';
+
+const onHome = Astro.url.pathname === '/';
+const href = (hash: string) => (onHome ? `#${hash}` : `/#${hash}`);
+const item = (id: string, label: string, hash: string) =>
+  sectionHref({ id, label, hash }, onHome, undefined, Astro.url.pathname);
+---
+
+<footer class="foot" id="submit-music">
+  <div class="horizon">
+    {/* Same unlicensed placeholder photograph as the masthead. Replace before launch. */}
+    <img
+      src="/brand/night-europe.jpg"
+      alt="Placeholder night photograph of Europe. Licensing is unconfirmed and this image must be replaced."
+      title="Placeholder image, licensing unconfirmed"
+    />
+  </div>
+  <div class="wrap">
+    <div class="grid">
+      <div style="grid-column:1/5">
+        <img src="/brand/logo-full-light.png" style="width:300px" alt="Christian Music Europe" />
+      </div>
+      <div style="grid-column:6/8">
+        <h5>Sections</h5>
+        <ul>
+          <li><a href={item('news', 'News', 'latest')}>News</a></li>
+          <li><a href={href('features')}>Features</a></li>
+          <li><a href={href('interviews')}>Interviews</a></li>
+          <li><a href={href('reviews')}>Reviews</a></li>
+          <li><a href={href('releases')}>New releases</a></li>
+        </ul>
+      </div>
+      <div style="grid-column:8/10">
+        <h5>Discover</h5>
+        <ul>
+          <li><a href={href('countries')}>Countries</a></li>
+          <li>Genres</li>
+          <li><a href={href('discovery-lab')}>Discovery Lab</a></li>
+          <li><a href={href('live')}>Live in Europe</a></li>
+        </ul>
+      </div>
+      <div style="grid-column:10/13">
+        <h5>Follow</h5>
+        <ul>
+          <li>X</li>
+          <li>Instagram</li>
+          <li>YouTube</li>
+          <li>Spotify</li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">
+      <span class="meta">&copy; Christian Music Europe</span>
+      <span class="meta">About · Contact · Submit music · Privacy</span>
+    </div>
+  </div>
+</footer>

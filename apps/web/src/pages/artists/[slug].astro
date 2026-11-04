@@ -1,0 +1,58 @@
+---
+import ArtistProfile from '../../components/ArtistProfile.astro';
+import Layout from '../../layouts/Layout.astro';
+import { getArtist, getArtistSlugs } from '../../lib/artists';
+import { firstSentence, portablePlainText } from '../../lib/text';
+import { spotifyArtistUrl } from '../../lib/youtube';
+import type { ArtistPageData } from '../../lib/types';
+
+export async function getStaticPaths() {
+  const slugs = await getArtistSlugs();
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const slug = Astro.params.slug;
+if (!slug) throw new Error('Artist slug is missing.');
+
+const artist = await getArtist(slug);
+if (!artist) throw new Error(`No artist content for slug "${slug}".`);
+
+const biography = portablePlainText(artist.biography);
+const description =
+  firstSentence(biography) || `${artist.name} on Christian Music Europe.`;
+const sameAs = [artist.website, spotifyArtistUrl(artist.spotifyArtistId), artist.youtubeUrl].filter(
+  (url): url is string => Boolean(url),
+);
+const origin = artist.countries.find(
+  (country) => country.relationshipType === 'origin' || country.relationshipType === 'formed_in',
+);
+
+const jsonLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': artist.artistType === 'solo' ? 'Person' : 'MusicGroup',
+  name: artist.name,
+  description: biography || description,
+  genre: artist.genres.map((genre) => genre.name),
+  sameAs,
+  url: artist.website,
+};
+
+if (origin && artist.artistType !== 'solo') {
+  jsonLd.foundingLocation = {
+    '@type': 'Country',
+    name: origin.name,
+  };
+}
+
+const pageArtist: ArtistPageData = artist;
+---
+
+<Layout
+  title={`${artist.name} | Christian Music Europe`}
+  description={description}
+  header="compact"
+  ogType="profile"
+  jsonLd={jsonLd}
+>
+  <ArtistProfile artist={pageArtist} />
+</Layout>

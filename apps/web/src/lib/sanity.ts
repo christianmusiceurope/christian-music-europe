@@ -1,69 +1,145 @@
 import { createClient, type SanityClient } from '@sanity/client';
+import { defineQuery } from 'groq';
 
-const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+const rawProjectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = import.meta.env.PUBLIC_SANITY_DATASET || 'production';
 const apiVersion = import.meta.env.PUBLIC_SANITY_API_VERSION || '2026-10-25';
 
-export const isSanityConfigured = Boolean(
-  projectId && projectId !== 'yourProjectId',
-);
+/** Public project id. `yourProjectId` is the placeholder in older env examples. */
+export const projectId =
+  rawProjectId && rawProjectId !== 'yourProjectId' ? rawProjectId : 'rg6onak7';
+
+export type ContentSource = 'fixture' | 'sanity';
+
+function readServerToken(): string | undefined {
+  const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
+  const token = env?.SANITY_API_READ_TOKEN?.trim();
+  return token || undefined;
+}
+
+const readToken = readServerToken();
+
+/**
+ * `PUBLIC_CME_DATA_SOURCE=fixture` (default) uses local fixtures so draft
+ * documents such as LIN D render without a token.
+ * `sanity` reads the dataset. Drafts are included only when
+ * `SANITY_API_READ_TOKEN` is set in the server environment. Never prefix that
+ * token with PUBLIC_.
+ */
+export const contentSource: ContentSource =
+  import.meta.env.PUBLIC_CME_DATA_SOURCE === 'sanity' ? 'sanity' : 'fixture';
+
+export const sanityReadsDrafts = contentSource === 'sanity' && Boolean(readToken);
 
 export const sanityClient: SanityClient = createClient({
-  projectId: projectId || 'placeholder',
+  projectId,
   dataset,
   apiVersion,
-  useCdn: true,
+  useCdn: !readToken,
+  token: readToken,
+  perspective: readToken ? 'drafts' : 'published',
 });
 
-export type ArtistCard = {
-  _id: string;
-  name: string;
-  slug?: { current?: string };
-  summary?: string;
-};
+export const ARTIST_SLUGS_QUERY = defineQuery(/* groq */ `
+  *[_type == "artist" && defined(slug.current)]{ "slug": slug.current }
+`);
 
-export type ReleaseCard = {
-  _id: string;
-  title: string;
-  slug?: { current?: string };
-  summary?: string;
-};
-
-export type EventCard = {
-  _id: string;
-  title: string;
-  slug?: { current?: string };
-  city?: string;
-  country?: string;
-  startDate?: string;
-  summary?: string;
-};
-
-export async function fetchDiscoveryPreview(): Promise<{
-  artists: ArtistCard[];
-  releases: ReleaseCard[];
-  events: EventCard[];
-}> {
-  if (!isSanityConfigured) {
-    return { artists: [], releases: [], events: [] };
+export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
+  *[_type == "artist" && slug.current == $slug][0]{
+    _id,
+    name,
+    "slug": slug.current,
+    artistType,
+    languages,
+    biography,
+    website,
+    spotifyArtistId,
+    youtubeUrl,
+    "imageUrl": image.asset->url,
+    countryAssociations[]{
+      _key,
+      relationshipType,
+      primary,
+      country->{
+        _id,
+        name,
+        "slug": slug.current,
+        isoCode
+      }
+    },
+    genres[]->{
+      _id,
+      name,
+      "slug": slug.current
+    },
+    sources[]{
+      _key,
+      label,
+      url,
+      accessedAt
+    },
+    "articles": *[_type == "article" && references(^._id)] | order(publishedAt desc)[0...6]{
+      _id,
+      title,
+      "slug": slug.current,
+      articleType,
+      excerpt,
+      publishedAt,
+      "heroUrl": heroImage.asset->url
+    },
+    "releases": *[_type == "release" && references(^._id)] | order(releaseDate desc)[0...8]{
+      _id,
+      title,
+      "slug": slug.current,
+      releaseType,
+      releaseDate,
+      "coverUrl": coverArtwork.asset->url
+    },
+    "events": *[_type == "event" && references(^._id) && startDateTime >= now()] | order(startDateTime asc)[0...8]{
+      _id,
+      title,
+      "slug": slug.current,
+      startDateTime,
+      eventType,
+      "city": venue->city,
+      "countryName": venue->country->name,
+      "venueName": venue->name
+    },
+    "videoGroups": *[_type == "article" && references(^._id)]{
+      "embeds": body[_type == "youtubeEmbed"]{
+        _key,
+        url,
+        title
+      }
+    }
   }
+`);
 
-  try {
-    const [artists, releases, events] = await Promise.all([
-      sanityClient.fetch<ArtistCard[]>(
-        `*[_type == "artist"] | order(name asc)[0...6]{ _id, name, slug, summary }`,
-      ),
-      sanityClient.fetch<ReleaseCard[]>(
-        `*[_type == "release"] | order(releaseDate desc)[0...6]{ _id, title, slug, summary }`,
-      ),
-      sanityClient.fetch<EventCard[]>(
-        `*[_type == "event"] | order(startDate asc)[0...6]{ _id, title, slug, city, country, startDate, summary }`,
-      ),
-    ]);
+export const ARTICLE_SLUGS_QUERY = defineQuery(/* groq */ `
+  *[_type == "article" && defined(slug.current)]{ "slug": slug.current }
+`);
 
-    return { artists, releases, events };
-  } catch (error) {
-    console.warn('Sanity fetch failed. Check projectId, dataset, and CORS.', error);
-    return { artists: [], releases: [], events: [] };
+export const ARTICLE_BY_SLUG_QUERY = defineQuery(/* groq */ `
+  *[_type == "article" && slug.current == $slug][0]{
+    _id,
+    title,
+    "slug": slug.current,
+    articleType,
+    author,
+    publishedAt,
+    excerpt,
+    "heroUrl": heroImage.asset->url,
+    body[]{
+      ...,
+      _type == "image" => {
+        ...,
+        "url": asset->url,
+        alt
+      }
+    },
+    "artists": relatedArtists[]->{ name, "slug": slug.current },
+    "countries": relatedCountries[]->{ name, "slug": slug.current },
+    "genres": relatedGenres[]->{ name, "slug": slug.current },
+    "releases": relatedReleases[]->{ title, "slug": slug.current, releaseType }
   }
-}
+`);

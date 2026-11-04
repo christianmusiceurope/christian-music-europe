@@ -1,0 +1,36 @@
+<script>
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const button = target.closest('[data-embed-load]');
+    if (!(button instanceof HTMLButtonElement)) return;
+    const root = button.closest('[data-embed]');
+    if (!(root instanceof HTMLElement) || root.dataset.loaded === 'true') return;
+
+    const placeholder = root.dataset.placeholder === 'true';
+    const src = root.dataset.src ?? '';
+    if (placeholder || !src) {
+      const note = document.createElement('p');
+      note.className = 'embed-warn';
+      note.textContent = 'Development placeholder. This player stays empty on purpose.';
+      root.append(note);
+      button.hidden = true;
+      root.dataset.loaded = 'true';
+      return;
+    }
+
+    const frame = document.createElement('iframe');
+    frame.src = src;
+    frame.title = root.dataset.title || 'Embedded player';
+    frame.loading = 'lazy';
+    frame.className = root.dataset.kind === 'spotify' ? 'sp-frame' : 'yt-frame';
+    frame.allow =
+      'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    frame.referrerPolicy = 'strict-origin-when-cross-origin';
+    frame.setAttribute('allowfullscreen', '');
+    root.append(frame);
+    root.classList.add('is-loaded');
+    root.dataset.loaded = 'true';
+    button.hidden = true;
+  });
+</script>

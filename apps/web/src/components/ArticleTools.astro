@@ -1,0 +1,58 @@
+---
+interface Props {
+  listenHref?: string;
+}
+
+const { listenHref } = Astro.props;
+---
+
+<div class="tools">
+  <button class="btn ghost" type="button" data-share>Share</button>
+  {listenHref && <a class="btn ghost" href={listenHref}>&#9654;&nbsp; Listen</a>}
+  <span class="toggle">
+    <span>Aa</span>
+    <button class="on" type="button" data-theme-value="dark" aria-pressed="true">Dark</button>
+    <button type="button" data-theme-value="light" aria-pressed="false">Light</button>
+  </span>
+</div>
+
+<script>
+  const share = document.querySelector('[data-share]');
+  share?.addEventListener('click', async () => {
+    const url = window.location.href;
+    const title = document.title;
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch {
+        return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      if (share instanceof HTMLButtonElement) {
+        const original = share.textContent;
+        share.textContent = 'Link copied';
+        window.setTimeout(() => {
+          share.textContent = original;
+        }, 1600);
+      }
+    } catch {
+      if (share instanceof HTMLButtonElement) share.textContent = 'Copy the page link';
+    }
+  });
+
+  document.querySelectorAll('[data-theme-value]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const value = button.getAttribute('data-theme-value') === 'light' ? 'light' : 'dark';
+      if (value === 'light') document.documentElement.dataset.theme = 'light';
+      else delete document.documentElement.dataset.theme;
+      document.querySelectorAll('[data-theme-value]').forEach((other) => {
+        const selected = other === button;
+        other.classList.toggle('on', selected);
+        other.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      });
+    });
+  });
+</script>

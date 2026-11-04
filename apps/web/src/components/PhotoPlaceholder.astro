@@ -1,0 +1,17 @@
+---
+interface Props {
+  ratio?: 'r1' | 'r32' | 'r45' | 'r169';
+  label?: string;
+  credit?: string;
+  class?: string;
+}
+
+const { ratio = 'r32', label = 'Licensed photo goes here', credit } = Astro.props;
+---
+
+<div class:list={['photo', ratio, Astro.props.class]}>
+  <div class="pl">
+    <b>{label}</b>
+    {credit && <span class="meta">{credit}</span>}
+  </div>
+</div>

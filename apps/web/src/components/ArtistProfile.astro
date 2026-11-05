@@ -25,6 +25,7 @@ const standfirst = firstSentence(biographyText);
 const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
 const profileLinks = [
   artist.website ? {href: artist.website, label: 'Website', primary: true} : undefined,
+  artist.tourUrl ? {href: artist.tourUrl, label: 'Tour', primary: false} : undefined,
   spotifyUrl ? {href: spotifyUrl, label: 'Spotify', primary: false} : undefined,
   artist.youtubeUrl ? {href: artist.youtubeUrl, label: 'YouTube', primary: false} : undefined,
   artist.instagramUrl ? {href: artist.instagramUrl, label: 'Instagram', primary: false} : undefined,

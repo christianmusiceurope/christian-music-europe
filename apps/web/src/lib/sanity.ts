@@ -65,6 +65,7 @@ export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
     languages,
     biography,
     website,
+    tourUrl,
     spotifyArtistId,
     youtubeUrl,
     instagramUrl,

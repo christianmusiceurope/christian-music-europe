@@ -102,6 +102,14 @@ export const artist = defineType({
       validation: (rule) => rule.uri({scheme: ['http', 'https']}),
     }),
     defineField({
+      name: 'tourUrl',
+      title: 'Tour / dates URL',
+      type: 'url',
+      group: 'catalog',
+      description: "Official page that lists this artist's upcoming dates. Prefer this over website when searching for shows.",
+      validation: (rule) => rule.uri({scheme: ['http', 'https']}),
+    }),
+    defineField({
       name: 'spotifyArtistId',
       title: 'Spotify artist ID',
       type: 'string',

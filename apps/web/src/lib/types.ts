@@ -132,6 +132,7 @@ export type ArtistPageData = {
   languages: string[];
   biography: PortableTextBlock[];
   website?: string;
+  tourUrl?: string;
   spotifyArtistId?: string;
   youtubeUrl?: string;
   instagramUrl?: string;

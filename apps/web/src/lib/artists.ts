@@ -18,6 +18,7 @@ type SanityArtist = {
   languages?: string[];
   biography?: PortableTextBlock[];
   website?: string;
+  tourUrl?: string;
   spotifyArtistId?: string;
   youtubeUrl?: string;
   instagramUrl?: string;
@@ -105,6 +106,7 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
     languages: asArray(doc.languages).filter((language): language is string => Boolean(language)),
     biography,
     website: doc.website,
+    tourUrl: doc.tourUrl,
     spotifyArtistId: doc.spotifyArtistId,
     youtubeUrl: doc.youtubeUrl,
     instagramUrl: doc.instagramUrl,

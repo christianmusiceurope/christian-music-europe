@@ -8,6 +8,8 @@ interface ImportMetaEnv {
   readonly PUBLIC_CME_DATA_SOURCE?: string;
   /** `true` shows restricted photos in dev and preview builds. Ignored when MODE is production. */
   readonly PUBLIC_CME_ALLOW_PENDING_IMAGES?: string;
+  /** `true` renders the local Sondae spotlight fixture on the homepage. */
+  readonly PUBLIC_CME_SPOTLIGHT_FIXTURE?: string;
 }
 
 interface ImportMeta {

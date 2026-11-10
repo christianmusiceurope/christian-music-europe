@@ -164,3 +164,14 @@ export type ArticleDocument = {
   genres: Array<{ name: string; slug?: string }>;
   releases: Array<{ title: string; slug?: string; releaseType?: string }>;
 };
+
+export type SpotlightView = {
+  startDateLabel: string;
+  headline: string;
+  intro?: string;
+  artistSlug: string;
+  countries: string[];
+  genres: string[];
+  image?: LicensedImage;
+  relatedPost?: { title: string; url: string };
+};

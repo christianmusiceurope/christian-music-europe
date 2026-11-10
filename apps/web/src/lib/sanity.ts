@@ -196,3 +196,36 @@ export const ARTICLE_BY_SLUG_QUERY = defineQuery(/* groq */ `
     "releases": relatedReleases[]->{ title, "slug": slug.current, releaseType }
   }
 `);
+
+export const CURRENT_SPOTLIGHT_QUERY = defineQuery(/* groq */ `
+  *[_type == "artistSpotlight" && defined(artist) && defined(startDate) && startDate <= $today] | order(startDate desc, _updatedAt desc)[0]{
+    _id,
+    headline,
+    intro,
+    startDate,
+    relatedPostTitle,
+    relatedPostUrl,
+    image{${LICENSED_IMAGE_FIELDS}},
+    artist->{
+      _id,
+      name,
+      "slug": slug.current,
+      biography,
+      image{${LICENSED_IMAGE_FIELDS}},
+      countryAssociations[]{
+        _key,
+        relationshipType,
+        primary,
+        country->{
+          name,
+          "slug": slug.current
+        }
+      },
+      genres[]->{
+        _id,
+        name,
+        "slug": slug.current
+      }
+    }
+  }
+`);

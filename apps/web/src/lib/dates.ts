@@ -75,3 +75,23 @@ export function eventDateParts(iso: string | undefined): { day: string; weekday:
     .toUpperCase();
   return { day, weekday };
 }
+
+export const HELSINKI_ZONE = 'Europe/Helsinki';
+
+/** Calendar date in Europe/Helsinki, as YYYY-MM-DD. */
+export function todayInHelsinki(now = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: HELSINKI_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now);
+}
+
+/** Date-only values such as 2026-11-11, shown as "11 Nov 2026". */
+export function formatDateOnly(isoDate: string | undefined): string | undefined {
+  if (!isoDate) return undefined;
+  const match = isoDate.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return formatShortDate(isoDate);
+  return formatShortDate(`${match[1]}-${match[2]}-${match[3]}T00:00:00Z`);
+}

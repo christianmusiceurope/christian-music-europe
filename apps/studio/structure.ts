@@ -42,6 +42,14 @@ export const structure: StructureResolver = (S) =>
           S.list()
             .title('Editorial')
             .items([
+              S.listItem()
+                .title('Artist Spotlights')
+                .schemaType('artistSpotlight')
+                .child(
+                  S.documentTypeList('artistSpotlight')
+                    .title('Artist Spotlights')
+                    .defaultOrdering([{field: 'startDate', direction: 'desc'}]),
+                ),
               S.documentTypeListItem('article').title('Articles'),
               S.documentTypeListItem('playlist').title('Playlists'),
               S.documentTypeListItem('chart').title('Charts'),

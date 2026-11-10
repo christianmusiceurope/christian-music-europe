@@ -25,12 +25,35 @@ export function sizedSanityImage(url: string): string {
 }
 
 /** Cleared photos always pass. Restricted photos pass only outside production when the flag is on. */
+export function imageIsUsable(image: LicensedImage | null | undefined): image is LicensedImage {
+  if (!image?.url) return false;
+  return image.rightsStatus === 'cleared' || (image.rightsStatus === 'restricted' && allowPendingImages);
+}
+
 export function imageForSite(image: LicensedImage | null | undefined): LicensedImage | undefined {
-  if (!image?.url) return undefined;
-  if (image.rightsStatus === 'cleared' || (image.rightsStatus === 'restricted' && allowPendingImages)) {
-    return { ...image, url: sizedSanityImage(image.url) };
+  if (!imageIsUsable(image)) return undefined;
+  return { ...image, url: sizedSanityImage(image.url) };
+}
+
+/** Widescreen hero crop: width cap only, no forced 2:3 portrait. */
+export function heroSanityImage(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== 'cdn.sanity.io') return url;
+    parsed.searchParams.set('w', '1600');
+    parsed.searchParams.delete('h');
+    parsed.searchParams.delete('fit');
+    parsed.searchParams.set('auto', 'format');
+    parsed.searchParams.set('q', '80');
+    return parsed.toString();
+  } catch {
+    return url;
   }
-  return undefined;
+}
+
+export function imageForHero(image: LicensedImage | null | undefined): LicensedImage | undefined {
+  if (!imageIsUsable(image)) return undefined;
+  return { ...image, url: heroSanityImage(image.url as string) };
 }
 
 export function presentPortableText(blocks: PortableTextBlock[] | null | undefined): PortableTextBlock[] {

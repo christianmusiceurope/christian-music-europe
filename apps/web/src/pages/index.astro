@@ -4,6 +4,7 @@
  * mockup, which labels them as titles already published on the existing site.
  * Orange Placeholder badges are example slots, not new reporting.
  */
+import ArtistSpotlight from '../components/ArtistSpotlight.astro';
 import DiscoveryLab from '../components/DiscoveryLab.astro';
 import Layout from '../layouts/Layout.astro';
 import NewsletterBand from '../components/NewsletterBand.astro';
@@ -11,6 +12,9 @@ import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
 import PlaceholderBadge from '../components/PlaceholderBadge.astro';
 import SectionHead from '../components/SectionHead.astro';
 import { previewCountries } from '../content/navigation';
+import { getCurrentSpotlight } from '../lib/spotlight';
+
+const spotlight = await getCurrentSpotlight();
 
 const pins = [
   { x: 35.4, y: 43.4 },
@@ -49,25 +53,29 @@ const moreStories = [
   current="home"
   tab="home"
 >
-  <section class="cover">
-    <div class="wrap">
-      <div class="grid">
-        <div class="ph-wrap">
-          <PhotoPlaceholder ratio="r32" label="Licensed photo goes here" credit="Photo: credit / licence" />
-        </div>
-        <div class="txt">
-          <div class="kicker">Artist profile · Sweden · Metal</div>
-          <h1>Narnia: Sweden’s Melodic Metal Powerhouse</h1>
-          <p class="standfirst">Placeholder standfirst: one or two sentences that set up the cover story go here.</p>
-          <div class="byline">
-            <span class="meta" style="color:#fff">By JK Way</span>
-            <span class="meta">19 Jan 2025</span>
-            <PlaceholderBadge tone="site" />
+  {spotlight ? (
+    <ArtistSpotlight spotlight={spotlight} />
+  ) : (
+    <section class="cover">
+      <div class="wrap">
+        <div class="grid">
+          <div class="ph-wrap">
+            <PhotoPlaceholder ratio="r32" label="Licensed photo goes here" credit="Photo: credit / licence" />
+          </div>
+          <div class="txt">
+            <div class="kicker">Artist profile · Sweden · Metal</div>
+            <h1>Narnia: Sweden’s Melodic Metal Powerhouse</h1>
+            <p class="standfirst">Placeholder standfirst: one or two sentences that set up the cover story go here.</p>
+            <div class="byline">
+              <span class="meta" style="color:#fff">By JK Way</span>
+              <span class="meta">19 Jan 2025</span>
+              <PlaceholderBadge tone="site" />
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <section class="feat" id="features">
     <div class="wrap">

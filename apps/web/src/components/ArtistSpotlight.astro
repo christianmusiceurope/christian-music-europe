@@ -1,0 +1,65 @@
+---
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import type { SpotlightView } from '../lib/types';
+
+interface Props {
+  spotlight: SpotlightView;
+}
+
+const { spotlight } = Astro.props;
+const href = `/artists/${spotlight.artistSlug}/`;
+---
+
+<section class="spotlight" aria-label="Artist Spotlight">
+  <div class="wrap">
+    <div class="grid">
+      <div class="media">
+        {
+          spotlight.image?.url ? (
+            <figure class="frame">
+              <img
+                src={spotlight.image.url}
+                alt={spotlight.image.alt || spotlight.headline}
+              />
+            </figure>
+          ) : (
+            <PhotoPlaceholder ratio="r32" label="Licensed photo goes here" credit="Photo: credit / licence" />
+          )
+        }
+        {spotlight.image?.credit && <p class="credit">Photo: {spotlight.image.credit}</p>}
+      </div>
+      <div class="copy">
+        <div class="spotlight-label">
+          <div class="kicker">Artist Spotlight</div>
+          <div class="meta">{spotlight.startDateLabel}</div>
+        </div>
+        <div class="accent" aria-hidden="true"></div>
+        <h1>{spotlight.headline}</h1>
+        {
+          (spotlight.countries.length > 0 || spotlight.genres.length > 0) && (
+            <div class="tags">
+              {spotlight.countries.map((country) => (
+                <span class="tag country">{country}</span>
+              ))}
+              {spotlight.genres.map((genre) => (
+                <span class="tag genre">{genre}</span>
+              ))}
+            </div>
+          )
+        }
+        {spotlight.intro && <p class="intro">{spotlight.intro}</p>}
+        <div class="actions">
+          <a class="btn pur" href={href}>Read more</a>
+        </div>
+        {
+          spotlight.relatedPost && (
+            <div class="related">
+              <div class="label">Related post</div>
+              <a href={spotlight.relatedPost.url}>{spotlight.relatedPost.title}</a>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</section>

@@ -104,6 +104,18 @@ export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
       publishedAt,
       heroImage{${LICENSED_IMAGE_FIELDS}}
     },
+    "socialPosts": *[_type == "socialPost" && references(^._id) && defined(url) && defined(postedAt)] | order(postedAt desc)[0...8]{
+      _id,
+      platform,
+      url,
+      postedAt,
+      captionExcerpt,
+      spotlight,
+      coverImage{
+        alt,
+        "url": asset->url
+      }
+    },
     "releases": *[_type == "release" && references(^._id)] | order(releaseDate desc)[0...8]{
       _id,
       title,
@@ -206,6 +218,13 @@ export const CURRENT_SPOTLIGHT_QUERY = defineQuery(/* groq */ `
     relatedPostTitle,
     relatedPostUrl,
     image{${LICENSED_IMAGE_FIELDS}},
+    "fallbackSocialPost": *[_type == "socialPost" && references(^.artist._ref) && defined(url)] | order(coalesce(spotlight, false) desc, postedAt desc)[0]{
+      platform,
+      url,
+      captionExcerpt,
+      postedAt,
+      spotlight
+    },
     artist->{
       _id,
       name,

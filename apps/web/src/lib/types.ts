@@ -117,6 +117,18 @@ export type EventCard = {
   development?: boolean;
 };
 
+export type SocialPlatform = 'instagram' | 'tiktok' | 'x' | 'youtube' | 'facebook';
+
+export type SocialPostCard = {
+  id: string;
+  platform: SocialPlatform;
+  url: string;
+  postedAt?: string;
+  captionExcerpt?: string;
+  spotlight?: boolean;
+  coverImage?: { url: string; alt?: string };
+};
+
 export type ArtistVideo = {
   key: string;
   url: string;
@@ -146,6 +158,7 @@ export type ArtistPageData = {
   releases: ReleaseCard[];
   events: EventCard[];
   videos: ArtistVideo[];
+  socialPosts: SocialPostCard[];
   sources: SourceView[];
 };
 

@@ -5,6 +5,7 @@ import PhotoPlaceholder from './PhotoPlaceholder.astro';
 import PlaceholderBadge from './PlaceholderBadge.astro';
 import PortableText from './PortableText.astro';
 import SectionHead from './SectionHead.astro';
+import SocialChannels from './SocialChannels.astro';
 import SpotifyEmbed from './SpotifyEmbed.astro';
 import YouTubeEmbed from './YouTubeEmbed.astro';
 import { formatEventWhen, formatLongDate, formatShortDate } from '../lib/dates';
@@ -157,6 +158,8 @@ function ticketLabel(status: string | undefined): string {
       )
     }
   </section>
+
+  <SocialChannels posts={artist.socialPosts} events={artist.events} articles={artist.articles} eventsHref="#events" />
 
   <section class="wrap" id="listen">
     <SectionHead title="Listen" />

@@ -1,4 +1,5 @@
 import { formatDateOnly, todayInHelsinki } from './dates';
+import { relatedPostFromSocial } from './social';
 import { imageForHero } from './images';
 import { contentSource, CURRENT_SPOTLIGHT_QUERY, sanityClient } from './sanity';
 import { firstParagraph } from './text';
@@ -11,6 +12,13 @@ export type SpotlightRecord = {
   startDate?: string | null;
   relatedPostTitle?: string | null;
   relatedPostUrl?: string | null;
+  fallbackSocialPost?: {
+    platform?: string | null;
+    url?: string | null;
+    captionExcerpt?: string | null;
+    postedAt?: string | null;
+    spotlight?: boolean | null;
+  } | null;
   image?: LicensedImage | null;
   artist?: {
     _id?: string;
@@ -56,7 +64,12 @@ export function resolveSpotlight(raw: SpotlightRecord | null | undefined, today 
 
   const relatedTitle = raw.relatedPostTitle?.trim();
   const relatedUrl = raw.relatedPostUrl?.trim();
-  const relatedPost = relatedTitle && relatedUrl ? { title: relatedTitle, url: relatedUrl } : undefined;
+  const relatedPost =
+    relatedTitle && relatedUrl
+      ? { title: relatedTitle, url: relatedUrl }
+      : relatedUrl
+        ? undefined
+        : relatedPostFromSocial(raw.fallbackSocialPost);
 
   return {
     startDateLabel,

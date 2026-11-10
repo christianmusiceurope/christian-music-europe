@@ -142,6 +142,7 @@ export function linDFixture(): ArtistPageData {
       if (event.eventStatus === 'cancelled' || !event.startDateTime) return false;
       return new Date(event.startDateTime).getTime() >= Date.now();
     }),
+    socialPosts: [],
     videos: videosInPortableText(biography),
     sources: (doc.sources ?? []).flatMap((source) => {
       if (!source.label) return [];

@@ -8,6 +8,7 @@ import {
   sanityClient,
 } from './sanity';
 import { videosInPortableText } from './text';
+import { mapSocialPost, type RawSocialPost } from './social';
 import type { ArtistPageData, ArtistVideo, LicensedImage, PortableTextBlock } from './types';
 
 type SanityArtist = {
@@ -65,6 +66,7 @@ type SanityArtist = {
     venue?: { name?: string; city?: string; countryName?: string } | null;
     festival?: { name?: string; slug?: string; website?: string } | null;
   } | null>;
+  socialPosts?: Array<RawSocialPost | null>;
   videoGroups?: Array<{ embeds?: Array<{ _key?: string; url?: string; title?: string } | null> | null } | null>;
 };
 
@@ -183,6 +185,10 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
           festivalWebsite: event.festival?.website,
         },
       ];
+    }),
+    socialPosts: asArray(doc.socialPosts).flatMap((post) => {
+      const mapped = mapSocialPost(post ?? undefined);
+      return mapped ? [mapped] : [];
     }),
     videos: dedupeVideos([...videosInPortableText(biography), ...relatedVideos]),
     sources: asArray(doc.sources).flatMap((source) => {

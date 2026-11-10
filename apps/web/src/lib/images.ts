@@ -25,7 +25,7 @@ export function sizedSanityImage(url: string): string {
 }
 
 /** Cleared photos always pass. Restricted photos pass only outside production when the flag is on. */
-export function imageIsUsable(image: LicensedImage | null | undefined): image is LicensedImage {
+export function imageIsUsable(image: LicensedImage | null | undefined): image is LicensedImage & { url: string } {
   if (!image?.url) return false;
   return image.rightsStatus === 'cleared' || (image.rightsStatus === 'restricted' && allowPendingImages);
 }
@@ -33,6 +33,22 @@ export function imageIsUsable(image: LicensedImage | null | undefined): image is
 export function imageForSite(image: LicensedImage | null | undefined): LicensedImage | undefined {
   if (!imageIsUsable(image)) return undefined;
   return { ...image, url: sizedSanityImage(image.url) };
+}
+
+/** Square crop for social post cover cards. */
+export function squareSocialImage(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== 'cdn.sanity.io') return url;
+    parsed.searchParams.set('w', '800');
+    parsed.searchParams.set('h', '800');
+    parsed.searchParams.set('fit', 'crop');
+    parsed.searchParams.set('auto', 'format');
+    parsed.searchParams.set('q', '80');
+    return parsed.toString();
+  } catch {
+    return url;
+  }
 }
 
 /** Widescreen hero crop: width cap only, no forced 2:3 portrait. */
@@ -53,7 +69,7 @@ export function heroSanityImage(url: string): string {
 
 export function imageForHero(image: LicensedImage | null | undefined): LicensedImage | undefined {
   if (!imageIsUsable(image)) return undefined;
-  return { ...image, url: heroSanityImage(image.url as string) };
+  return { ...image, url: heroSanityImage(image.url) };
 }
 
 export function presentPortableText(blocks: PortableTextBlock[] | null | undefined): PortableTextBlock[] {

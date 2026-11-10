@@ -1,5 +1,6 @@
 ---
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import { isExternalUrl } from '../lib/social';
 import type { SpotlightView } from '../lib/types';
 
 interface Props {
@@ -55,7 +56,13 @@ const href = `/artists/${spotlight.artistSlug}/`;
           spotlight.relatedPost && (
             <div class="related">
               <div class="label">Related post</div>
-              <a href={spotlight.relatedPost.url}>{spotlight.relatedPost.title}</a>
+              <a
+                href={spotlight.relatedPost.url}
+                rel={isExternalUrl(spotlight.relatedPost.url) ? 'noopener noreferrer' : undefined}
+                target={isExternalUrl(spotlight.relatedPost.url) ? '_blank' : undefined}
+              >
+                {spotlight.relatedPost.title}
+              </a>
             </div>
           )
         }

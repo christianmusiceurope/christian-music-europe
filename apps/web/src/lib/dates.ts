@@ -65,15 +65,23 @@ export function formatEventWhen(iso: string | undefined, timeZone: string | unde
   return `${value('weekday')} ${value('day')} ${value('month')} ${value('year')}, ${hour}:${minute} (${zoneLabel(zone)})`;
 }
 
-export function eventDateParts(iso: string | undefined): { day: string; weekday: string } | undefined {
+export function eventDateParts(
+  iso: string | undefined,
+  timeZone?: string,
+): { day: string; weekday: string } | undefined {
   if (!iso) return undefined;
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return undefined;
-  const day = new Intl.DateTimeFormat('en-GB', { day: '2-digit', timeZone: 'UTC' }).format(date);
-  const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: 'UTC' })
-    .format(date)
-    .toUpperCase();
-  return { day, weekday };
+  const zone = timeZone || 'UTC';
+  try {
+    const day = new Intl.DateTimeFormat('en-GB', { day: '2-digit', timeZone: zone }).format(date);
+    const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: zone })
+      .format(date)
+      .toUpperCase();
+    return { day, weekday };
+  } catch {
+    return undefined;
+  }
 }
 
 export const HELSINKI_ZONE = 'Europe/Helsinki';

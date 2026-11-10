@@ -50,6 +50,14 @@ export const structure: StructureResolver = (S) =>
                     .title('Artist Spotlights')
                     .defaultOrdering([{field: 'startDate', direction: 'desc'}]),
                 ),
+              S.listItem()
+                .title('Social Posts')
+                .schemaType('socialPost')
+                .child(
+                  S.documentTypeList('socialPost')
+                    .title('Social Posts')
+                    .defaultOrdering([{field: 'postedAt', direction: 'desc'}]),
+                ),
               S.documentTypeListItem('article').title('Articles'),
               S.documentTypeListItem('playlist').title('Playlists'),
               S.documentTypeListItem('chart').title('Charts'),

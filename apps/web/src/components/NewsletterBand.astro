@@ -1,17 +1,25 @@
-<div class="band" id="newsletter">
-  <div class="wrap">
-    <div class="grid" style="align-items:center">
-      <div class="news-copy">
-        <div class="meta" style="color:#fff">Newsletter</div>
-        <h2>New Christian music from Europe, in your inbox.</h2>
-      </div>
-      <div class="news-form">
-        <div class="row">
-          <span class="field ph-text" style="flex:1">Your email address</span>
-          <button class="btn char" type="button" aria-disabled="true" style="padding:15px 22px">Join</button>
+---
+import { newsletterEnabled } from '../lib/flags';
+---
+
+{
+  newsletterEnabled && (
+    <div class="band" id="newsletter">
+      <div class="wrap">
+        <div class="grid" style="align-items:center">
+          <div class="news-copy">
+            <div class="meta" style="color:#fff">Newsletter</div>
+            <h2>New Christian music from Europe, in your inbox.</h2>
+          </div>
+          <div class="news-form">
+            <div class="row">
+              <span class="field ph-text" style="flex:1">Your email address</span>
+              <button class="btn char" type="button" aria-disabled="true" style="padding:15px 22px">Join</button>
+            </div>
+            <p>Placeholder sign-up note: frequency and privacy line go here.</p>
+          </div>
         </div>
-        <p>Placeholder sign-up note: frequency and privacy line go here.</p>
       </div>
     </div>
-  </div>
-</div>
+  )
+}

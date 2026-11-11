@@ -10,6 +10,8 @@ interface ImportMetaEnv {
   readonly PUBLIC_CME_ALLOW_PENDING_IMAGES?: string;
   /** `true` renders the local Sondae spotlight fixture on the homepage. */
   readonly PUBLIC_CME_SPOTLIGHT_FIXTURE?: string;
+  /** `true` shows the newsletter header button and the bottom signup band. Hidden when unset. */
+  readonly PUBLIC_CME_NEWSLETTER?: string;
 }
 
 interface ImportMeta {

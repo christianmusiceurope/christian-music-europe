@@ -1,6 +1,7 @@
 ---
 import { compactNav, homeNav, sectionHref, swipeNav } from '../content/navigation';
 import { europeEditionLabel } from '../lib/dates';
+import { newsletterEnabled } from '../lib/flags';
 
 interface Props {
   variant?: 'home' | 'compact';
@@ -36,7 +37,7 @@ const edition = europeEditionLabel();
           <span class="meta">{edition}</span>
           <div class="r">
             <button class="meta" type="button">Search</button>
-            <a class="meta" href="#newsletter" style="color:#fff">Newsletter</a>
+            {newsletterEnabled && <a class="meta" href="#newsletter" style="color:#fff">Newsletter</a>}
             <a class="btn pur" href="#submit-music">Submit your music</a>
           </div>
         </div>
@@ -116,7 +117,7 @@ const edition = europeEditionLabel();
           <button class="icon-btn" type="button" aria-label="Search">
             <svg class="ico"><use href="#i-search" /></svg>
           </button>
-          <a class="btn pur" href="/#newsletter">Newsletter</a>
+          {newsletterEnabled && <a class="btn pur" href="/#newsletter">Newsletter</a>}
         </div>
       </div>
       <div class="progress" aria-hidden="true"><span data-progress></span></div>

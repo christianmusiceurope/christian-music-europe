@@ -54,7 +54,13 @@ const platformIcons: Record<SocialPlatform, string> = {
           <SectionHead title="From our channels" href={followHref} linkLabel="Follow CME" />
           <div class="channel-strip">
             {widePosts.map((post) => (
-              <article class="channel-card">
+              <a
+                class="channel-card"
+                href={post.url}
+                rel="noopener noreferrer"
+                target="_blank"
+                aria-label={`View on ${platformLabel(post.platform)}`}
+              >
                 {post.coverImage?.url ? (
                   <div class="photo r1">
                     <img src={post.coverImage.url} alt={post.coverImage.alt ?? ''} />
@@ -69,11 +75,9 @@ const platformIcons: Record<SocialPlatform, string> = {
                   </div>
                   {formatShortDate(post.postedAt) && <div class="meta">{formatShortDate(post.postedAt)}</div>}
                   {post.captionExcerpt && <p class="excerpt">{post.captionExcerpt}</p>}
-                  <a class="view" href={post.url} rel="noopener noreferrer" target="_blank">
-                    View on {platformLabel(post.platform)}
-                  </a>
+                  <span class="view">View on {platformLabel(post.platform)}</span>
                 </div>
-              </article>
+              </a>
             ))}
             <aside class="channel-follow">
               <div class="accent" aria-hidden="true"></div>
@@ -91,7 +95,13 @@ const platformIcons: Record<SocialPlatform, string> = {
             <SectionHead title="From our channels" href={followHref} linkLabel="Follow CME" />
             <div class="pair-posts">
               {posts.map((post) => (
-                <article class="channel-card compact">
+                <a
+                  class="channel-card compact"
+                  href={post.url}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  aria-label={`View on ${platformLabel(post.platform)}`}
+                >
                   {post.coverImage?.url ? (
                     <div class="photo r1">
                       <img src={post.coverImage.url} alt={post.coverImage.alt ?? ''} />
@@ -106,11 +116,9 @@ const platformIcons: Record<SocialPlatform, string> = {
                     </div>
                     {formatShortDate(post.postedAt) && <div class="meta">{formatShortDate(post.postedAt)}</div>}
                     {post.captionExcerpt && <p class="excerpt">{post.captionExcerpt}</p>}
-                    <a class="view" href={post.url} rel="noopener noreferrer" target="_blank">
-                      View on {platformLabel(post.platform)}
-                    </a>
+                    <span class="view">View on {platformLabel(post.platform)}</span>
                   </div>
-                </article>
+                </a>
               ))}
             </div>
           </div>

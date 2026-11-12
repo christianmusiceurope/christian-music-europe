@@ -129,3 +129,5 @@ Only add origins you control.
 | `npm run build:studio` | Build Sanity Studio |
 | `npm run typecheck:studio` | Typecheck Studio |
 | `npm run seed:development` | Seed fictional data into the development dataset |
+
+Preview deploys run automatically on Cloudflare Workers Builds after every push to `main`.

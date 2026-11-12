@@ -1,0 +1,11 @@
+{
+  // Preview Worker at https://cme-preview.christianmusiceurope.workers.dev/
+  // The name must stay cme-preview so Workers Builds deploys to the existing Worker.
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "cme-preview",
+  "compatibility_date": "2026-11-09",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}

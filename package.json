@@ -12,7 +12,8 @@
     "build:web": "npm run build --workspace=web",
     "build:studio": "npm run build --workspace=studio",
     "typecheck:studio": "npm run typecheck --workspace=studio",
-    "seed:development": "npm run seed:development --workspace=studio"
+    "seed:development": "npm run seed:development --workspace=studio",
+    "deploy:web": "npm run deploy --workspace=web"
   },
   "engines": {
     "node": ">=22"

@@ -2,18 +2,49 @@
 
 Christian Music Europe is a discovery platform for Christian music, artists, releases and events across Europe.
 
-This repository is a local-only monorepo:
+This repository is a monorepo:
 
 - `apps/web` — Astro site (TypeScript + Tailwind CSS)
 - `apps/studio` — Sanity Studio
 
-The existing WordPress site and Bluehost hosting are unchanged. Nothing is deployed from this repo yet.
+The existing WordPress site and Bluehost hosting are unchanged. The public preview of this site is the Cloudflare Worker `cme-preview` at [https://cme-preview.christianmusiceurope.workers.dev/](https://cme-preview.christianmusiceurope.workers.dev/).
 
 Sanity content model and Studio operations:
 
 - [docs/content-model.md](docs/content-model.md)
 - [docs/sanity-setup.md](docs/sanity-setup.md)
 - [docs/editorial-rules.md](docs/editorial-rules.md)
+
+
+## Preview deploys
+
+The preview site is the existing Worker named `cme-preview`. Do not rename it, and do not attach a custom domain from this repo.
+
+Once Cloudflare Workers Builds is connected to this GitHub repository, every push to `main` rebuilds from published Sanity content and redeploys that Worker. Use these build settings in the Worker’s Settings → Builds screen:
+
+- Repository: `christianmusiceurope/christian-music-europe`
+- Production branch: `main`
+- Root directory: `/` (the repository root, so npm workspaces resolve)
+- Build command: `npm ci && npm run build:web`
+- Deploy command: `npx wrangler deploy --config apps/web/wrangler.jsonc`
+- Node.js: 22 or newer (the repo `.nvmrc` is 24)
+- Build variables (not secrets):
+
+  - `PUBLIC_SANITY_PROJECT_ID=rg6onak7`
+  - `PUBLIC_SANITY_DATASET=production`
+  - `PUBLIC_SANITY_API_VERSION=2026-10-25`
+  - `PUBLIC_CME_DATA_SOURCE=sanity`
+
+Leave `PUBLIC_CME_NEWSLETTER`, `PUBLIC_CME_SOCIAL_STRIP_PREVIEW` and `PUBLIC_CME_ALLOW_PENDING_IMAGES` unset. Leave the API token on Cloudflare’s automatically generated token.
+
+To trigger a rebuild after a Sanity publish, add a Deploy Hook for the `main` branch under Settings → Builds → Deploy Hooks, then point a Sanity webhook at that URL. That hook is not created yet.
+
+To deploy the already-built `apps/web/dist` folder from a laptop (optional, not the usual path):
+
+```bash
+npm run build:web
+npm run deploy:web
+```
 
 ## Requirements
 

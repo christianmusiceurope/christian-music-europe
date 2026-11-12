@@ -1,0 +1,132 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import SocialChannels from '../../../components/SocialChannels.astro';
+import {
+  placeholderEvents,
+  placeholderFeature,
+  placeholderPosts,
+} from '../../../fixtures/socialStrip';
+
+export function getStaticPaths() {
+  if (import.meta.env.PUBLIC_CME_SOCIAL_STRIP_PREVIEW !== 'true') return [];
+  return [{ params: { view: 'preview' } }];
+}
+
+const followHref = '#follow-cme';
+---
+
+<Layout
+  title="From our channels preview | Christian Music Europe"
+  description="Local fixture preview of the From our channels section. Not published content."
+  header="compact"
+  noindex={true}
+>
+  <div class="channels-preview">
+    <div class="wrap page-intro">
+      <p class="kicker">Local fixture preview</p>
+      <h1>From our channels</h1>
+      <p>
+        These states use clearly labelled placeholder data only. They are not written to Sanity and are not real posts,
+        dates or articles. This page is omitted from production builds.
+      </p>
+    </div>
+
+    <div class="preview-block" id="state-0">
+      <div class="wrap">
+        <p class="state-flag">State: 0 posts. The From our channels section is not rendered.</p>
+        <SocialChannels posts={[]} events={placeholderEvents} followHref={followHref} />
+        <p class="empty-confirm">Confirmed: nothing from the section appears above this line.</p>
+      </div>
+    </div>
+
+    <div class="preview-block" id="state-1post">
+      <div class="wrap">
+        <p class="state-flag">State: 1 post. Companion column is upcoming dates (option 1).</p>
+      </div>
+      <SocialChannels
+        posts={placeholderPosts.slice(0, 1)}
+        events={placeholderEvents}
+        followHref={followHref}
+        eventsHref="#events"
+      />
+    </div>
+
+    <div class="preview-block" id="state-2posts">
+      <div class="wrap">
+        <p class="state-flag">State: 2 posts. Companion column is upcoming dates (option 1).</p>
+      </div>
+      <SocialChannels
+        posts={placeholderPosts.slice(0, 2)}
+        events={placeholderEvents}
+        followHref={followHref}
+        eventsHref="#events"
+      />
+    </div>
+
+    <div class="preview-block" id="state-3plus">
+      <div class="wrap">
+        <p class="state-flag">State: 3 or more posts. Wide row on desktop, swipe row on mobile.</p>
+      </div>
+      <SocialChannels posts={placeholderPosts} followHref={followHref} />
+    </div>
+
+    <div class="preview-block" id="state-feature">
+      <div class="wrap">
+        <p class="state-flag">Companion fallback: no upcoming dates, so the newest feature article is shown.</p>
+      </div>
+      <SocialChannels
+        posts={placeholderPosts.slice(0, 1)}
+        events={[]}
+        articles={[placeholderFeature]}
+        followHref={followHref}
+      />
+    </div>
+
+    <div class="preview-block" id="state-follow">
+      <div class="wrap">
+        <p class="state-flag">Companion fallback: no dates and no feature, so the Follow CME panel is shown.</p>
+      </div>
+      <SocialChannels posts={placeholderPosts.slice(0, 1)} events={[]} articles={[]} followHref={followHref} />
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .page-intro {
+    padding: 36px 0 8px;
+  }
+  .page-intro h1 {
+    font: 700 40px/1 var(--head);
+    letter-spacing: -0.02em;
+    margin: 10px 0 16px;
+  }
+  .page-intro p {
+    font: 500 16px/1.55 var(--body);
+    color: var(--muted);
+    max-width: 78ch;
+  }
+  .preview-block {
+    padding: 48px 0 56px;
+    border-top: 1px solid var(--rule);
+  }
+  .state-flag {
+    font: 700 11px/1.3 var(--body);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin: 0 0 22px;
+  }
+  .empty-confirm {
+    font: 500 16px/1.45 var(--body);
+    color: var(--muted);
+  }
+  /* The section already has top padding; tighten it inside preview blocks. */
+  .preview-block :global(section.channels) {
+    padding-top: 0;
+  }
+  @media (max-width: 600px) {
+    .preview-block {
+      padding: 36px 0 40px;
+    }
+  }
+</style>

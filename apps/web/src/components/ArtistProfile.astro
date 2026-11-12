@@ -1,15 +1,14 @@
 ---
-import EmptyState from './EmptyState.astro';
 import NewsletterBand from './NewsletterBand.astro';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
 import PlaceholderBadge from './PlaceholderBadge.astro';
 import PortableText from './PortableText.astro';
 import SectionHead from './SectionHead.astro';
+import SocialChannels from './SocialChannels.astro';
 import SpotifyEmbed from './SpotifyEmbed.astro';
 import YouTubeEmbed from './YouTubeEmbed.astro';
-import { formatEventWhen, formatLongDate, formatShortDate } from '../lib/dates';
+import { formatEventWhen, formatShortDate } from '../lib/dates';
 import { articleTypeLabel, releaseTypeLabel } from '../lib/labels';
-import { firstSentence, portablePlainText } from '../lib/text';
 import { spotifyArtistUrl } from '../lib/youtube';
 import type { ArtistPageData } from '../lib/types';
 
@@ -19,20 +18,46 @@ interface Props {
 
 const { artist } = Astro.props;
 const primary = artist.countries.find((country) => country.primary) ?? artist.countries[0];
-const kicker = [artist.artistTypeLabel, primary?.name, artist.genres[0]?.name].filter(Boolean).join(' · ');
-const biographyText = portablePlainText(artist.biography);
-const standfirst = firstSentence(biographyText);
+const kicker = [primary?.name, artist.genres[0]?.name].filter(Boolean).join(' · ');
 const spotifyUrl = spotifyArtistUrl(artist.spotifyArtistId);
+const linkIcons: Record<string, {path: string; stroke?: boolean}> = {
+  Website: {
+    stroke: true,
+    path: '<circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"></path>',
+  },
+  Tour: {
+    stroke: true,
+    path: '<rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path>',
+  },
+  Spotify: {
+    path: '<path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"></path>',
+  },
+  YouTube: {
+    path: '<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path>',
+  },
+  Instagram: {
+    path: '<path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.167-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path>',
+  },
+  TikTok: {
+    path: '<path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.88-2.88c.28 0 .54.04.79.1v-3.5a6.34 6.34 0 00-.79-.05 6.34 6.34 0 106.34 6.34V8.73a8.18 8.18 0 004.77 1.52V6.85a4.85 4.85 0 01-1.57-.16z"></path>',
+  },
+  X: {
+    path: '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.732l7.724-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"></path>',
+  },
+  Facebook: {
+    path: '<path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047v-2.66c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.971h-1.513c-1.491 0-1.956.93-1.956 1.886v2.264h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"></path>',
+  },
+};
 const profileLinks = [
-  artist.website ? {href: artist.website, label: 'Website', primary: true} : undefined,
-  artist.tourUrl ? {href: artist.tourUrl, label: 'Tour', primary: false} : undefined,
-  spotifyUrl ? {href: spotifyUrl, label: 'Spotify', primary: false} : undefined,
-  artist.youtubeUrl ? {href: artist.youtubeUrl, label: 'YouTube', primary: false} : undefined,
-  artist.instagramUrl ? {href: artist.instagramUrl, label: 'Instagram', primary: false} : undefined,
-  artist.tiktokUrl ? {href: artist.tiktokUrl, label: 'TikTok', primary: false} : undefined,
-  artist.xUrl ? {href: artist.xUrl, label: 'X', primary: false} : undefined,
-  artist.facebookUrl ? {href: artist.facebookUrl, label: 'Facebook', primary: false} : undefined,
-].filter((link): link is {href: string; label: string; primary: boolean} => Boolean(link));
+  artist.website ? {href: artist.website, label: 'Website'} : undefined,
+  artist.tourUrl ? {href: artist.tourUrl, label: 'Tour'} : undefined,
+  spotifyUrl ? {href: spotifyUrl, label: 'Spotify'} : undefined,
+  artist.youtubeUrl ? {href: artist.youtubeUrl, label: 'YouTube'} : undefined,
+  artist.instagramUrl ? {href: artist.instagramUrl, label: 'Instagram'} : undefined,
+  artist.tiktokUrl ? {href: artist.tiktokUrl, label: 'TikTok'} : undefined,
+  artist.xUrl ? {href: artist.xUrl, label: 'X'} : undefined,
+  artist.facebookUrl ? {href: artist.facebookUrl, label: 'Facebook'} : undefined,
+].filter((link): link is {href: string; label: string} => Boolean(link));
 
 function ticketLabel(status: string | undefined): string {
   if (status === 'on_sale') return 'On sale';
@@ -73,153 +98,66 @@ function ticketLabel(status: string | undefined): string {
       <div class="artist-hero-copy">
         {kicker && <p class="kicker">{kicker}</p>}
         <h1>{artist.name}</h1>
-        {standfirst && <p class="standfirst">{standfirst}</p>}
-        <dl class="artist-facts">
-          <dt>Artist type</dt>
-          <dd>{artist.artistTypeLabel}</dd>
-          {
-            artist.countries.map((country) => (
-              <>
-                <dt>Country</dt>
-                <dd>
-                  {country.name} · {country.relationshipLabel}
-                  {country.primary ? ' · primary' : ''}
-                </dd>
-              </>
-            ))
-          }
-          {
-            artist.genres.length > 0 && (
-              <>
-                <dt>Genres</dt>
-                <dd>{artist.genres.map((genre) => genre.name).join(', ')}</dd>
-              </>
-            )
-          }
-          {
-            artist.languages.length > 0 && (
-              <>
-                <dt>Languages</dt>
-                <dd>{artist.languages.join(', ')}</dd>
-              </>
-            )
-          }
-        </dl>
-        <div class="artist-links">
-          {
-            profileLinks.map((link) => (
-              <a
-                class:list={['btn', link.primary ? 'pur' : 'ghost']}
-                href={link.href}
-                rel="noopener noreferrer"
-                target="_blank"
-                aria-label={`${link.label} for ${artist.name}`}
-              >
-                {link.label}
-              </a>
-            ))
-          }
-        </div>
+        {
+          profileLinks.length > 0 && (
+            <div class="artist-links icon-links">
+              {profileLinks.map((link) => {
+                const icon = linkIcons[link.label];
+                return (
+                  <a
+                    class:list={['icon-link', icon?.stroke && 'is-stroke']}
+                    href={link.href}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    aria-label={`${link.label} for ${artist.name}`}
+                    title={link.label}
+                  >
+                    {icon ? <svg viewBox="0 0 24 24" aria-hidden="true" set:html={icon.path} /> : link.label}
+                  </a>
+                );
+              })}
+            </div>
+          )
+        }
+        {spotifyUrl && artist.spotifyArtistId && (
+          <SpotifyEmbed artistId={artist.spotifyArtistId} title={`${artist.name} on Spotify`} />
+        )}
+        {artist.biography.length > 0 && (
+          <div class="bio-copy">
+            <PortableText value={artist.biography} />
+          </div>
+        )}
       </div>
     </div>
   </header>
 
-  <section class="wrap" id="biography">
-    <SectionHead title="Biography" />
-    {
-      artist.biography.length > 0 ? (
-        <PortableText value={artist.biography} />
-      ) : (
-        <EmptyState title="No biography is published yet" body="The biography from the artist record will appear in this column." />
-      )
-    }
-    {
-      artist.sources.length > 0 && (
-        <div class="credits">
-          <h3>Sources</h3>
-          <ul class="source-list">
-            {artist.sources.map((source) => (
-              <li>
-                {
-                  source.url ? (
-                    <a href={source.url} rel="noopener noreferrer" target="_blank">
-                      {source.label}
-                    </a>
-                  ) : (
-                    <span>{source.label}</span>
-                  )
-                }
-                {formatLongDate(source.accessedAt) && <span class="meta">Accessed {formatLongDate(source.accessedAt)}</span>}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )
-    }
-  </section>
+  <SocialChannels posts={artist.socialPosts} events={artist.events} articles={artist.articles} eventsHref="#events" />
 
-  <section class="wrap" id="listen">
-    <SectionHead title="Listen" />
-    {
-      spotifyUrl && artist.spotifyArtistId ? (
-        <SpotifyEmbed artistId={artist.spotifyArtistId} title={`${artist.name} on Spotify`} />
-      ) : (
-        <EmptyState
-          title="No Spotify player yet"
-          body="When a Spotify artist id is stored on the profile, a player will load here after a click."
-        />
-      )
-    }
-  </section>
-
-  <section class="wrap" id="videos">
-    <SectionHead title="Videos" />
-    {
-      artist.videos.length === 0 ? (
-        <EmptyState
-          title="No videos are linked yet"
-          body="YouTube videos connected to this artist will play in a privacy-friendly player. Nothing loads until someone presses play."
-        />
-      ) : (
+  {
+    artist.videos.length > 0 && (
+      <section class="wrap" id="videos">
+        <SectionHead title="Videos" />
         <div class="catalog-list">
           {artist.videos.map((video) => (
             <YouTubeEmbed url={video.url} title={video.title} />
           ))}
         </div>
-      )
-    }
-    {
-      artist.videos.length === 0 && (
-        <div class="dev-sample">
-          <PlaceholderBadge />
-          <p>
-            Development preview of the video player. It is not a {artist.name} video, and it does not contact YouTube.
-          </p>
-          <YouTubeEmbed placeholder title="Placeholder video title" eyebrow="Preview" />
-        </div>
-      )
-    }
-  </section>
+      </section>
+    )
+  }
 
-  <section class="wrap" id="releases">
-    <SectionHead title="Releases" />
-    {
-      artist.releases.length === 0 ? (
-        <EmptyState
-          title="No releases are listed yet"
-          body="Albums, EPs and singles published for this artist will be listed in this section."
-        />
-      ) : (
+  {
+    artist.releases.length > 0 && (
+      <section class="wrap" id="releases">
+        <SectionHead title="Releases" />
         <div class="catalog-list">
           {artist.releases.map((release) => (
             <article class="release-row">
-              {
-                release.cover?.url ? (
-                  <img src={release.cover.url} alt={release.cover.alt ?? ''} width="160" height="160" />
-                ) : (
-                  <PhotoPlaceholder ratio="r1" label="Cover artwork goes here" />
-                )
-              }
+              {release.cover?.url ? (
+                <img src={release.cover.url} alt={release.cover.alt ?? ''} width="160" height="160" />
+              ) : (
+                <PhotoPlaceholder ratio="r1" label="Cover artwork goes here" />
+              )}
               <div>
                 <p class="kicker">{releaseTypeLabel(release.releaseType)}</p>
                 <h3>{release.title}</h3>
@@ -230,19 +168,14 @@ function ticketLabel(status: string | undefined): string {
             </article>
           ))}
         </div>
-      )
-    }
-  </section>
+      </section>
+    )
+  }
 
-  <section class="wrap" id="events">
-    <SectionHead title="Upcoming events" />
-    {
-      artist.events.length === 0 ? (
-        <EmptyState
-          title="No upcoming dates announced"
-          body="Concerts and festival dates linked to this artist will appear here once they are on the calendar."
-        />
-      ) : (
+  {
+    artist.events.length > 0 && (
+      <section class="wrap" id="events">
+        <SectionHead title="Upcoming events" />
         <div class="upcoming-list">
           {artist.events.map((event) => {
             const when = formatEventWhen(event.startDateTime, event.timezone);
@@ -294,29 +227,22 @@ function ticketLabel(status: string | undefined): string {
             );
           })}
         </div>
-      )
-    }
-  </section>
+      </section>
+    )
+  }
 
-  <section class="wrap" id="related">
-    <SectionHead title="Related articles" />
-    {
-      artist.articles.length === 0 ? (
-        <EmptyState
-          title="No related articles yet"
-          body="Stories that reference this artist will be collected in this section."
-        />
-      ) : (
+  {
+    artist.articles.length > 0 && (
+      <section class="wrap" id="related">
+        <SectionHead title="Related articles" />
         <div class="catalog-list">
           {artist.articles.map((story) => (
             <article>
-              {
-                story.heroImage?.url ? (
-                  <img src={story.heroImage.url} alt={story.heroImage.alt ?? ''} width="160" height="106" />
-                ) : (
-                  <PhotoPlaceholder ratio="r32" />
-                )
-              }
+              {story.heroImage?.url ? (
+                <img src={story.heroImage.url} alt={story.heroImage.alt ?? ''} width="160" height="106" />
+              ) : (
+                <PhotoPlaceholder ratio="r32" />
+              )}
               <div>
                 <p class="kicker">{articleTypeLabel(story.articleType)}</p>
                 <h3>
@@ -329,9 +255,9 @@ function ticketLabel(status: string | undefined): string {
             </article>
           ))}
         </div>
-      )
-    }
-  </section>
+      </section>
+    )
+  }
 
   <NewsletterBand />
 </article>

@@ -1,0 +1,207 @@
+---
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import SectionHead from './SectionHead.astro';
+import { eventDateParts, formatShortDate } from '../lib/dates';
+import { articleTypeLabel } from '../lib/labels';
+import {
+  FOLLOW_CME_HREF,
+  WIDE_POST_LIMIT,
+  platformLabel,
+  resolveCompanion,
+  socialLayout,
+  type Companion,
+} from '../lib/social';
+import type { ArticleCard, EventCard, SocialPlatform, SocialPostCard } from '../lib/types';
+
+interface Props {
+  posts: SocialPostCard[];
+  events?: EventCard[];
+  articles?: ArticleCard[];
+  companion?: Companion;
+  eventsHref?: string;
+  followHref?: string;
+}
+
+const { posts, events, articles, eventsHref = '#events', followHref = FOLLOW_CME_HREF } = Astro.props;
+const layout = socialLayout(posts.length);
+const companion = layout === 'pair' ? (Astro.props.companion ?? resolveCompanion({ events, articles })) : undefined;
+const widePosts = posts.slice(0, WIDE_POST_LIMIT);
+
+function ticketLabel(status: string | undefined): string {
+  if (status === 'on_sale') return 'On sale';
+  if (status === 'sold_out') return 'Sold out';
+  if (status === 'announced') return 'Announced';
+  return 'Tickets';
+}
+
+const platformIcons: Record<SocialPlatform, string> = {
+  instagram:
+    '<rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"></circle>',
+  tiktok: '<path d="M14 4c.4 2.6 2.2 4.6 4.8 5.2M14 4v11.2a4.8 4.8 0 11-4-4.7"></path>',
+  youtube:
+    '<rect x="3" y="6" width="18" height="13" rx="2"></rect><path d="M10 10l5 2.5L10 15v-5z"></path>',
+  x: '<path d="M4 5l6.8 8.7L4.4 19h2.5l5-5.6L16.7 19H20l-7.1-9.1L19.4 5H17l-4.6 5.1L7.2 5H4z"></path>',
+  facebook:
+    '<rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M13 10h2.5V8H13V7c0-.7.3-1 1-1h1.5V4H13c-2 0-3 1.2-3 3v3H8v2h2v6h3v-6h2.2l.3-2H13v-1z"></path>',
+};
+---
+
+{
+  layout !== 'hidden' && (
+    <section class:list={['wrap', 'channels', layout === 'pair' && posts.length === 1 && 'is-single']} id="from-our-channels">
+      {layout === 'wide' && (
+        <>
+          <SectionHead title="From our channels" href={followHref} linkLabel="Follow CME" />
+          <div class="channel-strip">
+            {widePosts.map((post) => (
+              <a
+                class="channel-card"
+                href={post.url}
+                rel="noopener noreferrer"
+                target="_blank"
+                aria-label={`View on ${platformLabel(post.platform)}`}
+              >
+                {post.coverImage?.url ? (
+                  <div class="photo r1">
+                    <img src={post.coverImage.url} alt={post.coverImage.alt ?? ''} />
+                  </div>
+                ) : (
+                  <PhotoPlaceholder ratio="r1" label="Post image" />
+                )}
+                <div class="body">
+                  <div class="platform kicker">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" set:html={platformIcons[post.platform]} />
+                    {platformLabel(post.platform)}
+                  </div>
+                  {formatShortDate(post.postedAt) && <div class="meta">{formatShortDate(post.postedAt)}</div>}
+                  {post.captionExcerpt && <p class="excerpt">{post.captionExcerpt}</p>}
+                  <span class="view">View on {platformLabel(post.platform)}</span>
+                </div>
+              </a>
+            ))}
+            <aside class="channel-follow">
+              <div class="accent" aria-hidden="true"></div>
+              <h3>Follow CME</h3>
+              <p>Find Christian Music Europe on the channels listed in the site footer. Official profile links will appear here once they are published.</p>
+              <a class="btn pur" href={followHref}>Follow CME</a>
+            </aside>
+          </div>
+        </>
+      )}
+
+      {layout === 'pair' && companion && (
+        <div class="pair">
+          <div class="pair-col">
+            <SectionHead title="From our channels" href={followHref} linkLabel="Follow CME" />
+            <div class="pair-posts">
+              {posts.map((post) => (
+                <a
+                  class="channel-card compact"
+                  href={post.url}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  aria-label={`View on ${platformLabel(post.platform)}`}
+                >
+                  {post.coverImage?.url ? (
+                    <div class="photo r1">
+                      <img src={post.coverImage.url} alt={post.coverImage.alt ?? ''} />
+                    </div>
+                  ) : (
+                    <PhotoPlaceholder ratio="r1" label="Post image" />
+                  )}
+                  <div class="body">
+                    <div class="platform kicker">
+                      <svg viewBox="0 0 24 24" aria-hidden="true" set:html={platformIcons[post.platform]} />
+                      {platformLabel(post.platform)}
+                    </div>
+                    {formatShortDate(post.postedAt) && <div class="meta">{formatShortDate(post.postedAt)}</div>}
+                    {post.captionExcerpt && <p class="excerpt">{post.captionExcerpt}</p>}
+                    <span class="view">View on {platformLabel(post.platform)}</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+          <div class="pair-col">
+            {companion.kind === 'events' && (
+              <>
+                <SectionHead title="Upcoming dates" href={eventsHref} linkLabel="All events" />
+                <aside class="companion">
+                  {companion.events.map((event) => {
+                    const when = eventDateParts(event.startDateTime, event.timezone);
+                    const place = [event.venueName, event.city].filter(Boolean).join(' · ');
+                    return (
+                      <article class="live-row">
+                        <div class="d">
+                          {when ? when.day : ''}
+                          {when && <small>{when.weekday}</small>}
+                        </div>
+                        <div>
+                          <h3>{event.title}</h3>
+                          {place && <p class="place">{place}</p>}
+                        </div>
+                        {event.ticketUrl && (
+                          <a
+                            class:list={['btn', 'ghost']}
+                            href={event.ticketUrl}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                          >
+                            {ticketLabel(event.ticketStatus)}
+                          </a>
+                        )}
+                      </article>
+                    );
+                  })}
+                </aside>
+              </>
+            )}
+            {companion.kind === 'feature' && (
+              <>
+                <SectionHead
+                  title="Latest feature"
+                  href={companion.article.slug ? `/articles/${companion.article.slug}/` : undefined}
+                  linkLabel={companion.article.slug ? 'Read article' : undefined}
+                />
+                <aside class="companion feature">
+                  {companion.article.heroImage?.url ? (
+                    <div class="photo r32">
+                      <img src={companion.article.heroImage.url} alt={companion.article.heroImage.alt ?? ''} />
+                    </div>
+                  ) : (
+                    <PhotoPlaceholder ratio="r32" label="Feature image" />
+                  )}
+                  <div class="feature-body">
+                    <p class="kicker">{articleTypeLabel(companion.article.articleType)}</p>
+                    <h3>
+                      {companion.article.slug ? (
+                        <a href={`/articles/${companion.article.slug}/`}>{companion.article.title}</a>
+                      ) : (
+                        companion.article.title
+                      )}
+                    </h3>
+                    {formatShortDate(companion.article.publishedAt) && (
+                      <p class="meta">{formatShortDate(companion.article.publishedAt)}</p>
+                    )}
+                    {companion.article.excerpt && <p class="place">{companion.article.excerpt}</p>}
+                  </div>
+                </aside>
+              </>
+            )}
+            {companion.kind === 'follow' && (
+              <>
+                <SectionHead title="Follow CME" href={followHref} linkLabel="Follow CME" />
+                <aside class="channel-follow companion-follow">
+                  <div class="accent" aria-hidden="true"></div>
+                  <h3>Follow CME</h3>
+                  <p>Find Christian Music Europe on the channels listed in the site footer. Official profile links will appear here once they are published.</p>
+                  <a class="btn pur" href={followHref}>Follow CME</a>
+                </aside>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </section>
+  )
+}

@@ -44,3 +44,13 @@ export function videosInPortableText(blocks: PortableTextBlock[] | undefined): A
   }
   return videos;
 }
+
+export function firstParagraph(blocks: PortableTextBlock[] | undefined): string {
+  if (!blocks) return '';
+  for (const block of blocks) {
+    if (block._type !== 'block') continue;
+    const text = blockPlainText(block).trim();
+    if (text) return text;
+  }
+  return '';
+}

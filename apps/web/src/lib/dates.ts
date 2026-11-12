@@ -65,13 +65,41 @@ export function formatEventWhen(iso: string | undefined, timeZone: string | unde
   return `${value('weekday')} ${value('day')} ${value('month')} ${value('year')}, ${hour}:${minute} (${zoneLabel(zone)})`;
 }
 
-export function eventDateParts(iso: string | undefined): { day: string; weekday: string } | undefined {
+export function eventDateParts(
+  iso: string | undefined,
+  timeZone?: string,
+): { day: string; weekday: string } | undefined {
   if (!iso) return undefined;
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return undefined;
-  const day = new Intl.DateTimeFormat('en-GB', { day: '2-digit', timeZone: 'UTC' }).format(date);
-  const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: 'UTC' })
-    .format(date)
-    .toUpperCase();
-  return { day, weekday };
+  const zone = timeZone || 'UTC';
+  try {
+    const day = new Intl.DateTimeFormat('en-GB', { day: '2-digit', timeZone: zone }).format(date);
+    const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: zone })
+      .format(date)
+      .toUpperCase();
+    return { day, weekday };
+  } catch {
+    return undefined;
+  }
+}
+
+export const HELSINKI_ZONE = 'Europe/Helsinki';
+
+/** Calendar date in Europe/Helsinki, as YYYY-MM-DD. */
+export function todayInHelsinki(now = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: HELSINKI_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now);
+}
+
+/** Date-only values such as 2026-11-11, shown as "11 Nov 2026". */
+export function formatDateOnly(isoDate: string | undefined): string | undefined {
+  if (!isoDate) return undefined;
+  const match = isoDate.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return formatShortDate(isoDate);
+  return formatShortDate(`${match[1]}-${match[2]}-${match[3]}T00:00:00Z`);
 }

@@ -1,5 +1,6 @@
 import {article} from './documents/article'
 import {artist} from './documents/artist'
+import {artistSpotlight} from './documents/artistSpotlight'
 import {campaign} from './documents/campaign'
 import {chart} from './documents/chart'
 import {country} from './documents/country'
@@ -8,6 +9,7 @@ import {festival} from './documents/festival'
 import {genre} from './documents/genre'
 import {playlist} from './documents/playlist'
 import {release} from './documents/release'
+import {socialPost} from './documents/socialPost'
 import {song} from './documents/song'
 import {venue} from './documents/venue'
 import {channelContent} from './objects/channelContent'
@@ -52,4 +54,6 @@ export const schemaTypes = [
   playlist,
   chart,
   campaign,
+  artistSpotlight,
+  socialPost,
 ]

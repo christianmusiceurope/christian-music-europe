@@ -1487,3 +1487,89 @@ a.channel-card:focus-visible {
     justify-self: start;
   }
 }
+
+
+/* Footer: full Europe map behind the link columns, with a flat charcoal overlay.
+   The 96px / 64px horizon crop in mockup.css only showed the top of the image.
+   night-europe.jpg is 1500x500 and already includes Iberia, Scandinavia,
+   Greece/Turkey and western Russia; it is a placeholder with unconfirmed licensing. */
+.foot {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Match the image aspect (3:1) so object-fit:contain can show the whole continent at typical desktop widths, without cropping Iberia or the north. Cap at 500px on very wide screens. */
+  min-height: clamp(420px, calc(100vw * 500 / 1500), 500px);
+}
+
+.foot .horizon {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  height: auto;
+  overflow: hidden;
+  background: #121212;
+  pointer-events: none;
+}
+
+.foot .horizon img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+  object-position: center center;
+}
+
+/* Flat overlay only: no gradient. 75% charcoal #121212 keeps white 15px links
+   and muted #B8B8B8 12px headings above WCAG AA (4.5:1) even over the brightest
+   city lights in the image, while leaving the continent visible. */
+.foot .foot-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(18, 18, 18, 0.75);
+  pointer-events: none;
+}
+
+.foot .wrap {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .foot {
+    /* Let stacked columns set the height. The 3:1 map stays fully visible
+       and is anchored to the bottom of the footer, above the tab bar. */
+    min-height: 0;
+    justify-content: flex-start;
+    /* Keep the legal line and map above the sticky mobile tab bar (66px). */
+    padding-bottom: 66px;
+  }
+
+  .foot .horizon,
+  .foot .foot-overlay {
+    /* End above the tab-bar padding so the map band stays visible. */
+    height: auto;
+    bottom: 66px;
+  }
+
+  .foot .horizon img {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    object-position: center bottom;
+  }
+}

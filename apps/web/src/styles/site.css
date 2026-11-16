@@ -1546,16 +1546,19 @@ a.channel-card:focus-visible {
 
 @media (max-width: 600px) {
   .foot {
-    /* Let stacked columns set the height. The 3:1 map is contained and centred,
-       so the whole continent stays visible, with charcoal letterboxing above and below. */
+    /* Let stacked columns set the height. The 3:1 map stays fully visible
+       and is anchored to the bottom of the footer, above the tab bar. */
     min-height: 0;
     justify-content: flex-start;
-    /* Keep the legal line above the sticky mobile tab bar (66px). */
+    /* Keep the legal line and map above the sticky mobile tab bar (66px). */
     padding-bottom: 66px;
   }
 
-  .foot .horizon {
+  .foot .horizon,
+  .foot .foot-overlay {
+    /* End above the tab-bar padding so the map band stays visible. */
     height: auto;
+    bottom: 66px;
   }
 
   .foot .horizon img {
@@ -1567,6 +1570,6 @@ a.channel-card:focus-visible {
     height: 100%;
     max-width: none;
     object-fit: contain;
-    object-position: center center;
+    object-position: center bottom;
   }
 }

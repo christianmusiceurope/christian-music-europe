@@ -1547,18 +1547,18 @@ a.channel-card:focus-visible {
 @media (max-width: 600px) {
   .foot {
     /* Let stacked columns set the height. The 3:1 map stays fully visible
-       and is anchored to the bottom of the footer, above the tab bar. */
+       and sits flush with the bottom of the footer, against the tab bar. */
     min-height: 0;
     justify-content: flex-start;
-    /* Keep the legal line and map above the sticky mobile tab bar (66px). */
+    /* Keep the legal line above the sticky mobile tab bar (66px). */
     padding-bottom: 66px;
   }
 
   .foot .horizon,
   .foot .foot-overlay {
-    /* End above the tab-bar padding so the map band stays visible. */
+    /* Extend into the tab-bar padding so the map meets the tab bar. */
     height: auto;
-    bottom: 66px;
+    bottom: 0;
   }
 
   .foot .horizon img {

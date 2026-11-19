@@ -1,7 +1,9 @@
 import { defineQuery } from 'groq';
 import grid from '../data/europe-dots.json';
 import cityLookup from '../data/venue-cities.json';
+import { imageIsUsable } from './images';
 import { contentSource, sanityClient } from './sanity';
+import type { LicensedImage } from './types';
 
 /**
  * Data for the dot-matrix Europe map on /countries.
@@ -24,7 +26,8 @@ export const MAP_ARTISTS_QUERY = defineQuery(/* groq */ `
   *[_type == "artist" && defined(slug.current)] | order(name asc){
     name,
     "slug": slug.current,
-    "countries": countryAssociations[].country->{ isoCode, europeanEditorialScope }
+    "countries": countryAssociations[].country->{ isoCode, europeanEditorialScope },
+    "image": image{ rightsStatus, "url": asset->url }
   }
 `);
 
@@ -44,7 +47,30 @@ export const MAP_EVENTS_QUERY = defineQuery(/* groq */ `
   }
 `);
 
-export type MapArtist = { name: string; slug: string };
+export type MapArtist = {
+  name: string;
+  slug: string;
+  /** Small square crop of the artist's licensed Sanity photo (cleared images only). */
+  photo?: string;
+  photo2x?: string;
+};
+
+/** Square thumbnail from the Sanity image CDN, cropped from the top so portraits keep the face. */
+export function thumbSanityImage(url: string, size: number): string | undefined {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== 'cdn.sanity.io') return undefined;
+    parsed.searchParams.set('w', String(size));
+    parsed.searchParams.set('h', String(size));
+    parsed.searchParams.set('fit', 'crop');
+    parsed.searchParams.set('crop', 'top');
+    parsed.searchParams.set('fm', 'webp');
+    parsed.searchParams.set('q', '75');
+    return parsed.toString();
+  } catch {
+    return undefined;
+  }
+}
 export type MapCountry = {
   code: string;
   name: string;
@@ -119,7 +145,7 @@ function nearestDot(code: string, lat: number, lng: number): number | null {
 }
 
 type RawCountry = { name?: string; slug?: string; isoCode?: string };
-type RawArtist = { name?: string; slug?: string; countries?: Array<{ isoCode?: string; europeanEditorialScope?: boolean } | null> | null };
+type RawArtist = { name?: string; slug?: string; image?: LicensedImage | null; countries?: Array<{ isoCode?: string; europeanEditorialScope?: boolean } | null> | null };
 type RawEvent = {
   _id: string;
   title?: string;
@@ -158,12 +184,15 @@ export async function getMapData(): Promise<MapData> {
   }
   for (const a of rawArtists ?? []) {
     if (!a.name || !a.slug) continue;
+    const usable = imageIsUsable(a.image) ? a.image.url : undefined;
+    const photo = usable ? thumbSanityImage(usable, 80) : undefined;
+    const photo2x = usable ? thumbSanityImage(usable, 160) : undefined;
     const seen = new Set<string>();
     for (const c of a.countries ?? []) {
       const code = c?.isoCode?.toUpperCase();
       if (!code || !c?.europeanEditorialScope || seen.has(code)) continue;
       seen.add(code);
-      byCode.get(code)?.artists.push({ name: a.name, slug: a.slug });
+      byCode.get(code)?.artists.push({ name: a.name, slug: a.slug, ...(photo ? { photo, photo2x } : {}) });
     }
   }
 

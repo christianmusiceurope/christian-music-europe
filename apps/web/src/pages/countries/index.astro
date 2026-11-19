@@ -1,0 +1,17 @@
+---
+import EuropeDotMap from '../../components/EuropeDotMap.astro';
+import Layout from '../../layouts/Layout.astro';
+import { getMapData } from '../../lib/map';
+
+const data = await getMapData();
+---
+
+<Layout
+  title="Discover by country | Christian Music Europe"
+  description="Explore Christian music across Europe on one map: artists by country and upcoming live dates by city."
+  header="compact"
+  current="countries"
+  tab="discover"
+>
+  <EuropeDotMap data={data} />
+</Layout>

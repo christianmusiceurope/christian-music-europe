@@ -16,3 +16,12 @@ The homepage and `/articles/placeholder-interview` are the approved page templat
 Photos are rendered only when `rightsStatus` is `cleared`, unless `PUBLIC_CME_ALLOW_PENDING_IMAGES=true` on a dev or preview build. That flag also shows `restricted` photos and adds a Permission pending label. Production builds ignore the flag. A published artist with no photo, biography, releases, or events still builds: those sections use empty states.
 
 `npm run typecheck --workspace=web` runs `astro check`. `npm run build:web` from the repository root builds the site.
+
+## Europe dot map (`/countries`)
+
+`src/pages/countries/index.astro` renders the dot-matrix map from `src/lib/map.ts`.
+
+- The grid is `src/data/europe-dots.json`, generated from Natural Earth admin-1 boundaries by `scripts/europe-dots/build_grid.py` (instructions at the top of that script). Only European countries have dots. Regenerate it only when the grid design changes; the Natural Earth source files are not committed.
+- Artists mode: published artists, country level only, from `countryAssociations` whose country has `europeanEditorialScope == true`. Countries are lit in three flat purple tiers (1, 2 to 4, 5+). Vatican City has no dots, so its artists show under Italy.
+- Events mode: published, upcoming, non-cancelled events, placed on the dot nearest the venue. The venue `location` geopoint is used when set; otherwise the city is looked up in `src/data/venue-cities.json` (key `ISO:city`). Events that cannot be placed are listed under the map but get no dot, and the build logs a `[map]` warning. Drafts are never shown, even with a drafts token.
+- URL parameters for sharing and testing: `?mode=events`, `?range=all`, `?country=FI`.

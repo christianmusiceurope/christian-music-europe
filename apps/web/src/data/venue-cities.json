@@ -1,0 +1,23 @@
+{
+  "_note": "Fallback coordinates for venue cities, used only when a venue has no location geopoint in Sanity. Key: ISO country code + ':' + lower-case city. Approximate city-centre coordinates (lat, lng).",
+  "AT:vienna": [48.2082, 16.3738],
+  "BE:antwerp": [51.2194, 4.4025],
+  "DE:berlin": [52.52, 13.405],
+  "DE:cologne": [50.9375, 6.9603],
+  "DE:hamburg": [53.5511, 9.9937],
+  "DE:munich": [48.1351, 11.582],
+  "FI:helsinki": [60.1699, 24.9384],
+  "FI:tammela": [60.8083, 23.7639],
+  "FI:turku": [60.4518, 22.2666],
+  "FR:paris": [48.8566, 2.3522],
+  "GB:birmingham": [52.4862, -1.8904],
+  "GB:bristol": [51.4545, -2.5879],
+  "GB:glasgow": [55.8642, -4.2518],
+  "GB:london": [51.5074, -0.1278],
+  "GB:manchester": [53.4808, -2.2426],
+  "IE:dublin": [53.3498, -6.2603],
+  "NL:amsterdam": [52.3676, 4.9041],
+  "NO:melsomvik": [59.2307, 10.3342],
+  "NO:oslo": [59.9139, 10.7522],
+  "SE:stockholm": [59.3293, 18.0686]
+}

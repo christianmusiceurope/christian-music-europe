@@ -1,7 +1,10 @@
 ---
 /**
- * Dot-matrix Europe map. Artists mode lights whole countries (3 flat purple
- * tiers by artist count). Events mode lights one dot per venue city.
+ * Dot-matrix Europe map.
+ * Artists mode lights whole countries in one flat purple (artist counts are
+ * not shown through colour). Events mode lights one dot per venue city.
+ * Every dot has an invisible full-cell hit area, so there are no gaps between
+ * clickable areas.
  * The grid comes from src/data/europe-dots.json (scripts/europe-dots).
  */
 import SectionHead from './SectionHead.astro';
@@ -22,7 +25,6 @@ for (const c of countries) {
   if (!c.artists.length) continue;
   countOnMap.set(c.mapCode, (countOnMap.get(c.mapCode) ?? 0) + c.artists.length);
 }
-const tier = (n: number) => (n >= 5 ? 3 : n >= 2 ? 2 : n >= 1 ? 1 : 0);
 
 // Flattened dot positions, same order as lib/map.ts dotOffsets().
 const positions: Array<[number, number]> = [];
@@ -35,10 +37,14 @@ const groups = Object.entries(grid.dots).map(([code, cells]) => {
   const c = byCode.get(code);
   const n = countOnMap.get(code) ?? 0;
   const circles: string[] = [];
+  let hit = '';
   for (let k = 0; k < cells.length; k += 2) {
     circles.push(`<circle cx="${cells[k] + 0.5}" cy="${cells[k + 1] + 0.5}" r="${R}"/>`);
+    hit += `M${cells[k]} ${cells[k + 1]}h1v1h-1z`;
   }
-  return { code, name: c?.name, inScope: Boolean(c), n, tier: tier(n), html: circles.join('') };
+  // Invisible union of the country's full grid cells: clicks between dots still hit the country.
+  const hitPath = c ? `<path class="dmap-hit" d="${hit}"/>` : '';
+  return { code, name: c?.name, inScope: Boolean(c), n, html: hitPath + circles.join('') };
 });
 
 // One event dot per distinct map dot.
@@ -85,13 +91,11 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
         <button type="button" class="chip" data-range="all" aria-pressed="false">All upcoming</button>
       </div>
       <ul class="dmap-legend" data-legend="artists" aria-hidden="true">
-        <li><i class="t1"></i>1 artist</li>
-        <li><i class="t2"></i>2 to 4</li>
-        <li><i class="t3"></i>5+</li>
+        <li><i class="lit"></i>Artists</li>
         <li><i class="sel"></i>Selected</li>
       </ul>
       <ul class="dmap-legend" data-legend="events" aria-hidden="true" hidden>
-        <li><i class="t3"></i>City with events</li>
+        <li><i class="lit"></i>City with events</li>
         <li><i class="sel"></i>Selected city</li>
       </ul>
     </div>
@@ -109,11 +113,11 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
           {
             groups.map((g) => (
               <g
-                class:list={['dmap-c', g.tier && `t${g.tier}`]}
+                class:list={['dmap-c', g.n > 0 && 'lit']}
                 data-cc={g.code}
                 tabindex={g.n > 0 ? 0 : undefined}
                 role={g.inScope ? 'button' : undefined}
-                aria-label={g.inScope ? `${g.name}, ${g.n} artist${g.n === 1 ? '' : 's'}` : undefined}
+                aria-label={g.inScope ? (g.n > 0 ? g.name : `${g.name}, no artists yet`) : undefined}
                 aria-hidden={g.inScope ? undefined : 'true'}
                 set:html={g.html}
               />
@@ -122,17 +126,19 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
           <g class="dmap-ev">
             {
               [...evDots.entries()].map(([dot, d]) => (
-                <circle
+                <g
                   class="dmap-evd"
-                  cx={positions[dot][0] + 0.5}
-                  cy={positions[dot][1] + 0.5}
-                  r={ER}
                   data-dot={dot}
                   data-cc={d.code}
+                  data-x={positions[dot][0] + 0.5}
+                  data-y={positions[dot][1] + 0.5}
                   role="button"
                   tabindex="-1"
                   aria-label={`Events in ${[...d.cities].join(' and ')}`}
-                />
+                >
+                  <rect class="dmap-hit" x={positions[dot][0]} y={positions[dot][1]} width="1" height="1" />
+                  <circle cx={positions[dot][0] + 0.5} cy={positions[dot][1] + 0.5} r={ER} />
+                </g>
               ))
             }
           </g>
@@ -309,12 +315,10 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
       svg.querySelectorAll<SVGGElement>('.dmap-c').forEach((g) => {
         const sel = g.dataset.cc === state.cc;
         g.classList.toggle('sel', sel);
-        const lit = /\bt[123]\b/.test(g.getAttribute('class') || '');
-        if (state.mode === 'artists') {
-          if (lit) g.setAttribute('tabindex', '0'); else g.removeAttribute('tabindex');
-        } else g.removeAttribute('tabindex');
+        if (state.mode === 'artists' && g.classList.contains('lit')) g.setAttribute('tabindex', '0');
+        else g.removeAttribute('tabindex');
       });
-      svg.querySelectorAll<SVGCircleElement>('.dmap-evd').forEach((c) => {
+      svg.querySelectorAll<SVGGElement>('.dmap-evd').forEach((c) => {
         const dot = Number(c.dataset.dot);
         const show = state.mode === 'events' && visibleDots.has(dot);
         c.classList.toggle('on', show);
@@ -322,8 +326,8 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
         c.setAttribute('tabindex', show ? '0' : '-1');
         c.setAttribute('aria-hidden', show ? 'false' : 'true');
       });
-      root!.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)));
-      root!.querySelectorAll<HTMLButtonElement>('[data-range]').forEach((b) => {
+      root!.querySelectorAll<HTMLButtonElement>('button[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)));
+      root!.querySelectorAll<HTMLButtonElement>('button[data-range]').forEach((b) => {
         const on = b.dataset.range === state.range;
         b.setAttribute('aria-pressed', String(on));
         b.classList.toggle('on', on);
@@ -336,25 +340,37 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
     }
 
     function selectCountry(code: string) { state.cc = code; state.dot = null; render(); }
-    function selectDot(el: SVGCircleElement) { state.cc = el.dataset.cc || null; state.dot = Number(el.dataset.dot); render(); }
+    function selectDot(el: SVGGElement) { state.cc = el.dataset.cc || null; state.dot = Number(el.dataset.dot); render(); }
 
     svg.addEventListener('click', (ev) => {
       const t = ev.target as Element;
-      const evd = t.closest<SVGCircleElement>('.dmap-evd.on');
+      const evd = t.closest<SVGGElement>('.dmap-evd.on');
       if (evd) return selectDot(evd);
       const g = t.closest<SVGGElement>('.dmap-c');
-      if (g && g.getAttribute('role') === 'button') selectCountry(g.dataset.cc!);
+      if (!g || g.getAttribute('role') !== 'button') return;
+      if (state.mode === 'events') {
+        // Anywhere in a country selects its nearest lit event city, if it has one.
+        const m = svg.getScreenCTM();
+        const p = m ? new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()) : null;
+        let best: SVGGElement | null = null, bestD = Infinity;
+        svg.querySelectorAll<SVGGElement>(`.dmap-evd.on[data-cc="${g.dataset.cc}"]`).forEach((d) => {
+          const dd = p ? (Number(d.dataset.x) - p.x) ** 2 + (Number(d.dataset.y) - p.y) ** 2 : 0;
+          if (dd < bestD) { bestD = dd; best = d; }
+        });
+        if (best) return selectDot(best);
+      }
+      selectCountry(g.dataset.cc!);
     });
     svg.addEventListener('keydown', (ev) => {
       if (ev.key !== 'Enter' && ev.key !== ' ') return;
       const t = ev.target as Element;
-      if (t.classList.contains('dmap-evd')) { ev.preventDefault(); selectDot(t as SVGCircleElement); }
+      if (t.classList.contains('dmap-evd')) { ev.preventDefault(); selectDot(t as SVGGElement); }
       else if (t.classList.contains('dmap-c')) { ev.preventDefault(); selectCountry((t as SVGGElement).dataset.cc!); }
     });
-    root.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach((b) => b.addEventListener('click', () => {
+    root.querySelectorAll<HTMLButtonElement>('button[data-mode]').forEach((b) => b.addEventListener('click', () => {
       state.mode = b.dataset.mode === 'events' ? 'events' : 'artists'; state.dot = null; render();
     }));
-    root.querySelectorAll<HTMLButtonElement>('[data-range]').forEach((b) => b.addEventListener('click', () => {
+    root.querySelectorAll<HTMLButtonElement>('button[data-range]').forEach((b) => b.addEventListener('click', () => {
       state.range = b.dataset.range === 'all' ? 'all' : '30'; render();
     }));
     root.querySelector('[data-close]')!.addEventListener('click', () => { state.cc = null; state.dot = null; render(); });
@@ -385,17 +401,19 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
   .dmap-range .chip.on { background: var(--purple); border-color: var(--purple); }
   .dmap-legend { list-style: none; display: flex; gap: 16px; margin-left: auto; font: 600 13px/1 var(--body); color: var(--muted); }
   .dmap-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: -1px; background: #3a3a3a; }
-  .dmap-legend .t1 { background: #4b2399; } .dmap-legend .t2 { background: #6229d0; } .dmap-legend .t3 { background: #7b2ff7; } .dmap-legend .sel { background: #ff6a00; }
+  .dmap-legend .lit { background: #7b2ff7; } .dmap-legend .sel { background: #ff6a00; }
   .dmap-grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; }
   .dmap-mapbox { border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; aspect-ratio: var(--dmap-ar, 73 / 74); }
   .dmap-svg { display: block; width: 100%; height: 100%; }
   .dmap-c { fill: #3a3a3a; outline: none; }
-  .dmap-c.t1 { fill: #4b2399; } .dmap-c.t2 { fill: #6229d0; } .dmap-c.t3 { fill: #7b2ff7; }
+  .dmap-c.lit { fill: #7b2ff7; }
+  .dmap-hit { fill: transparent; pointer-events: all; }
   .dmap-c[role='button'] { cursor: pointer; }
-  .dmap-svg[data-mode='artists'] .dmap-c.t1:hover, .dmap-svg[data-mode='artists'] .dmap-c.t2:hover, .dmap-svg[data-mode='artists'] .dmap-c.t3:hover { fill: #9a63fa; }
+  .dmap-svg[data-mode='artists'] .dmap-c.lit:not(.sel):hover { fill: #9a63fa; }
+  .dmap-svg[data-mode='events'] .dmap-c[role='button'] { cursor: pointer; }
   .dmap-svg[data-mode='artists'] .dmap-c.sel { fill: #ff6a00; }
   .dmap-c:focus-visible { fill: #fff; }
-  .dmap-svg[data-mode='events'] .dmap-c { fill: #3a3a3a; cursor: default; }
+  .dmap-svg[data-mode='events'] .dmap-c { fill: #3a3a3a; }
   .dmap-svg[data-mode='events'] .dmap-c.sel { fill: #5c5c5c; }
   .dmap-evd { display: none; fill: #7b2ff7; cursor: pointer; outline: none; }
   .dmap-evd.on { display: inline; }

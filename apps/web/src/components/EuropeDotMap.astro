@@ -8,15 +8,26 @@
  * Every dot has an invisible full-cell hit area, so there are no gaps between
  * clickable areas.
  * The grid comes from src/data/europe-dots.json (scripts/europe-dots).
+ * Safe to render more than once per page. Only an instance with `deepLink`
+ * reads ?mode, ?range and ?country (the /countries page); others ignore the URL.
  */
 import SectionHead from './SectionHead.astro';
 import type { MapData } from '../lib/map';
 
 interface Props {
   data: MapData;
+  /** Section id for in-page links. */
+  id?: string;
+  /** Read ?mode, ?range and ?country from the URL. Only the /countries page should. */
+  deepLink?: boolean;
+  /** Show the full lists under the map (country list, events, releases). */
+  showLists?: boolean;
+  /** Optional link in the section heading, e.g. to /countries from the homepage. */
+  linkHref?: string;
+  linkLabel?: string;
 }
 
-const { data } = Astro.props;
+const { data, id = 'map', deepLink = false, showLists = true, linkHref, linkLabel } = Astro.props;
 const { grid, countries, events } = data;
 const R = 0.36;
 const ER = 0.5;
@@ -79,9 +90,9 @@ const clientData = {
 const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
 ---
 
-<section class="dmap" id="map" data-dmap>
+<section class="dmap" id={id} data-dmap data-deeplink={deepLink ? 'true' : 'false'} data-lists={showLists ? 'true' : 'false'}>
   <div class="wrap">
-    <SectionHead title="Discover by country" />
+    <SectionHead title="Discover by country" href={linkHref} linkLabel={linkLabel} />
     <p class="dmap-lede">
       {totalArtists} artists from {withArtists.length} countries. Pick a country to meet its artists, switch to
       Events to find live dates by city, or to Releases to see what is new.
@@ -169,6 +180,7 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
       </aside>
     </div>
 
+    {showLists && (
     <div class="dmap-lists">
       <div class="dmap-list" data-list="artists">
         <h3>All countries</h3>
@@ -221,8 +233,9 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
         <p class="dmap-empty" data-releases-empty hidden></p>
       </div>
     </div>
+  )}
   </div>
-  <script type="application/json" id="dmap-data" set:html={json} />
+  <script type="application/json" data-dmap-json set:html={json} />
 </section>
 
 <script>
@@ -238,9 +251,11 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
   };
   type Mode = 'artists' | 'events' | 'releases';
 
-  const root = document.querySelector<HTMLElement>('[data-dmap]');
-  const dataEl = document.getElementById('dmap-data');
-  if (root && dataEl) {
+  document.querySelectorAll<HTMLElement>('[data-dmap]').forEach((root) => {
+    const dataEl = root.querySelector<HTMLScriptElement>('script[data-dmap-json]');
+    if (!dataEl) return;
+    const deepLink = root.dataset.deeplink === 'true';
+    const hasLists = root.dataset.lists === 'true';
     const data = JSON.parse(dataEl.textContent || '{}') as {
       countries: Country[]; events: Ev[]; releases: Rel[]; centres: Record<string, [number, number]>;
     };
@@ -248,7 +263,8 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
     const panel = root.querySelector<HTMLElement>('[data-panel]')!;
     const body = root.querySelector<HTMLElement>('[data-panel-body]')!;
     const DAY = 86400000;
-    const params = new URLSearchParams(location.search);
+    // Only the /countries instance takes state from the URL; the homepage map ignores it.
+    const params = deepLink ? new URLSearchParams(location.search) : new URLSearchParams();
     const asMode = (m: string | null | undefined): Mode => (m === 'events' || m === 'releases' ? m : 'artists');
     const state = {
       mode: asMode(params.get('mode')),
@@ -352,6 +368,16 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
     }
     const emptyText = () => state.range === '30' ? 'No events in the next 30 days. Try All upcoming.' : 'No upcoming events yet.';
 
+    // On /countries the button opens the country in the list below; elsewhere it links to /countries.
+    function countryButton(code: string, name: string, slug?: string) {
+      if (hasLists && slug) return `<a class="btn pur dmap-btn" href="#country-${esc(slug)}" data-open-country="${esc(slug)}">All artists from ${esc(name)}</a>`;
+      const q = new URLSearchParams();
+      if (state.mode !== 'artists') q.set('mode', state.mode);
+      if (state.mode === 'releases' && state.rrange === '90') q.set('range', '90');
+      q.set('country', code);
+      return `<a class="btn pur dmap-btn" href="/countries?${esc(q.toString())}">All artists from ${esc(name)}</a>`;
+    }
+
     function renderPanel() {
       const open = Boolean(state.cc);
       panel.classList.toggle('open', open);
@@ -377,13 +403,13 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
         } else {
           h += '<p class="dmap-hint">No artists from here on CME yet.</p>';
         }
-        if (anchorSlug && all.length) h += `<a class="btn pur dmap-btn" href="#country-${esc(anchorSlug)}" data-open-country="${esc(anchorSlug)}">All artists from ${esc(name)}</a>`;
+        if (all.length) h += countryButton(code, name, anchorSlug);
       } else if (state.mode === 'releases') {
         const rel = releases().filter((r) => r.countries.includes(code));
         h += head(name, `${rel.length} new release${rel.length === 1 ? '' : 's'} in the last ${state.rrange} days`);
         h += rel.length ? '<ul class="dmap-evs">' + rel.map(relRow).join('') + '</ul>' : `<p class="dmap-hint">${relEmptyText()}</p>`;
         const hasArtists = (byMap.get(code) ?? []).some((c) => c.artists.length);
-        if (anchorSlug && hasArtists) h += `<a class="btn pur dmap-btn" href="#country-${esc(anchorSlug)}" data-open-country="${esc(anchorSlug)}">All artists from ${esc(name)}</a>`;
+        if (hasArtists) h += countryButton(code, name, anchorSlug);
       } else {
         const ev = events().filter((e) => e.countryCode === code);
         const here = state.dot !== null ? ev.filter((e) => e.dot === state.dot) : [];
@@ -402,8 +428,9 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
     }
 
     function renderEventsList() {
-      const list = root!.querySelector<HTMLElement>('[data-events-list]')!;
-      const empty = root!.querySelector<HTMLElement>('[data-events-empty]')!;
+      const list = root!.querySelector<HTMLElement>('[data-events-list]');
+      const empty = root!.querySelector<HTMLElement>('[data-events-empty]');
+      if (!list || !empty) return;
       const ev = events();
       const byCountry = new Map<string, Ev[]>();
       for (const e of ev) byCountry.set(e.countryName, [...(byCountry.get(e.countryName) ?? []), e]);
@@ -414,8 +441,9 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
     }
 
     function renderReleasesList() {
-      const list = root!.querySelector<HTMLElement>('[data-releases-list]')!;
-      const empty = root!.querySelector<HTMLElement>('[data-releases-empty]')!;
+      const list = root!.querySelector<HTMLElement>('[data-releases-list]');
+      const empty = root!.querySelector<HTMLElement>('[data-releases-empty]');
+      if (!list || !empty) return;
       const rel = releases();
       const byCountry = new Map<string, Rel[]>();
       for (const r of rel) for (const c of r.countries) byCountry.set(countryName(c), [...(byCountry.get(countryName(c)) ?? []), r]);
@@ -520,7 +548,7 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
     body.addEventListener('click', (ev) => {
       const a = (ev.target as Element).closest<HTMLAnchorElement>('[data-open-country]');
       if (!a) return;
-      const d = document.querySelector<HTMLDetailsElement>(`#country-${CSS.escape(a.dataset.openCountry!)} details`);
+      const d = root.querySelector<HTMLDetailsElement>(`#country-${CSS.escape(a.dataset.openCountry!)} details`);
       if (d) d.open = true;
     });
     if (state.mode === 'events' && state.cc && state.dot === null) {
@@ -528,7 +556,7 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
       if (first) state.dot = first.dot;
     }
     render();
-  }
+  });
 </script>
 
 <style is:global>
@@ -640,6 +668,8 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
     .dmap-legend { display: none; }
     .dmap-mapbox { --dmap-ar: 62 / 74; border-radius: 4px; }
     .dmap-svg { --dmap-rm-scale: 1.6; }
+    .dmap .secthead { flex-wrap: wrap; row-gap: 12px; }
+    .dmap .secthead h2 { white-space: nowrap; }
     .dmap-panel { position: fixed; left: 0; right: 0; bottom: 66px; z-index: 6; max-height: 42vh; overflow: auto; border-radius: 16px 16px 0 0; border-bottom: 0; padding: 26px 20px 20px; transform: translateY(110%); transition: transform 0.2s ease, visibility 0.2s; min-height: 0; }
     .dmap-panel::before { content: ''; position: absolute; top: 9px; left: 50%; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px; background: #555; }
     .dmap-panel:not(.open) { visibility: hidden; }

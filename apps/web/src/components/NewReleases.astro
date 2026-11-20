@@ -1,0 +1,87 @@
+---
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import SectionHead from './SectionHead.astro';
+import SpotifyEmbed from './SpotifyEmbed.astro';
+import { formatDateOnly, todayInHelsinki } from '../lib/dates';
+import { releaseTypeLabel } from '../lib/labels';
+import { formatOutLabel, isUpcomingRelease } from '../lib/releases';
+import type { ReleaseCard } from '../lib/types';
+
+interface Props {
+  releases: ReleaseCard[];
+}
+
+const { releases } = Astro.props;
+const today = todayInHelsinki();
+---
+
+{
+  releases.length > 0 && (
+    <section class="block" id="new-releases">
+      <SectionHead title="New releases" subline="Last 30 days, and upcoming" />
+      <div class="nrlist">
+        {releases.map((release) => {
+          const upcoming = isUpcomingRelease(release.releaseDate, today);
+          const outLabel = formatOutLabel(release.releaseDate, today);
+          const typeLabel = releaseTypeLabel(release.releaseType);
+          const kicker = [typeLabel, outLabel].filter(Boolean).join(' · ');
+          const releasedOn = !upcoming ? formatDateOnly(release.releaseDate) : undefined;
+          const links = [
+            release.links?.spotify ? { href: release.links.spotify, label: 'Spotify' } : undefined,
+            release.links?.appleMusic ? { href: release.links.appleMusic, label: 'Apple Music' } : undefined,
+            release.links?.youtube ? { href: release.links.youtube, label: 'YouTube' } : undefined,
+            ...(release.links?.other ?? []).map((link) => ({ href: link.url, label: link.label })),
+          ].filter((link): link is { href: string; label: string } => Boolean(link));
+          return (
+            <article class="nr-card">
+              <div class="nr-top">
+                {release.cover?.url ? (
+                  <img
+                    class="nr-cover"
+                    src={release.cover.url}
+                    alt={release.cover.alt ?? ''}
+                    width="240"
+                    height="240"
+                  />
+                ) : (
+                  <PhotoPlaceholder ratio="r1" label="Cover coming soon" />
+                )}
+                <div>
+                  <p class="tag">
+                    {!upcoming && <b>New</b>}
+                    {kicker}
+                  </p>
+                  <h3>{release.title}</h3>
+                  {releasedOn && <p class="released">Released {releasedOn}</p>}
+                  {release.cover?.credit && <p class="photo-credit">Photo: {release.cover.credit}</p>}
+                </div>
+              </div>
+              {release.tracks && release.tracks.length > 0 && (
+                <ol class="nr-tracks">
+                  {release.tracks.map((track, index) => (
+                    <li>
+                      <span>{index + 1}</span>
+                      <span>{track.title}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+              {release.links?.spotify && (
+                <SpotifyEmbed url={release.links.spotify} title={release.title} />
+              )}
+              {links.length > 0 && (
+                <div class="nr-links">
+                  {links.map((link) => (
+                    <a class="btn ghost" href={link.href} rel="noopener noreferrer" target="_blank">
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  )
+}

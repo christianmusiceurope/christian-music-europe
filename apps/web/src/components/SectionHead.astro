@@ -3,12 +3,14 @@ interface Props {
   title: string;
   href?: string;
   linkLabel?: string;
+  subline?: string;
 }
 
-const { title, href, linkLabel } = Astro.props;
+const { title, href, linkLabel, subline } = Astro.props;
 ---
 
 <div class="secthead">
   <h2>{title}</h2>
+  {subline && <p class="subline">{subline}</p>}
   {href && linkLabel && <a href={href}>{linkLabel}</a>}
 </div>

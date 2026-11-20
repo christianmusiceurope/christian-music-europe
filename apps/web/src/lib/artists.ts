@@ -1,5 +1,5 @@
 import { linDFixture } from '../fixtures/resolve';
-import { imageForSite, presentPortableText } from './images';
+import { imageForSite, imageForSquare, presentPortableText } from './images';
 import { artistTypeLabel, relationshipLabel } from './labels';
 import {
   ARTIST_BY_SLUG_QUERY,
@@ -7,6 +7,7 @@ import {
   contentSource,
   sanityClient,
 } from './sanity';
+import { filterAndSortArtistReleases, releaseWindow } from './releases';
 import { videosInPortableText } from './text';
 import { mapSocialPost, type RawSocialPost } from './social';
 import type { ArtistPageData, ArtistVideo, LicensedImage, PortableTextBlock } from './types';
@@ -51,6 +52,21 @@ type SanityArtist = {
     releaseType?: string;
     releaseDate?: string;
     coverArtwork?: LicensedImage | null;
+    links?: {
+      spotify?: string;
+      appleMusic?: string;
+      youtube?: string;
+      other?: Array<{ label?: string; url?: string } | null> | null;
+    } | null;
+    tracks?: Array<{ title?: string } | null> | null;
+    additionalArtists?: Array<{ name?: string; slug?: string } | null> | null;
+  } | null>;
+  relatedArtists?: Array<{
+    _id?: string;
+    name?: string;
+    slug?: string;
+    genres?: Array<string | null> | null;
+    image?: LicensedImage | null;
   } | null>;
   events?: Array<{
     _id?: string;
@@ -150,19 +166,41 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
         },
       ];
     }),
-    releases: asArray(doc.releases).flatMap((release) => {
-      if (!release?.title || !release._id) return [];
-      return [
-        {
-          id: release._id,
-          title: release.title,
-          slug: release.slug,
-          releaseType: release.releaseType,
-          releaseDate: release.releaseDate,
-          cover: imageForSite(release.coverArtwork),
-        },
-      ];
-    }),
+    releases: filterAndSortArtistReleases(
+      asArray(doc.releases).flatMap((release) => {
+        if (!release?.title || !release._id) return [];
+        const other = asArray(release.links?.other).flatMap((link) => {
+          if (!link?.label || !link.url) return [];
+          return [{ label: link.label, url: link.url }];
+        });
+        const tracks = asArray(release.tracks).flatMap((track) =>
+          track?.title ? [{ title: track.title }] : [],
+        );
+        const additionalArtists = asArray(release.additionalArtists).flatMap((artist) =>
+          artist?.name ? [{ name: artist.name, slug: artist.slug }] : [],
+        );
+        return [
+          {
+            id: release._id,
+            title: release.title,
+            slug: release.slug,
+            releaseType: release.releaseType,
+            releaseDate: release.releaseDate,
+            cover: imageForSquare(release.coverArtwork),
+            links: release.links
+              ? {
+                  spotify: release.links.spotify,
+                  appleMusic: release.links.appleMusic,
+                  youtube: release.links.youtube,
+                  other: other.length ? other : undefined,
+                }
+              : undefined,
+            tracks: tracks.length ? tracks : undefined,
+            additionalArtists: additionalArtists.length ? additionalArtists : undefined,
+          },
+        ];
+      }),
+    ),
     events: asArray(doc.events).flatMap((event) => {
       if (!event?.title || !event._id || event.eventStatus === 'cancelled') return [];
       return [
@@ -191,6 +229,18 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
       return mapped ? [mapped] : [];
     }),
     videos: dedupeVideos([...videosInPortableText(biography), ...relatedVideos]),
+    relatedArtists: asArray(doc.relatedArtists).flatMap((artist) => {
+      if (!artist?.name || !artist._id) return [];
+      return [
+        {
+          id: artist._id,
+          name: artist.name,
+          slug: artist.slug,
+          genres: asArray(artist.genres).flatMap((genre) => (genre ? [genre] : [])),
+          image: imageForSquare(artist.image),
+        },
+      ];
+    }),
     sources: asArray(doc.sources).flatMap((source) => {
       if (!source?.label) return [];
       return [
@@ -224,10 +274,17 @@ export async function getArtist(slug: string): Promise<ArtistPageData | null> {
       ...fixture,
       image: imageForSite(fixture.image),
       biography: presentPortableText(fixture.biography),
+      releases: filterAndSortArtistReleases(fixture.releases),
+      relatedArtists: fixture.relatedArtists ?? [],
     };
   }
 
-  const doc = await sanityClient.fetch<SanityArtist | null>(ARTIST_BY_SLUG_QUERY, { slug });
+  const window = releaseWindow();
+  const doc = await sanityClient.fetch<SanityArtist | null>(ARTIST_BY_SLUG_QUERY, {
+    slug,
+    since: window.since,
+    until: window.until,
+  });
   if (!doc) return null;
   return fromSanity(doc);
 }

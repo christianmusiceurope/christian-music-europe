@@ -81,3 +81,24 @@ export function presentPortableText(blocks: PortableTextBlock[] | null | undefin
     return [{ ...block, ...image }];
   });
 }
+
+/** Square crop for release covers and related-artist cards. */
+export function squareSiteImage(url: string, size = 800): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== 'cdn.sanity.io') return url;
+    parsed.searchParams.set('w', String(size));
+    parsed.searchParams.set('h', String(size));
+    parsed.searchParams.set('fit', 'crop');
+    parsed.searchParams.set('auto', 'format');
+    parsed.searchParams.set('q', '80');
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
+export function imageForSquare(image: LicensedImage | null | undefined, size = 800): LicensedImage | undefined {
+  if (!imageIsUsable(image)) return undefined;
+  return { ...image, url: squareSiteImage(image.url, size) };
+}

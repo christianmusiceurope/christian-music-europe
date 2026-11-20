@@ -87,6 +87,11 @@ export type ArticleCard = {
   heroImage?: LicensedImage;
 };
 
+export type ReleaseLink = {
+  label: string;
+  url: string;
+};
+
 export type ReleaseCard = {
   id: string;
   title: string;
@@ -94,6 +99,22 @@ export type ReleaseCard = {
   releaseType?: string;
   releaseDate?: string;
   cover?: LicensedImage;
+  links?: {
+    spotify?: string;
+    appleMusic?: string;
+    youtube?: string;
+    other?: ReleaseLink[];
+  };
+  tracks?: Array<{ title: string }>;
+  additionalArtists?: Array<{ name: string; slug?: string }>;
+};
+
+export type RelatedArtistCard = {
+  id: string;
+  name: string;
+  slug?: string;
+  genres: string[];
+  image?: LicensedImage;
 };
 
 export type EventCard = {
@@ -159,6 +180,7 @@ export type ArtistPageData = {
   events: EventCard[];
   videos: ArtistVideo[];
   socialPosts: SocialPostCard[];
+  relatedArtists: RelatedArtistCard[];
   sources: SourceView[];
 };
 

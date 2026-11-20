@@ -116,13 +116,42 @@ export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
         "url": asset->url
       }
     },
-    "releases": *[_type == "release" && references(^._id)] | order(releaseDate desc)[0...8]{
+    "releases": *[
+      _type == "release" &&
+      defined(releaseDate) &&
+      releaseDate >= $since &&
+      releaseDate <= $until &&
+      (primaryArtist._ref == ^._id || ^._id in additionalArtists[]._ref)
+    ] | order(releaseDate desc)[0...20]{
       _id,
       title,
       "slug": slug.current,
       releaseType,
       releaseDate,
-      coverArtwork{${LICENSED_IMAGE_FIELDS}}
+      coverArtwork{${LICENSED_IMAGE_FIELDS}},
+      links{
+        spotify,
+        appleMusic,
+        youtube,
+        other[]{ label, url }
+      },
+      "tracks": trackListing[]->{ title },
+      "additionalArtists": additionalArtists[]->{ name, "slug": slug.current }
+    },
+    "relatedArtists": *[
+      _type == "artist" &&
+      defined(slug.current) &&
+      _id != ^._id &&
+      coalesce(
+        ^.countryAssociations[primary == true][0].country._ref,
+        ^.countryAssociations[0].country._ref
+      ) in countryAssociations[].country._ref
+    ] | order(name asc)[0...4]{
+      _id,
+      name,
+      "slug": slug.current,
+      "genres": genres[]->name,
+      image{${LICENSED_IMAGE_FIELDS}}
     },
     "events": *[
       _type == "event" &&

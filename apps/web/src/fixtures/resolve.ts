@@ -143,6 +143,7 @@ export function linDFixture(): ArtistPageData {
       return new Date(event.startDateTime).getTime() >= Date.now();
     }),
     socialPosts: [],
+    relatedArtists: [],
     videos: videosInPortableText(biography),
     sources: (doc.sources ?? []).flatMap((source) => {
       if (!source.label) return [];

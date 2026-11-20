@@ -103,3 +103,32 @@ export function formatDateOnly(isoDate: string | undefined): string | undefined 
   if (!match) return formatShortDate(isoDate);
   return formatShortDate(`${match[1]}-${match[2]}-${match[3]}T00:00:00Z`);
 }
+
+function dateOnlyParts(iso: string): [number, number, number] | undefined {
+  const match = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return undefined;
+  return [Number(match[1]), Number(match[2]), Number(match[3])];
+}
+
+function formatYmd(year: number, month: number, day: number): string {
+  return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+/** Add days to a YYYY-MM-DD calendar date, in UTC, without time-zone shifts. */
+export function addCalendarDays(isoDate: string, days: number): string {
+  const parts = dateOnlyParts(isoDate);
+  if (!parts) return isoDate;
+  const date = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2] + days));
+  return formatYmd(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
+}
+
+/** Add calendar months to a YYYY-MM-DD date, clamping to the last day of the target month. */
+export function addCalendarMonths(isoDate: string, months: number): string {
+  const parts = dateOnlyParts(isoDate);
+  if (!parts) return isoDate;
+  const monthIndex = parts[1] - 1 + months;
+  const year = parts[0] + Math.floor(monthIndex / 12);
+  const month = ((monthIndex % 12) + 12) % 12;
+  const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  return formatYmd(year, month + 1, Math.min(parts[2], lastDay));
+}

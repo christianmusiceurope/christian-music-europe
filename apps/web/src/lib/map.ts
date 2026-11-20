@@ -327,7 +327,7 @@ export async function getMapData(): Promise<MapData> {
       type: r.releaseType,
       date: r.releaseDate.slice(0, 10),
       artists: artists.map((a) => ({ name: a.name!, slug: a.slug })),
-      href: lead?.slug ? `/artists/${lead.slug}` : undefined,
+      href: lead?.slug ? `/artists/${lead.slug}#new-releases` : undefined,
       ...(cover ? { cover, cover2x: thumbSanityImage(usable!, 192) } : {}),
       countries: [...codes],
     });

@@ -20,12 +20,15 @@ interface Props {
   companion?: Companion;
   eventsHref?: string;
   followHref?: string;
+  /** Posts only, with no companion column or wide Follow CME strip. Used on the artist page grid. */
+  postsOnly?: boolean;
 }
 
-const { posts, events, articles, eventsHref = '#events', followHref = FOLLOW_CME_HREF } = Astro.props;
-const layout = socialLayout(posts.length);
-const companion = layout === 'pair' ? (Astro.props.companion ?? resolveCompanion({ events, articles })) : undefined;
+const { posts, events, articles, eventsHref = '#events', followHref = FOLLOW_CME_HREF, postsOnly = false } = Astro.props;
+const layout = postsOnly ? (posts.length > 0 ? 'pair' : 'hidden') : socialLayout(posts.length);
+const companion = !postsOnly && layout === 'pair' ? (Astro.props.companion ?? resolveCompanion({ events, articles })) : undefined;
 const widePosts = posts.slice(0, WIDE_POST_LIMIT);
+const gridPosts = posts.slice(0, WIDE_POST_LIMIT);
 
 function ticketLabel(status: string | undefined): string {
   if (status === 'on_sale') return 'On sale';
@@ -48,7 +51,7 @@ const platformIcons: Record<SocialPlatform, string> = {
 
 {
   layout !== 'hidden' && (
-    <section class:list={['wrap', 'channels', layout === 'pair' && posts.length === 1 && 'is-single']} id="from-our-channels">
+    <section class:list={[!postsOnly && 'wrap', 'channels', postsOnly && 'posts-only', layout === 'pair' && posts.length === 1 && 'is-single']} id="from-our-channels">
       {layout === 'wide' && (
         <>
           <SectionHead title="From our channels" href={followHref} linkLabel="Follow CME" />
@@ -89,7 +92,41 @@ const platformIcons: Record<SocialPlatform, string> = {
         </>
       )}
 
-      {layout === 'pair' && companion && (
+      {postsOnly && (
+        <>
+          <SectionHead title="From our channels" href={followHref} linkLabel="Follow CME" />
+          <div class="pair-posts">
+            {gridPosts.map((post) => (
+              <a
+                class="channel-card compact"
+                href={post.url}
+                rel="noopener noreferrer"
+                target="_blank"
+                aria-label={`View on ${platformLabel(post.platform)}`}
+              >
+                {post.coverImage?.url ? (
+                  <div class="photo r1">
+                    <img src={post.coverImage.url} alt={post.coverImage.alt ?? ''} />
+                  </div>
+                ) : (
+                  <PhotoPlaceholder ratio="r1" label="Post image" />
+                )}
+                <div class="body">
+                  <div class="platform kicker">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" set:html={platformIcons[post.platform]} />
+                    {platformLabel(post.platform)}
+                  </div>
+                  {formatShortDate(post.postedAt) && <div class="meta">{formatShortDate(post.postedAt)}</div>}
+                  {post.captionExcerpt && <p class="excerpt">{post.captionExcerpt}</p>}
+                  <span class="view">View on {platformLabel(post.platform)}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </>
+      )}
+
+      {!postsOnly && layout === 'pair' && companion && (
         <div class="pair">
           <div class="pair-col">
             <SectionHead title="From our channels" href={followHref} linkLabel="Follow CME" />

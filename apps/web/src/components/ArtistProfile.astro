@@ -1,5 +1,6 @@
 ---
 import NewsletterBand from './NewsletterBand.astro';
+import NewReleases from './NewReleases.astro';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
 import PlaceholderBadge from './PlaceholderBadge.astro';
 import PortableText from './PortableText.astro';
@@ -8,7 +9,7 @@ import SocialChannels from './SocialChannels.astro';
 import SpotifyEmbed from './SpotifyEmbed.astro';
 import YouTubeEmbed from './YouTubeEmbed.astro';
 import { formatEventWhen, formatShortDate } from '../lib/dates';
-import { articleTypeLabel, releaseTypeLabel } from '../lib/labels';
+import { articleTypeLabel } from '../lib/labels';
 import { spotifyArtistUrl } from '../lib/youtube';
 import type { ArtistPageData } from '../lib/types';
 
@@ -65,6 +66,14 @@ function ticketLabel(status: string | undefined): string {
   if (status === 'announced') return 'Announced';
   return 'Tickets';
 }
+
+const showReleases = artist.releases.length > 0;
+const showEvents = artist.events.length > 0;
+const showPosts = artist.socialPosts.length > 0;
+const showVideos = artist.videos.length > 0;
+const showArticles = !showVideos && artist.articles.length > 0;
+const showGrid = showReleases || showEvents || showPosts || showVideos || showArticles;
+const showRelatedArtists = artist.relatedArtists.length > 0;
 ---
 
 <article class="artist-page">
@@ -131,128 +140,149 @@ function ticketLabel(status: string | undefined): string {
     </div>
   </header>
 
-  <SocialChannels posts={artist.socialPosts} events={artist.events} articles={artist.articles} eventsHref="#events" />
-
   {
-    artist.videos.length > 0 && (
-      <section class="wrap" id="videos">
-        <SectionHead title="Videos" />
-        <div class="catalog-list">
-          {artist.videos.map((video) => (
-            <YouTubeEmbed url={video.url} title={video.title} />
-          ))}
-        </div>
-      </section>
-    )
-  }
+    showGrid && (
+      <div class="wrap artist-blocks">
+        {showReleases && <NewReleases releases={artist.releases} />}
 
-  {
-    artist.releases.length > 0 && (
-      <section class="wrap" id="releases">
-        <SectionHead title="Releases" />
-        <div class="catalog-list">
-          {artist.releases.map((release) => (
-            <article class="release-row">
-              {release.cover?.url ? (
-                <img src={release.cover.url} alt={release.cover.alt ?? ''} width="160" height="160" />
-              ) : (
-                <PhotoPlaceholder ratio="r1" label="Cover artwork goes here" />
-              )}
-              <div>
-                <p class="kicker">{releaseTypeLabel(release.releaseType)}</p>
-                <h3>{release.title}</h3>
-                {formatShortDate(release.releaseDate) && <p class="meta">{formatShortDate(release.releaseDate)}</p>}
-                {release.cover?.credit && <p class="photo-credit">Photo: {release.cover.credit}</p>}
-                {release.cover?.rightsStatus === 'restricted' && <p class="ph">Permission pending</p>}
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-    )
-  }
-
-  {
-    artist.events.length > 0 && (
-      <section class="wrap" id="events">
-        <SectionHead title="Upcoming events" />
-        <div class="upcoming-list">
-          {artist.events.map((event) => {
-            const when = formatEventWhen(event.startDateTime, event.timezone);
-            const place = [event.venueName, event.city, event.countryName].filter(Boolean).join(', ');
-            return (
-              <article class="upcoming">
-                {when && <p class="upcoming-when">{when}</p>}
-                <div class="upcoming-main">
-                  <h3>
-                    {event.title}
-                    {event.eventStatus === 'postponed' && <span class="badge">Postponed</span>}
-                    {event.development && <span class="ph">Development</span>}
-                  </h3>
-                  {place && <p class="upcoming-place">{place}</p>}
-                  {event.festivalName && (
-                    <p class="upcoming-festival">
-                      <span class="meta">Festival</span>
-                      {event.festivalWebsite ? (
-                        <a href={event.festivalWebsite} rel="noopener noreferrer" target="_blank">
-                          {event.festivalName}
-                        </a>
-                      ) : (
-                        event.festivalName
+        {
+          showEvents && (
+            <section class="block" id="events">
+              <SectionHead title="Upcoming events" />
+              <div class="upcoming-list">
+                {artist.events.map((event) => {
+                  const when = formatEventWhen(event.startDateTime, event.timezone);
+                  const place = [event.venueName, event.city, event.countryName].filter(Boolean).join(', ');
+                  return (
+                    <article class="upcoming">
+                      {when && <p class="upcoming-when">{when}</p>}
+                      <div class="upcoming-main">
+                        <h3>
+                          {event.title}
+                          {event.eventStatus === 'postponed' && <span class="badge">Postponed</span>}
+                          {event.development && <span class="ph">Development</span>}
+                        </h3>
+                        {place && <p class="upcoming-place">{place}</p>}
+                        {event.festivalName && (
+                          <p class="upcoming-festival">
+                            <span class="meta">Festival</span>
+                            {event.festivalWebsite ? (
+                              <a href={event.festivalWebsite} rel="noopener noreferrer" target="_blank">
+                                {event.festivalName}
+                              </a>
+                            ) : (
+                              event.festivalName
+                            )}
+                          </p>
+                        )}
+                        {event.development && (
+                          <p class="upcoming-note">Development data from the local fixture, matching an unpublished draft.</p>
+                        )}
+                        {event.officialSourceUrl && (
+                          <p class="upcoming-source">
+                            <a href={event.officialSourceUrl} rel="noopener noreferrer" target="_blank">Source</a>
+                          </p>
+                        )}
+                      </div>
+                      {event.ticketUrl && (
+                        <div class="upcoming-actions">
+                          <a
+                            class:list={['btn', event.ticketStatus === 'sold_out' ? 'ghost' : 'pur']}
+                            href={event.ticketUrl}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                          >
+                            {ticketLabel(event.ticketStatus)}
+                          </a>
+                        </div>
                       )}
-                    </p>
-                  )}
-                  {event.development && (
-                    <p class="upcoming-note">Development data from the local fixture, matching an unpublished draft.</p>
-                  )}
-                  {event.officialSourceUrl && (
-                    <p class="upcoming-source">
-                      <a href={event.officialSourceUrl} rel="noopener noreferrer" target="_blank">Source</a>
-                    </p>
-                  )}
-                </div>
-                {event.ticketUrl && (
-                  <div class="upcoming-actions">
-                    <a
-                      class:list={['btn', event.ticketStatus === 'sold_out' ? 'ghost' : 'pur']}
-                      href={event.ticketUrl}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      {ticketLabel(event.ticketStatus)}
-                    </a>
-                  </div>
-                )}
-              </article>
-            );
-          })}
-        </div>
-      </section>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          )
+        }
+
+        {
+          showPosts && (
+            <SocialChannels
+              posts={artist.socialPosts}
+              postsOnly
+              followHref="#follow-cme"
+            />
+          )
+        }
+
+        {
+          showVideos && (
+            <section class="block" id="videos">
+              <SectionHead title="Videos" />
+              <div class="video-list">
+                {artist.videos.map((video) => (
+                  <YouTubeEmbed url={video.url} title={video.title} />
+                ))}
+              </div>
+            </section>
+          )
+        }
+
+        {
+          showArticles && (
+            <section class="block" id="related">
+              <SectionHead title="Related articles" />
+              <div class="catalog-list">
+                {artist.articles.map((story) => (
+                  <article>
+                    {story.heroImage?.url ? (
+                      <img src={story.heroImage.url} alt={story.heroImage.alt ?? ''} width="160" height="106" />
+                    ) : (
+                      <PhotoPlaceholder ratio="r32" />
+                    )}
+                    <div>
+                      <p class="kicker">{articleTypeLabel(story.articleType)}</p>
+                      <h3>
+                        {story.slug ? <a href={`/articles/${story.slug}`}>{story.title}</a> : story.title}
+                      </h3>
+                      {formatShortDate(story.publishedAt) && <p class="meta">{formatShortDate(story.publishedAt)}</p>}
+                      {story.heroImage?.credit && <p class="photo-credit">Photo: {story.heroImage.credit}</p>}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )
+        }
+      </div>
     )
   }
 
   {
-    artist.articles.length > 0 && (
-      <section class="wrap" id="related">
-        <SectionHead title="Related articles" />
-        <div class="catalog-list">
-          {artist.articles.map((story) => (
-            <article>
-              {story.heroImage?.url ? (
-                <img src={story.heroImage.url} alt={story.heroImage.alt ?? ''} width="160" height="106" />
+    showRelatedArtists && (
+      <section class="wrap country-band" id="more-from">
+        <SectionHead
+          title={`More from ${primary?.name ?? 'this country'}`}
+          href="/countries"
+          linkLabel="All countries"
+        />
+        <div class="related-artist-grid">
+          {artist.relatedArtists.map((other) => (
+            <a class="acard" href={other.slug ? `/artists/${other.slug}` : '/countries'}>
+              {other.image?.url ? (
+                <img
+                  class="acard-photo"
+                  src={other.image.url}
+                  alt={other.image.alt ?? ''}
+                  width="400"
+                  height="400"
+                />
               ) : (
-                <PhotoPlaceholder ratio="r32" />
+                <div class="acard-photo is-empty" aria-hidden="true"></div>
               )}
-              <div>
-                <p class="kicker">{articleTypeLabel(story.articleType)}</p>
-                <h3>
-                  {story.slug ? <a href={`/articles/${story.slug}`}>{story.title}</a> : story.title}
-                </h3>
-                {formatShortDate(story.publishedAt) && <p class="meta">{formatShortDate(story.publishedAt)}</p>}
-                {story.heroImage?.credit && <p class="photo-credit">Photo: {story.heroImage.credit}</p>}
-                {story.heroImage?.rightsStatus === 'restricted' && <p class="ph">Permission pending</p>}
-              </div>
-            </article>
+              <h3>{other.name}</h3>
+              {other.genres.length > 0 && <p class="g">{other.genres.join(' · ')}</p>}
+              {other.image?.credit && <p class="photo-credit">Photo: {other.image.credit}</p>}
+            </a>
           ))}
         </div>
       </section>

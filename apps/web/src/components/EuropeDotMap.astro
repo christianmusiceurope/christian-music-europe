@@ -1,10 +1,10 @@
 ---
 /**
  * Dot-matrix Europe map.
- * Artists mode lights whole countries in one flat purple (artist counts are
- * not shown through colour). Events mode lights one dot per venue city.
- * Releases mode keeps the dots grey and puts one orange count marker at each
- * country's visual centre (europe-dots.json `centres`).
+ * Artists and Releases modes keep the dots grey and put one orange count
+ * marker at each country's visual centre (europe-dots.json `centres`): the
+ * number of artists, or of new releases. The selected country turns purple.
+ * Events mode lights one dot per venue city.
  * Every dot has an invisible full-cell hit area, so there are no gaps between
  * clickable areas.
  * The grid comes from src/data/europe-dots.json (scripts/europe-dots).
@@ -102,8 +102,8 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
         <button type="button" class="chip" data-rrange="90" aria-pressed="false">Last 90 days</button>
       </div>
       <ul class="dmap-legend" data-legend="artists" aria-hidden="true">
-        <li><i class="lit"></i>Artists</li>
-        <li><i class="sel"></i>Selected</li>
+        <li><i class="rel">3</i>Artists from the country</li>
+        <li><i class="lit"></i>Selected</li>
       </ul>
       <ul class="dmap-legend" data-legend="events" aria-hidden="true" hidden>
         <li><i class="lit"></i>City with events</li>
@@ -111,6 +111,7 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
       </ul>
       <ul class="dmap-legend" data-legend="releases" aria-hidden="true" hidden>
         <li><i class="rel">3</i>New releases from the country</li>
+        <li><i class="lit"></i>Selected</li>
       </ul>
     </div>
 
@@ -163,7 +164,7 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
       <aside class="dmap-panel" aria-live="polite" data-panel>
         <button type="button" class="dmap-close" aria-label="Close" data-close>×</button>
         <div data-panel-body>
-          <p class="dmap-hint">Tap a lit country to see its artists.</p>
+          <p class="dmap-hint">Tap a country with an orange number to see its artists.</p>
         </div>
       </aside>
     </div>
@@ -292,6 +293,12 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
       for (const r of releases()) for (const c of r.countries) m.set(c, (m.get(c) ?? 0) + 1);
       return m;
     };
+    // Artists per map country (Vatican City counts under Italy), each artist once per country.
+    const artistCounts = new Map<string, number>();
+    for (const [code, list] of byMap) {
+      const n = new Set(list.flatMap((c) => c.artists.map((a) => a.slug))).size;
+      if (n) artistCounts.set(code, n);
+    }
     const TYPE_LABEL: Record<string, string> = { album: 'Album', ep: 'EP', single: 'Single' };
     function relRow(r: Rel) {
       const d = new Date(`${r.date}T12:00:00`);
@@ -306,15 +313,22 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
     const relEmptyText = () => state.rrange === '30' ? 'No new releases in the last 30 days. Try Last 90 days.' : 'No new releases in the last 90 days yet.';
     function renderMarkers() {
       const layer = svg.querySelector<SVGGElement>('[data-rel-markers]')!;
-      if (state.mode !== 'releases') { layer.replaceChildren(); return; }
-      const counts = releaseCounts();
+      if (state.mode === 'events') { layer.replaceChildren(); return; }
+      const counts = state.mode === 'releases' ? releaseCounts() : artistCounts;
       const out: string[] = [];
+      // The map is cropped on the right on narrow screens: keep markers inside the visible part.
+      const box = svg.getBoundingClientRect();
+      const vb = svg.viewBox.baseVal;
+      const visibleW = box.height > 0 ? Math.min(vb.width, vb.height * (box.width / box.height)) : vb.width;
+      const scale = parseFloat(getComputedStyle(svg).getPropertyValue('--dmap-rm-scale')) || 1;
       for (const [code, n] of counts) {
         const c = data.centres[code];
         if (!c) continue;
         const tier = n >= 6 ? 3 : n >= 3 ? 2 : 1;
+        const r = [0, 0.95, 1.15, 1.4][tier] * scale;
+        const x = Math.min(c[0], visibleW - r - 0.15);
         const label = n > 99 ? '99+' : String(n);
-        out.push(`<g class="dmap-rm t${tier}${code === state.cc ? ' sel' : ''}" data-cc="${esc(code)}" transform="translate(${c[0]} ${c[1]})"><g class="s"><circle r="${[0, 0.95, 1.15, 1.4][tier]}"/><text text-anchor="middle" dominant-baseline="central">${label}</text></g></g>`);
+        out.push(`<g class="dmap-rm t${tier}${code === state.cc ? ' sel' : ''}" data-cc="${esc(code)}" transform="translate(${x} ${c[1]})"><g class="s"><circle r="${[0, 0.95, 1.15, 1.4][tier]}"/><text text-anchor="middle" dominant-baseline="central">${label}</text></g></g>`);
       }
       layer.innerHTML = out.join('');
     }
@@ -342,7 +356,7 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
       const open = Boolean(state.cc);
       panel.classList.toggle('open', open);
       if (!open) {
-        const hint = { artists: 'Tap a lit country to see its artists.', events: 'Tap a lit city to see its events.', releases: releases().length ? 'Tap a country with an orange marker to see its new releases.' : relEmptyText() }[state.mode];
+        const hint = { artists: 'Tap a country with an orange number to see its artists.', events: 'Tap a lit city to see its events.', releases: releases().length ? 'Tap a country with an orange marker to see its new releases.' : relEmptyText() }[state.mode];
         body.innerHTML = `<p class="dmap-hint">${hint}</p>`;
         return;
       }
@@ -428,7 +442,7 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
           const name = countryName(cc);
           const label = state.mode === 'releases'
             ? `${name}, ${nRel || 'no'} new release${nRel === 1 ? '' : 's'}`
-            : g.classList.contains('lit') ? name : `${name}, no artists yet`;
+            : (() => { const n = artistCounts.get(cc) ?? 0; return n ? `${name}, ${n} artist${n === 1 ? '' : 's'}` : `${name}, no artists yet`; })();
           g.setAttribute('aria-label', label);
         }
       });
@@ -500,6 +514,8 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
     root.querySelectorAll<HTMLButtonElement>('button[data-range]').forEach((b) => b.addEventListener('click', () => {
       state.range = b.dataset.range === 'all' ? 'all' : '30'; render();
     }));
+    let resizeTimer = 0;
+    addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = window.setTimeout(renderMarkers, 150); });
     root.querySelector('[data-close]')!.addEventListener('click', () => { state.cc = null; state.dot = null; render(); });
     body.addEventListener('click', (ev) => {
       const a = (ev.target as Element).closest<HTMLAnchorElement>('[data-open-country]');
@@ -529,25 +545,27 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
   .dmap-legend { list-style: none; display: flex; gap: 16px; margin-left: auto; font: 600 13px/1 var(--body); color: var(--muted); }
   .dmap-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: -1px; background: #3a3a3a; }
   .dmap-legend .lit { background: #7b2ff7; } .dmap-legend .sel { background: #ff6a00; }
+  .dmap-legend .lit { width: 20px; height: 20px; border-radius: 4px; vertical-align: -6px; background: radial-gradient(circle, #7b2ff7 2.6px, transparent 3px) 0 0 / 10px 10px; }
+  [data-legend='events'] .lit { width: 10px; height: 10px; border-radius: 50%; background: #7b2ff7; vertical-align: -1px; }
   .dmap-legend .rel { width: 20px; height: 20px; background: #ff6a00; color: #121212; font: 800 11px/20px var(--head); text-align: center; font-style: normal; vertical-align: -6px; }
   .dmap-grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; }
   .dmap-mapbox { border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; aspect-ratio: var(--dmap-ar, 73 / 74); }
   .dmap-svg { display: block; width: 100%; height: 100%; }
   .dmap-c { fill: #3a3a3a; outline: none; }
-  .dmap-c.lit { fill: #7b2ff7; }
   .dmap-hit { fill: transparent; pointer-events: all; }
   .dmap-c[role='button'] { cursor: pointer; }
-  .dmap-svg[data-mode='artists'] .dmap-c.lit:not(.sel):hover { fill: #9a63fa; }
+  .dmap-svg[data-mode='artists'] .dmap-c.lit { fill: #4d4d4d; }
+  .dmap-svg[data-mode='artists'] .dmap-c.lit:not(.sel):hover { fill: #5c5c5c; }
   .dmap-svg[data-mode='events'] .dmap-c[role='button'] { cursor: pointer; }
-  .dmap-svg[data-mode='artists'] .dmap-c.sel { fill: #ff6a00; }
+  .dmap-svg[data-mode='artists'] .dmap-c.sel { fill: #7b2ff7; }
   .dmap-c:focus-visible { fill: #fff; }
   .dmap-svg[data-mode='events'] .dmap-c { fill: #3a3a3a; }
   .dmap-svg[data-mode='events'] .dmap-c.sel { fill: #5c5c5c; }
   .dmap-svg[data-mode='releases'] .dmap-c { fill: #3a3a3a; }
   .dmap-svg[data-mode='releases'] .dmap-c.has-rel { fill: #4d4d4d; }
   .dmap-svg[data-mode='releases'] .dmap-c.has-rel:not(.sel):hover { fill: #5c5c5c; }
-  .dmap-svg[data-mode='releases'] .dmap-c.sel { fill: #6a6a6a; }
-  .dmap-svg[data-mode='releases'] .dmap-c:focus-visible { fill: #fff; }
+  .dmap-svg[data-mode='releases'] .dmap-c.sel { fill: #7b2ff7; }
+  .dmap-svg[data-mode] .dmap-c:focus-visible { fill: #fff !important; }
   .dmap-rm { cursor: pointer; }
   .dmap-rm .s { transform: scale(var(--dmap-rm-scale, 1)); }
   .dmap-rm circle { fill: #ff6a00; stroke: #121212; stroke-width: 0.14; }
@@ -621,7 +639,7 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
     .dmap-lede { font-size: 15px; margin-top: -6px; }
     .dmap-legend { display: none; }
     .dmap-mapbox { --dmap-ar: 62 / 74; border-radius: 4px; }
-    .dmap-svg { --dmap-rm-scale: 1.8; }
+    .dmap-svg { --dmap-rm-scale: 1.6; }
     .dmap-panel { position: fixed; left: 0; right: 0; bottom: 66px; z-index: 6; max-height: 42vh; overflow: auto; border-radius: 16px 16px 0 0; border-bottom: 0; padding: 26px 20px 20px; transform: translateY(110%); transition: transform 0.2s ease, visibility 0.2s; min-height: 0; }
     .dmap-panel::before { content: ''; position: absolute; top: 9px; left: 50%; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px; background: #555; }
     .dmap-panel:not(.open) { visibility: hidden; }

@@ -8,7 +8,7 @@ Christian music is an **editorial scope**, not a single genre and not a statemen
 
 | Type | Purpose |
 | --- | --- |
-| `country` | World countries. European editorial scope is a flag, not a filter of the dataset. Featured artists/playlists are editorial, not derived. |
+| `country` | World countries. European editorial scope is a flag, not a filter of the dataset. Featured artists/playlists are editorial, not derived. Optional square `flag` image (alt, source URL, licence) used for round country badges on the site. |
 | `artist` | Solo, band, or collective. Unlimited `countryAssociation` objects; at most one primary. |
 | `genre` | Musical styles. Optional parent genre. Christian music is not stored as “the” genre. |
 | `release` | Album, EP, or single. Canonical ordered `trackListing` of songs. |

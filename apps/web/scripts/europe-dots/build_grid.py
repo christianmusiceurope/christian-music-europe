@@ -20,7 +20,7 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import shape, Point, box, MultiPolygon
 from shapely.strtree import STRtree
-from shapely.ops import unary_union
+from shapely.ops import unary_union, polylabel
 import shapely
 
 ADM1 = sys.argv[1] if len(sys.argv) > 1 else '/tmp/ne_adm1.geojson'
@@ -86,6 +86,20 @@ for cc, (lo, la) in CAP.items():
         _, i, j = min(free)
     cells[(i, j)] = cc
 
+# Visual centre per country, in grid units, for the Releases markers: the pole of
+# inaccessibility of the largest connected block of the country's own cells (the
+# mainland as drawn in dots, so not Corsica, Svalbard or the Greek islands).
+centres = {}
+by_cc = {}
+for (i, j), cc in cells.items():
+    by_cc.setdefault(cc, []).append(box(i, j, i + 1, j + 1))
+for cc, boxes in sorted(by_cc.items()):
+    u = unary_union(boxes)
+    polys = list(u.geoms) if u.geom_type == 'MultiPolygon' else [u]
+    main = max(polys, key=lambda q: q.area)
+    pt = polylabel(main, tolerance=0.05)
+    centres[cc] = [round(pt.x, 2), round(pt.y, 2)]
+
 out = {}
 for (i, j), cc in sorted(cells.items(), key=lambda t: (t[0][1], t[0][0])):
     out.setdefault(cc, []).extend([i, j])
@@ -95,6 +109,7 @@ data = {
     'projection': {'type': 'laea-sphere', 'lon0': LON0, 'lat0': LAT0, 'radiusKm': R, 'xmin': round(xmin, 3), 'ymax': round(ymax, 3)},
     'nx': nx, 'ny': ny,
     'dots': out,
+    'centres': centres,
 }
 OUT.write_text(json.dumps(data, separators=(',', ':')) + '\n')
 print(f'{len(cells)} dots, {len(out)} countries, grid {nx}x{ny} -> {OUT} ({OUT.stat().st_size} bytes)')

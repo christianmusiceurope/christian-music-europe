@@ -87,18 +87,9 @@ section{padding:72px 0 0}
 .rel .art{position:relative}
 .rel .art .badge{position:absolute;top:12px;left:12px}
 /* country */
-.country .grid{align-items:stretch}
-.mapbox{grid-column:1/9;position:relative;overflow:hidden;height:520px;border:1px solid var(--rule)}
-.mapbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:55% 50%}
 .pin{position:absolute;width:12px;height:12px;border:2px solid var(--purple);border-radius:50%;transform:translate(-50%,-50%);background:#121212}
 .pin.on{width:22px;height:22px;border-width:3px;background:transparent;box-shadow:0 0 0 3px #121212}
 .pinlabel{position:absolute;transform:translate(14px,-50%);background:var(--purple);color:#fff;font:700 13px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;padding:7px 9px;border-radius:2px}
-.clist{grid-column:9/13}
-.clist ul{list-style:none}
-.clist li{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-top:1px solid var(--rule);font:600 17px/1 var(--body)}
-.clist li.on{font-weight:800}
-.clist li.on span:first-child{border-bottom:3px solid var(--purple);padding-bottom:4px}
-.clist li i{font-style:normal;color:var(--orange);font-weight:800}
 /* purple bands */
 .band{background:var(--purple);color:#fff;margin-top:88px}
 .band .wrap{padding-top:64px;padding-bottom:64px}
@@ -219,7 +210,6 @@ section{padding-top:48px}
 .rel .small{grid-column:auto!important;margin:0!important}
 .rel .small:nth-child(n+6){display:none}
 .rel .grid>*{margin-bottom:8px}
-.mapbox{height:auto;aspect-ratio:845/520}
 .pinlabel{transform:translate(calc(-100% - 16px),-50%)}
 .secthead a{white-space:nowrap}
 

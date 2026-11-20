@@ -9,8 +9,13 @@ import type { LicensedImage } from './types';
  * Data for the dot-matrix Europe map on /countries.
  * Artists are placed by country only. Events are placed by venue city: the
  * venue `location` geopoint when set, otherwise src/data/venue-cities.json.
+ * Releases are placed by their artists' countries (primary and additional
+ * artists, European editorial scope only), counted once per country.
  * Published documents only, even when a drafts token is configured.
  */
+
+/** How far back the build fetches releases. The page filters to the last 30 or 90 days in the browser. */
+export const RELEASE_FETCH_DAYS = 120;
 
 const publishedClient = sanityClient.withConfig({ perspective: 'published' });
 
@@ -46,6 +51,35 @@ export const MAP_EVENTS_QUERY = defineQuery(/* groq */ `
     }
   }
 `);
+
+export const MAP_RELEASES_QUERY = defineQuery(/* groq */ `
+  *[_type == "release" && defined(releaseDate) && releaseDate >= $since && defined(primaryArtist)]
+    | order(releaseDate desc, title asc){
+    _id,
+    title,
+    releaseType,
+    releaseDate,
+    "cover": coverArtwork{ rightsStatus, "url": asset->url },
+    "artists": [primaryArtist->{ name, "slug": slug.current, "countries": countryAssociations[].country->{ isoCode, europeanEditorialScope } }]
+      + coalesce(additionalArtists[]->{ name, "slug": slug.current, "countries": countryAssociations[].country->{ isoCode, europeanEditorialScope } }, [])
+  }
+`);
+
+export type MapRelease = {
+  id: string;
+  title: string;
+  type?: string;
+  /** YYYY-MM-DD */
+  date: string;
+  artists: Array<{ name: string; slug?: string }>;
+  /** Where the release links to: the primary artist's page (there are no release pages yet). */
+  href?: string;
+  /** Square crop of the cleared cover artwork. */
+  cover?: string;
+  cover2x?: string;
+  /** Map country codes this release counts for, each once. */
+  countries: string[];
+};
 
 export type MapArtist = {
   name: string;
@@ -97,12 +131,15 @@ export type MapGrid = {
   ny: number;
   /** Country code to flat [i, j, i, j, ...] cell list. */
   dots: Record<string, number[]>;
+  /** Country code to [x, y] visual centre in grid units (mainland pole of inaccessibility). */
+  centres: Record<string, [number, number]>;
 };
 export type MapData = {
   grid: MapGrid;
   countries: MapCountry[];
   events: MapEvent[];
   unplacedEvents: number;
+  releases: MapRelease[];
 };
 
 const MAP_ALIAS: Record<string, string> = { VA: 'IT' };
@@ -146,6 +183,14 @@ function nearestDot(code: string, lat: number, lng: number): number | null {
 
 type RawCountry = { name?: string; slug?: string; isoCode?: string };
 type RawArtist = { name?: string; slug?: string; image?: LicensedImage | null; countries?: Array<{ isoCode?: string; europeanEditorialScope?: boolean } | null> | null };
+type RawRelease = {
+  _id: string;
+  title?: string;
+  releaseType?: string;
+  releaseDate?: string;
+  cover?: LicensedImage | null;
+  artists?: Array<RawArtist | null> | null;
+};
 type RawEvent = {
   _id: string;
   title?: string;
@@ -160,13 +205,20 @@ type RawEvent = {
 };
 
 export async function getMapData(): Promise<MapData> {
-  const gridOut: MapGrid = { nx: grid.nx, ny: grid.ny, dots: grid.dots as Record<string, number[]> };
-  if (contentSource === 'fixture') return { grid: gridOut, countries: [], events: [], unplacedEvents: 0 };
+  const gridOut: MapGrid = {
+    nx: grid.nx,
+    ny: grid.ny,
+    dots: grid.dots as Record<string, number[]>,
+    centres: grid.centres as unknown as Record<string, [number, number]>,
+  };
+  if (contentSource === 'fixture') return { grid: gridOut, countries: [], events: [], unplacedEvents: 0, releases: [] };
 
-  const [rawCountries, rawArtists, rawEvents] = await Promise.all([
+  const since = new Date(Date.now() - RELEASE_FETCH_DAYS * 86400000).toISOString().slice(0, 10);
+  const [rawCountries, rawArtists, rawEvents, rawReleases] = await Promise.all([
     publishedClient.fetch<RawCountry[]>(MAP_COUNTRIES_QUERY),
     publishedClient.fetch<RawArtist[]>(MAP_ARTISTS_QUERY),
     publishedClient.fetch<RawEvent[]>(MAP_EVENTS_QUERY),
+    publishedClient.fetch<RawRelease[]>(MAP_RELEASES_QUERY, { since }),
   ]);
 
   const byCode = new Map<string, MapCountry>();
@@ -227,6 +279,35 @@ export async function getMapData(): Promise<MapData> {
     });
   }
 
+  const releases: MapRelease[] = [];
+  for (const r of rawReleases ?? []) {
+    if (!r.title || !r.releaseDate) continue;
+    const artists = (r.artists ?? []).filter((a): a is RawArtist => Boolean(a?.name));
+    const codes = new Set<string>();
+    for (const a of artists) {
+      for (const c of a.countries ?? []) {
+        const code = c?.isoCode?.toUpperCase();
+        if (!code || !c?.europeanEditorialScope) continue;
+        const mapCode = MAP_ALIAS[code] ?? code;
+        if (mapCode in gridOut.dots) codes.add(mapCode);
+      }
+    }
+    if (!codes.size) continue;
+    const usable = imageIsUsable(r.cover) ? r.cover.url : undefined;
+    const cover = usable ? thumbSanityImage(usable, 96) : undefined;
+    const lead = artists.find((a) => a.slug);
+    releases.push({
+      id: r._id,
+      title: r.title,
+      type: r.releaseType,
+      date: r.releaseDate.slice(0, 10),
+      artists: artists.map((a) => ({ name: a.name!, slug: a.slug })),
+      href: lead?.slug ? `/artists/${lead.slug}` : undefined,
+      ...(cover ? { cover, cover2x: thumbSanityImage(usable!, 192) } : {}),
+      countries: [...codes],
+    });
+  }
+
   const countries = [...byCode.values()].sort((a, b) => a.name.localeCompare(b.name, 'en'));
-  return { grid: gridOut, countries, events, unplacedEvents: unplaced };
+  return { grid: gridOut, countries, events, unplacedEvents: unplaced, releases };
 }

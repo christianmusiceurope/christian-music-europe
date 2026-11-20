@@ -90,7 +90,6 @@ button.meta {
 .swipe a,
 .mm-list a,
 .foot a,
-.clist a,
 .crumb a {
   color: inherit;
 }
@@ -122,20 +121,6 @@ button.meta {
   right: 16px;
 }
 
-.map-note {
-  position: absolute;
-  left: 24px;
-  bottom: 20px;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 12px;
-  align-items: center;
-}
-
-.map-note .meta {
-  color: #fff;
-}
 
 .toggle button {
   font: 700 13px/1 var(--body);
@@ -987,10 +972,6 @@ html[data-theme="light"] .article-canvas .toc ol {
     right: 10px;
   }
 
-  .map-note {
-    left: 12px;
-    bottom: 12px;
-  }
 
   .ahead {
     padding-top: 28px;

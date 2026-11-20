@@ -6,30 +6,16 @@
  */
 import ArtistSpotlight from '../components/ArtistSpotlight.astro';
 import DiscoveryLab from '../components/DiscoveryLab.astro';
+import EuropeDotMap from '../components/EuropeDotMap.astro';
 import Layout from '../layouts/Layout.astro';
 import NewsletterBand from '../components/NewsletterBand.astro';
 import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
 import PlaceholderBadge from '../components/PlaceholderBadge.astro';
 import SectionHead from '../components/SectionHead.astro';
-import { previewCountries } from '../content/navigation';
 import { getCurrentSpotlight } from '../lib/spotlight';
+import { getMapData } from '../lib/map';
 
-const spotlight = await getCurrentSpotlight();
-
-const pins = [
-  { x: 35.4, y: 43.4 },
-  { x: 59.8, y: 38 },
-  { x: 39.1, y: 51.3 },
-  { x: 13.8, y: 82 },
-  { x: 24.4, y: 82 },
-  { x: 52.6, y: 20.5 },
-  { x: 64.2, y: 18 },
-  { x: 77.9, y: 20.5, label: 'Finland' },
-  { x: 54.4, y: 32 },
-  { x: 45.4, y: 44 },
-  { x: 49.8, y: 63 },
-  { x: 62.4, y: 59 },
-];
+const [spotlight, mapData] = await Promise.all([getCurrentSpotlight(), getMapData()]);
 
 const latest = [
   { title: 'New single “Nation” released by Drulo', date: '25 Feb 2025', source: 'site' as const },
@@ -174,51 +160,7 @@ const moreStories = [
     </div>
   </section>
 
-  <section class="country" id="countries">
-    <div class="wrap">
-      <SectionHead title="Discover by country" href="/countries" linkLabel="All countries" />
-      <div class="grid">
-        <div class="mapbox">
-          <img
-            src="/brand/night-europe.jpg"
-            alt="Placeholder night map of Europe. Licensing is unconfirmed and this image must be replaced."
-          />
-          {
-            pins.map((pin) => (
-              <>
-                <span class:list={['pin', pin.label && 'on']} style={`left:${pin.x}%;top:${pin.y}%`}></span>
-                {pin.label && (
-                  <span class="pinlabel" style={`left:${pin.x}%;top:${pin.y}%`}>
-                    {pin.label}
-                  </span>
-                )}
-              </>
-            ))
-          }
-          <div class="map-note">
-            <span class="meta">Map preview · pin positions approximate</span>
-            <PlaceholderBadge label="Placeholder image" />
-          </div>
-        </div>
-        <div class="clist">
-          <div class="meta" style="margin-bottom:12px">12 countries</div>
-          <ul>
-            {
-              previewCountries.map((country) => (
-                <li class={country === 'Finland' ? 'on' : undefined}>
-                  <span>{country}</span>
-                  <i>&rarr;</i>
-                </li>
-              ))
-            }
-          </ul>
-          <p class="muted" style="margin-top:18px;font-size:15px;line-height:1.5">
-            Selected: Juhani Tikkanen: Singer-songwriter from Finland <PlaceholderBadge tone="site" />
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
+  <EuropeDotMap data={mapData} id="countries" showLists={false} linkHref="/countries" linkLabel="Explore all countries" />
 
   <DiscoveryLab
     title="If you like them, try these."

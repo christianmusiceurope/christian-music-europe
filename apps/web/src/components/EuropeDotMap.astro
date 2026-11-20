@@ -82,6 +82,7 @@ const clientData = {
     slug: c.slug,
     mapCode: c.mapCode,
     artists: c.artists,
+    flag: c.flag,
   })),
   events,
   releases: data.releases,
@@ -240,7 +241,7 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
 
 <script>
   type Artist = { name: string; slug: string; photo?: string; photo2x?: string };
-  type Country = { code: string; name: string; slug?: string; mapCode: string; artists: Artist[] };
+  type Country = { code: string; name: string; slug?: string; mapCode: string; artists: Artist[]; flag?: { src: string; src2x: string; alt: string } };
   type Ev = {
     id: string; title: string; start: string; timeZone?: string; venue: string; city: string;
     countryCode: string; countryName: string; dot: number | null;
@@ -378,6 +379,13 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
       return `<a class="btn pur dmap-btn" href="/countries?${esc(q.toString())}">All artists from ${esc(name)}</a>`;
     }
 
+    // Country badge: the flag from Sanity in a circle when there is one, otherwise the ISO code.
+    function badge(code: string) {
+      const f = byMap.get(code)?.[0]?.flag;
+      if (f) return `<img class="dmap-flag dmap-flag-img" src="${esc(f.src)}" srcset="${esc(f.src)} 1x, ${esc(f.src2x)} 2x" width="44" height="44" alt="${esc(f.alt)}">`;
+      return `<span class="dmap-flag">${esc(code)}</span>`;
+    }
+
     function renderPanel() {
       const open = Boolean(state.cc);
       panel.classList.toggle('open', open);
@@ -390,7 +398,7 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
       const name = countryName(code);
       const anchorSlug = byMap.get(code)?.[0]?.slug;
       const head = (title: string, sub: string) =>
-        `<div class="dmap-ph"><span class="dmap-flag">${esc(code)}</span><div><h2>${esc(title)}</h2><p>${sub}</p></div></div>`;
+        `<div class="dmap-ph">${badge(code)}<div><h2>${esc(title)}</h2><p>${sub}</p></div></div>`;
       let h = '';
       if (state.mode === 'artists') {
         const groups = byMap.get(code) ?? [];
@@ -614,6 +622,7 @@ const json = JSON.stringify(clientData).replaceAll('<', '\\u003c');
   .dmap-ph h2 { font: 700 22px/1.15 var(--head); letter-spacing: -0.02em; }
   .dmap-ph p { font: 500 13px/1.4 var(--body); color: var(--muted); margin-top: 4px; }
   .dmap-flag { flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--orange); color: #121212; display: grid; place-items: center; font: 700 13px/1 var(--head); }
+  .dmap-flag-img { display: block; object-fit: cover; background: #2a2a2a; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18); }
   .dmap-artists { list-style: none; }
   .dmap-artists li { border-top: 1px solid var(--rule); }
   .dmap-artists a { display: flex; align-items: center; gap: 12px; padding: 9px 0; font: 700 16px/1.3 var(--body); }

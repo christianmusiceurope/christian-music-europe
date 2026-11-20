@@ -39,6 +39,35 @@ export const country = defineType({
         rule.required().custom((value: string | undefined) => validateIsoCountryCode(value)),
     }),
     defineField({
+      name: 'flag',
+      title: 'Flag',
+      type: 'image',
+      group: 'identity',
+      description:
+        'Square (1:1) flag shown in a circle on the site, for example the country badge on the map. Use a public-domain or openly licensed file and record its source and licence below.',
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+          description: 'For example "Flag of Finland".',
+          validation: (rule) => rule.max(120),
+        }),
+        defineField({
+          name: 'sourceUrl',
+          title: 'Source URL',
+          type: 'url',
+          description: 'Where the file came from.',
+        }),
+        defineField({
+          name: 'licence',
+          title: 'Licence',
+          type: 'string',
+          description: 'For example "MIT (flag-icons)" or "Public domain".',
+        }),
+      ],
+    }),
+    defineField({
       name: 'europeanEditorialScope',
       title: 'European editorial scope',
       type: 'boolean',
@@ -94,13 +123,14 @@ export const country = defineType({
       title: 'name',
       isoCode: 'isoCode',
       european: 'europeanEditorialScope',
-      media: 'heroImage',
+      flag: 'flag',
+      hero: 'heroImage',
     },
-    prepare({title, isoCode, european, media}) {
+    prepare({title, isoCode, european, flag, hero}) {
       return {
         title,
         subtitle: `${isoCode || 'no code'}${european ? ' · European scope' : ''}`,
-        media,
+        media: flag?.asset ? flag : hero,
       }
     },
   },

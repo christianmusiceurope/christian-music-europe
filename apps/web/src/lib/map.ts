@@ -23,7 +23,8 @@ export const MAP_COUNTRIES_QUERY = defineQuery(/* groq */ `
   *[_type == "country" && europeanEditorialScope == true && defined(isoCode)] | order(name asc){
     name,
     "slug": slug.current,
-    isoCode
+    isoCode,
+    "flag": flag{ alt, "url": asset->url }
   }
 `);
 
@@ -113,6 +114,8 @@ export type MapCountry = {
   artists: MapArtist[];
   /** Country these artists are shown under on the map, when the country has no dots (Vatican City). */
   mapCode: string;
+  /** Square crop of the country's flag from Sanity, for the round badge. */
+  flag?: { src: string; src2x: string; alt: string };
 };
 export type MapEvent = {
   id: string;
@@ -181,7 +184,28 @@ function nearestDot(code: string, lat: number, lng: number): number | null {
   return dotOffsets(grid.dots as Record<string, number[]>)[code] + best;
 }
 
-type RawCountry = { name?: string; slug?: string; isoCode?: string };
+/** Flag thumbnails for the 44px round badge (1x and 2x). Flags carry their own source and licence in Sanity. */
+function flagOf(c: { name?: string; flag?: { alt?: string; url?: string } | null }): { flag?: MapCountry['flag'] } {
+  const url = c.flag?.url;
+  if (!url) return {};
+  const src = flagThumb(url, 44), src2x = flagThumb(url, 88);
+  return src && src2x ? { flag: { src, src2x, alt: c.flag?.alt || `Flag of ${c.name}` } } : {};
+}
+function flagThumb(url: string, size: number): string | undefined {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== 'cdn.sanity.io') return undefined;
+    parsed.searchParams.set('w', String(size));
+    parsed.searchParams.set('h', String(size));
+    parsed.searchParams.set('fit', 'crop');
+    parsed.searchParams.set('fm', 'png');
+    return parsed.toString();
+  } catch {
+    return undefined;
+  }
+}
+
+type RawCountry = { name?: string; slug?: string; isoCode?: string; flag?: { alt?: string; url?: string } | null };
 type RawArtist = { name?: string; slug?: string; image?: LicensedImage | null; countries?: Array<{ isoCode?: string; europeanEditorialScope?: boolean } | null> | null };
 type RawRelease = {
   _id: string;
@@ -232,6 +256,7 @@ export async function getMapData(): Promise<MapData> {
       hasDots: code in gridOut.dots,
       artists: [],
       mapCode: MAP_ALIAS[code] ?? code,
+      ...flagOf(c),
     });
   }
   for (const a of rawArtists ?? []) {

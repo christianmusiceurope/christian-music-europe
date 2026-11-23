@@ -72,102 +72,104 @@ function festivalDates(events: HomeEvent[]): string | undefined {
 
 {
   rows.length > 0 && (
-    <section class="wrap home-block" id="live">
-      <SectionHead title="Live in Europe" subline="Upcoming dates" />
-      <div class="home-live">
-        {rows.map((row) => {
-          if (row.kind === 'event') {
-            const event = row.event;
-            const date = dayMonth(event.startDateTime, event.timezone);
-            const when = formatEventWhen(event.startDateTime, event.timezone);
-            const artists = linkedArtists(event.artists);
-            const single = artists.length === 1 && artists[0].slug ? artists[0] : undefined;
-            const link = action(event);
+    <section class="home-block" id="live">
+      <div class="wrap">
+        <SectionHead title="Live in Europe" subline="Upcoming dates" />
+        <div class="home-live">
+          {rows.map((row) => {
+            if (row.kind === 'event') {
+              const event = row.event;
+              const date = dayMonth(event.startDateTime, event.timezone);
+              const when = formatEventWhen(event.startDateTime, event.timezone);
+              const artists = linkedArtists(event.artists);
+              const single = artists.length === 1 && artists[0].slug ? artists[0] : undefined;
+              const link = action(event);
+              return (
+                <article class="ev-row">
+                  <div class="d">
+                    {date?.day}
+                    {date && <small>{date.month}</small>}
+                  </div>
+                  <div>
+                    <h3>{single ? <a href={`/artists/${single.slug}/`}>{event.title}</a> : event.title}</h3>
+                    <p class="where">{[when, event.venueName].filter(Boolean).join(' · ')}</p>
+                    {!single && artists.length > 0 && (
+                      <p class="who">
+                        {artists.map((artist, index) => (
+                          <>
+                            {index > 0 && ', '}
+                            {artist.slug ? <a href={`/artists/${artist.slug}/`}>{artist.name}</a> : artist.name}
+                          </>
+                        ))}
+                      </p>
+                    )}
+                  </div>
+                  <div class="place">{place(event.city, event.countryName)}</div>
+                  <div class="t">
+                    {link && (
+                      <a class="btn ghost" href={link.href} rel="noopener noreferrer" target="_blank">
+                        {link.label}
+                      </a>
+                    )}
+                  </div>
+                </article>
+              );
+            }
+            const first = row.events[0];
+            const date = dayMonth(first.startDateTime, first.timezone);
+            const range = festivalDates(row.events);
             return (
-              <article class="ev-row">
+              <article class="ev-row festival">
                 <div class="d">
                   {date?.day}
                   {date && <small>{date.month}</small>}
                 </div>
                 <div>
-                  <h3>{single ? <a href={`/artists/${single.slug}/`}>{event.title}</a> : event.title}</h3>
-                  <p class="where">{[when, event.venueName].filter(Boolean).join(' · ')}</p>
-                  {!single && artists.length > 0 && (
-                    <p class="who">
-                      {artists.map((artist, index) => (
-                        <>
-                          {index > 0 && ', '}
-                          {artist.slug ? <a href={`/artists/${artist.slug}/`}>{artist.name}</a> : artist.name}
-                        </>
-                      ))}
-                    </p>
-                  )}
+                  <p class="kind">Festival</p>
+                  <h3>
+                    {row.festival.website ? (
+                      <a href={row.festival.website} rel="noopener noreferrer" target="_blank">
+                        {row.festival.name}
+                      </a>
+                    ) : (
+                      row.festival.name
+                    )}
+                  </h3>
+                  {range && <p class="where">{range}</p>}
+                  <ul class="lineup">
+                    {row.events.map((event) => {
+                      const when = formatEventWhen(event.startDateTime, event.timezone);
+                      const artists = linkedArtists(event.artists);
+                      const link = action(event);
+                      return (
+                        <li>
+                          <span class="who">
+                            {artists.length > 0
+                              ? artists.map((artist, index) => (
+                                  <>
+                                    {index > 0 && ', '}
+                                    {artist.slug ? <a href={`/artists/${artist.slug}/`}>{artist.name}</a> : artist.name}
+                                  </>
+                                ))
+                              : event.title}
+                          </span>
+                          <span class="when">{[when, event.venueName].filter(Boolean).join(' · ')}</span>
+                          {link && (
+                            <a class="mini" href={link.href} rel="noopener noreferrer" target="_blank">
+                              {link.label}
+                            </a>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
-                <div class="place">{place(event.city, event.countryName)}</div>
-                <div class="t">
-                  {link && (
-                    <a class="btn ghost" href={link.href} rel="noopener noreferrer" target="_blank">
-                      {link.label}
-                    </a>
-                  )}
-                </div>
+                <div class="place">{place(row.city, row.countryName)}</div>
+                <div class="t"></div>
               </article>
             );
-          }
-          const first = row.events[0];
-          const date = dayMonth(first.startDateTime, first.timezone);
-          const range = festivalDates(row.events);
-          return (
-            <article class="ev-row festival">
-              <div class="d">
-                {date?.day}
-                {date && <small>{date.month}</small>}
-              </div>
-              <div>
-                <p class="kind">Festival</p>
-                <h3>
-                  {row.festival.website ? (
-                    <a href={row.festival.website} rel="noopener noreferrer" target="_blank">
-                      {row.festival.name}
-                    </a>
-                  ) : (
-                    row.festival.name
-                  )}
-                </h3>
-                {range && <p class="where">{range}</p>}
-                <ul class="lineup">
-                  {row.events.map((event) => {
-                    const when = formatEventWhen(event.startDateTime, event.timezone);
-                    const artists = linkedArtists(event.artists);
-                    const link = action(event);
-                    return (
-                      <li>
-                        <span class="who">
-                          {artists.length > 0
-                            ? artists.map((artist, index) => (
-                                <>
-                                  {index > 0 && ', '}
-                                  {artist.slug ? <a href={`/artists/${artist.slug}/`}>{artist.name}</a> : artist.name}
-                                </>
-                              ))
-                            : event.title}
-                        </span>
-                        <span class="when">{[when, event.venueName].filter(Boolean).join(' · ')}</span>
-                        {link && (
-                          <a class="mini" href={link.href} rel="noopener noreferrer" target="_blank">
-                            {link.label}
-                          </a>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-              <div class="place">{place(row.city, row.countryName)}</div>
-              <div class="t"></div>
-            </article>
-          );
-        })}
+          })}
+        </div>
       </div>
     </section>
   )

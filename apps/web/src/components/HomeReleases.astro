@@ -16,65 +16,67 @@ const today = todayInHelsinki();
 
 {
   releases.length > 0 && (
-    <section class="wrap home-block" id="releases">
-      <SectionHead title="New releases" subline="Last 30 days, and upcoming" />
-      <div class:list={['home-releases', releases.length === 1 && 'is-single']}>
-        {releases.map((release) => {
-          const upcoming = isUpcomingRelease(release.releaseDate, today);
-          const kicker = [releaseTypeLabel(release.releaseType), formatOutLabel(release.releaseDate, today)]
-            .filter(Boolean)
-            .join(' · ');
-          const releasedOn = !upcoming ? formatDateOnly(release.releaseDate) : undefined;
-          const artistHref = `/artists/${release.primaryArtist.slug}/#new-releases`;
-          const links = [
-            release.links?.spotify ? { href: release.links.spotify, label: 'Spotify' } : undefined,
-            release.links?.appleMusic ? { href: release.links.appleMusic, label: 'Apple Music' } : undefined,
-            release.links?.youtube ? { href: release.links.youtube, label: 'YouTube' } : undefined,
-            ...(release.links?.other ?? []).map((link) => ({ href: link.url, label: link.label })),
-          ].filter((link): link is { href: string; label: string } => Boolean(link));
-          return (
-            <article class="nr-card home-release">
-              <div class="nr-top">
-                <a href={artistHref} tabindex="-1" aria-hidden="true">
-                  {release.cover?.url ? (
-                    <img class="nr-cover" src={release.cover.url} alt="" width="240" height="240" />
-                  ) : (
-                    <PhotoPlaceholder ratio="r1" label="Cover coming soon" />
-                  )}
-                </a>
-                <div>
-                  <p class="tag">
-                    {!upcoming && <b>New</b>}
-                    {kicker}
-                  </p>
-                  <h3>
-                    <a href={artistHref}>{release.title}</a>
-                  </h3>
-                  <p class="artist">
-                    <a href={artistHref}>{release.primaryArtist.name}</a>
-                    {release.additionalArtists?.map((artist) => (
-                      <>
-                        {', '}
-                        {artist.slug ? <a href={`/artists/${artist.slug}/`}>{artist.name}</a> : artist.name}
-                      </>
+    <section class="home-block" id="releases">
+      <div class="wrap">
+        <SectionHead title="New releases" subline="Last 30 days, and upcoming" />
+        <div class:list={['home-releases', releases.length === 1 && 'is-single']}>
+          {releases.map((release) => {
+            const upcoming = isUpcomingRelease(release.releaseDate, today);
+            const kicker = [releaseTypeLabel(release.releaseType), formatOutLabel(release.releaseDate, today)]
+              .filter(Boolean)
+              .join(' · ');
+            const releasedOn = !upcoming ? formatDateOnly(release.releaseDate) : undefined;
+            const artistHref = `/artists/${release.primaryArtist.slug}/#new-releases`;
+            const links = [
+              release.links?.spotify ? { href: release.links.spotify, label: 'Spotify' } : undefined,
+              release.links?.appleMusic ? { href: release.links.appleMusic, label: 'Apple Music' } : undefined,
+              release.links?.youtube ? { href: release.links.youtube, label: 'YouTube' } : undefined,
+              ...(release.links?.other ?? []).map((link) => ({ href: link.url, label: link.label })),
+            ].filter((link): link is { href: string; label: string } => Boolean(link));
+            return (
+              <article class="nr-card home-release">
+                <div class="nr-top">
+                  <a href={artistHref} tabindex="-1" aria-hidden="true">
+                    {release.cover?.url ? (
+                      <img class="nr-cover" src={release.cover.url} alt="" width="240" height="240" />
+                    ) : (
+                      <PhotoPlaceholder ratio="r1" label="Cover coming soon" />
+                    )}
+                  </a>
+                  <div>
+                    <p class="tag">
+                      {!upcoming && <b>New</b>}
+                      {kicker}
+                    </p>
+                    <h3>
+                      <a href={artistHref}>{release.title}</a>
+                    </h3>
+                    <p class="rel-artist">
+                      <a href={artistHref}>{release.primaryArtist.name}</a>
+                      {release.additionalArtists?.map((artist) => (
+                        <>
+                          {', '}
+                          {artist.slug ? <a href={`/artists/${artist.slug}/`}>{artist.name}</a> : artist.name}
+                        </>
+                      ))}
+                    </p>
+                    {releasedOn && <p class="released">Released {releasedOn}</p>}
+                    {release.cover?.credit && <p class="photo-credit">Cover: {release.cover.credit}</p>}
+                  </div>
+                </div>
+                {links.length > 0 && (
+                  <div class="nr-links">
+                    {links.map((link) => (
+                      <a class="btn ghost" href={link.href} rel="noopener noreferrer" target="_blank">
+                        {link.label}
+                      </a>
                     ))}
-                  </p>
-                  {releasedOn && <p class="released">Released {releasedOn}</p>}
-                  {release.cover?.credit && <p class="photo-credit">Cover: {release.cover.credit}</p>}
-                </div>
-              </div>
-              {links.length > 0 && (
-                <div class="nr-links">
-                  {links.map((link) => (
-                    <a class="btn ghost" href={link.href} rel="noopener noreferrer" target="_blank">
-                      {link.label}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </article>
-          );
-        })}
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
       </div>
     </section>
   )

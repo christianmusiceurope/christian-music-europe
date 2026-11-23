@@ -1440,6 +1440,7 @@ a.channel-card:focus-visible {
     gap: 16px;
     margin: 0 calc(-1 * var(--m));
     padding: 0 var(--m) 12px;
+    scroll-padding-inline: var(--m);
     -webkit-overflow-scrolling: touch;
   }
 
@@ -1845,6 +1846,16 @@ a.acard:focus-visible {
 
 /* Homepage: New releases, Live in Europe, Latest articles.
    Published Sanity data only; each block hides when empty. */
+.home-channels {
+  padding-top: 72px;
+}
+
+.home-block .secthead {
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+}
+
 .home-releases {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1856,13 +1867,13 @@ a.acard:focus-visible {
 }
 
 .home-release h3 a,
-.home-release .artist a {
+.home-release .rel-artist a {
   color: inherit;
   text-decoration: none;
 }
 
 .home-release h3 a:hover,
-.home-release .artist a:hover,
+.home-release .rel-artist a:hover,
 .ev-row h3 a:hover,
 .ev-row .who a:hover,
 .home-article h3 a:hover {
@@ -1872,7 +1883,7 @@ a.acard:focus-visible {
   text-underline-offset: 4px;
 }
 
-.home-release .artist {
+.home-release .rel-artist {
   margin: 4px 0 4px;
   font: 700 16px/1.3 var(--body);
 }
@@ -2029,6 +2040,10 @@ a.acard:focus-visible {
 }
 
 @media (max-width: 700px) {
+  .home-channels {
+    padding-top: 48px;
+  }
+
   .home-releases,
   .home-releases.is-single,
   .home-articles {

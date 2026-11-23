@@ -31,7 +31,11 @@ const [spotlight, mapData, home] = await Promise.all([getCurrentSpotlight(), get
 
   <LiveInEurope rows={home.live} />
 
-  <SocialChannels posts={home.posts} companion={{ kind: 'follow' }} />
+  {home.posts.length > 0 && (
+    <div class="home-channels">
+      <SocialChannels posts={home.posts} companion={{ kind: 'follow' }} />
+    </div>
+  )}
 
   <EuropeDotMap data={mapData} id="countries" showLists={false} linkHref="/countries/" linkLabel="Explore all countries" />
 

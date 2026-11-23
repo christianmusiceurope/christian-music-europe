@@ -12,7 +12,7 @@ const { rows } = Astro.props;
 function ticketLabel(status: string | undefined): string {
   if (status === 'on_sale') return 'On sale';
   if (status === 'sold_out') return 'Sold out';
-  if (status === 'announced') return 'Tickets announced';
+  if (status === 'announced') return 'Announced';
   return 'Tickets';
 }
 

@@ -1894,7 +1894,7 @@ a.acard:focus-visible {
 
 .ev-row {
   display: grid;
-  grid-template-columns: 88px minmax(0, 1fr) 220px 160px;
+  grid-template-columns: 88px minmax(0, 1fr) 220px minmax(160px, auto);
   gap: 20px;
   align-items: start;
   padding: 20px 0;
@@ -1981,6 +1981,10 @@ a.acard:focus-visible {
   text-decoration-color: var(--purple);
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
+}
+
+#articles {
+  padding-bottom: 72px;
 }
 
 .home-articles {

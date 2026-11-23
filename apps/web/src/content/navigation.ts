@@ -1,43 +1,54 @@
+import type { HomeSections } from '../lib/home';
+
 export type NavItem = {
   id: string;
   label: string;
   hash: string;
+  /** Absolute path for items that are their own page rather than a homepage section. */
+  href?: string;
+  /** Only shown when this homepage block renders. */
+  requires?: keyof HomeSections;
 };
 
-export const homeNav: NavItem[] = [
-  { id: 'home', label: 'Home', hash: '' },
-  { id: 'news', label: 'News', hash: 'latest' },
-  { id: 'features', label: 'Features', hash: 'features' },
-  { id: 'interviews', label: 'Interviews', hash: 'interviews' },
-  { id: 'reviews', label: 'Reviews', hash: 'reviews' },
-  { id: 'releases', label: 'New releases', hash: 'releases' },
-  { id: 'countries', label: 'Countries', hash: 'countries' },
-  { id: 'discovery', label: 'Discovery Lab', hash: 'discovery-lab' },
-  { id: 'live', label: 'Live', hash: 'live' },
+/**
+ * Navigation links only to blocks that render. News, Features, Interviews and
+ * Reviews come back as article types once articles are published and have
+ * their own index pages; until then "Articles" appears when the homepage
+ * Latest articles block has something to show.
+ */
+const sections: NavItem[] = [
+  { id: 'releases', label: 'New releases', hash: 'releases', requires: 'releases' },
+  { id: 'live', label: 'Live', hash: 'live', requires: 'live' },
+  { id: 'channels', label: 'From our channels', hash: 'from-our-channels', requires: 'channels' },
+  { id: 'articles', label: 'Articles', hash: 'articles', requires: 'articles' },
+  { id: 'countries', label: 'Countries', hash: 'countries', href: '/countries/' },
 ];
 
-export const compactNav: NavItem[] = homeNav.filter((item) => item.id !== 'home');
+export const homeNav: NavItem[] = [{ id: 'home', label: 'Home', hash: '' }, ...sections];
+
+export const compactNav: NavItem[] = sections;
 
 export const swipeNav: NavItem[] = [
   { id: 'home', label: 'Home', hash: '' },
-  { id: 'news', label: 'News', hash: 'latest' },
-  { id: 'features', label: 'Features', hash: 'features' },
-  { id: 'interviews', label: 'Interviews', hash: 'interviews' },
-  { id: 'releases', label: 'Releases', hash: 'releases' },
-  { id: 'countries', label: 'Countries', hash: 'countries' },
-  { id: 'live', label: 'Live', hash: 'live' },
+  { id: 'releases', label: 'Releases', hash: 'releases', requires: 'releases' },
+  { id: 'live', label: 'Live', hash: 'live', requires: 'live' },
+  { id: 'channels', label: 'Channels', hash: 'from-our-channels', requires: 'channels' },
+  { id: 'articles', label: 'Articles', hash: 'articles', requires: 'articles' },
+  { id: 'countries', label: 'Countries', hash: 'countries', href: '/countries/' },
 ];
 
 export const menuNav: NavItem[] = [
   { id: 'home', label: 'Home', hash: '' },
-  { id: 'news', label: 'News', hash: 'latest' },
-  { id: 'features', label: 'Features', hash: 'features' },
-  { id: 'interviews', label: 'Interviews', hash: 'interviews' },
-  { id: 'reviews', label: 'Reviews', hash: 'reviews' },
-  { id: 'releases', label: 'New releases', hash: 'releases' },
-  { id: 'discovery', label: 'Discovery Lab', hash: 'discovery-lab' },
-  { id: 'live', label: 'Live in Europe', hash: 'live' },
+  { id: 'releases', label: 'New releases', hash: 'releases', requires: 'releases' },
+  { id: 'live', label: 'Live in Europe', hash: 'live', requires: 'live' },
+  { id: 'channels', label: 'From our channels', hash: 'from-our-channels', requires: 'channels' },
+  { id: 'articles', label: 'Latest articles', hash: 'articles', requires: 'articles' },
+  { id: 'countries', label: 'Countries', hash: 'countries', href: '/countries/' },
 ];
+
+export function visibleNav(items: NavItem[], available: HomeSections): NavItem[] {
+  return items.filter((item) => !item.requires || available[item.requires]);
+}
 
 export const previewCountries = [
   'Austria',
@@ -56,6 +67,7 @@ export const previewCountries = [
 
 export function sectionHref(item: NavItem, onHome: boolean, current: string | undefined, pathname: string): string {
   if (current && item.id === current) return pathname || '/';
+  if (item.href) return item.href;
   if (!item.hash) return '/';
   return onHome ? `#${item.hash}` : `/#${item.hash}`;
 }

@@ -1,0 +1,40 @@
+---
+import SectionHead from './SectionHead.astro';
+import { formatShortDate } from '../lib/dates';
+import { articleTypeLabel } from '../lib/labels';
+import type { ArticleCard } from '../lib/types';
+
+interface Props {
+  articles: ArticleCard[];
+}
+
+const { articles } = Astro.props;
+---
+
+{
+  articles.length > 0 && (
+    <section class="home-block" id="articles">
+      <div class="wrap">
+        <SectionHead title="Latest articles" />
+        <div class="home-articles">
+          {articles.map((article) => (
+            <article class="home-article">
+              {article.heroImage?.url && (
+                <a class="photo r32" href={`/articles/${article.slug}/`} tabindex="-1" aria-hidden="true">
+                  <img src={article.heroImage.url} alt="" />
+                </a>
+              )}
+              <p class="kicker">{articleTypeLabel(article.articleType)}</p>
+              <h3>
+                <a href={`/articles/${article.slug}/`}>{article.title}</a>
+              </h3>
+              {formatShortDate(article.publishedAt) && <p class="meta">{formatShortDate(article.publishedAt)}</p>}
+              {article.excerpt && <p class="excerpt">{article.excerpt}</p>}
+              {article.heroImage?.credit && <p class="photo-credit">Photo: {article.heroImage.credit}</p>}
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}

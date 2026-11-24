@@ -1,5 +1,6 @@
 ---
-import { menuNav, previewCountries, sectionHref } from '../content/navigation';
+import { menuNav, previewCountries, sectionHref, visibleNav } from '../content/navigation';
+import { getHomeSections } from '../lib/home';
 
 interface Props {
   current?: string;
@@ -8,6 +9,7 @@ interface Props {
 
 const { current, highlightFinland = false } = Astro.props;
 const onHome = Astro.url.pathname === '/';
+const items = visibleNav(menuNav, await getHomeSections());
 ---
 
 <div class="mmenu" id="menu">
@@ -17,9 +19,6 @@ const onHome = Astro.url.pathname === '/';
       <img class="w" src="/brand/wordmark-straight-white.png" alt="Christian Music Europe" />
     </a>
     <div class="icons">
-      <button class="icon-btn" type="button" aria-label="Search">
-        <svg class="ico"><use href="#i-search" /></svg>
-      </button>
       <a id="menu-close" class="icon-btn" href="#main" data-menu-close aria-label="Close menu">
         <svg class="ico"><use href="#i-close" /></svg>
       </a>
@@ -28,7 +27,7 @@ const onHome = Astro.url.pathname === '/';
   <div class="mm-body">
     <ul class="mm-list">
       {
-        menuNav.map((item) => (
+        items.map((item) => (
           <li class={item.id === current ? 'on' : undefined}>
             <a href={sectionHref(item, onHome, current, Astro.url.pathname)}>{item.label}</a>
           </li>
@@ -55,7 +54,6 @@ const onHome = Astro.url.pathname === '/';
       <span>YouTube</span>
       <span>Spotify</span>
     </div>
-    <a class="btn pur" href="#submit-music">Submit your music</a>
   </div>
   <div class="mm-strip"></div>
 </div>

@@ -1,4 +1,6 @@
 ---
+import { getHomeSections } from '../lib/home';
+
 interface Props {
   current?: 'home' | 'discover' | 'live';
 }
@@ -6,6 +8,7 @@ interface Props {
 const current = Astro.props.current;
 const onHome = Astro.url.pathname === '/';
 const href = (hash: string) => (onHome ? `#${hash}` : `/#${hash}`);
+const { live } = await getHomeSections();
 ---
 
 <nav class="tabbar m-only" aria-label="Shortcuts">
@@ -17,10 +20,12 @@ const href = (hash: string) => (onHome ? `#${hash}` : `/#${hash}`);
     <svg class="ico"><use href="#i-globe" /></svg>
     Discover
   </a>
-  <a href={href('live')} class={current === 'live' ? 'on' : undefined}>
-    <svg class="ico"><use href="#i-live" /></svg>
-    Live
-  </a>
+  {live && (
+    <a href={href('live')} class={current === 'live' ? 'on' : undefined}>
+      <svg class="ico"><use href="#i-live" /></svg>
+      Live
+    </a>
+  )}
   <a href="#menu" data-menu-open aria-expanded="false" aria-controls="menu">
     <svg class="ico"><use href="#i-menu" /></svg>
     Menu

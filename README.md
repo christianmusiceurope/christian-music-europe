@@ -88,9 +88,9 @@ Astro defaults to [http://localhost:4321](http://localhost:4321).
 | unset or `sanity` (default) | Fetch published documents from project `rg6onak7`, dataset `production`, with GROQ. One page is built for every published artist. |
 | `fixture` | Offline opt-in. Renders local fixtures in `apps/web/src/fixtures`, including LIN D, with no network call. Use this for offline dev and tests. |
 
-Drafts are not on the public API. To read them, set `SANITY_API_READ_TOKEN` in the server environment (no `PUBLIC_` prefix). The client then uses the drafts perspective. Never commit the token. The homepage and the interview template at `/articles/placeholder-interview` are design pages: orange Placeholder badges are example slots, and grey From the site badges repeat titles from the approved homepage mockup.
+Drafts are not on the public API. To read them, set `SANITY_API_READ_TOKEN` in the server environment (no `PUBLIC_` prefix). The client then uses the drafts perspective. Never commit the token. The interview template at `/articles/placeholder-interview` is a design page: orange Placeholder badges are example slots. The homepage has no demo content: every block (Artist Spotlight, New releases, Live in Europe, From our channels, the country map, Latest articles) reads published Sanity documents and hides when empty, and the header, menu and footer only link to blocks that render.
 
-The night photograph used in the masthead, country map and footer is `apps/web/public/brand/night-europe.jpg`. Its licence is unconfirmed. It is marked on the page as a placeholder image and must be replaced before launch.
+The night image of Europe used in the masthead and footer is `apps/web/public/brand/night-europe.jpg`. It was made by Christian Music Europe and is rights-cleared.
 
 ### Photo workflow
 

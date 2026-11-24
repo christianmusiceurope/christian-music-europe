@@ -1,20 +1,22 @@
 ---
-import { sectionHref } from '../content/navigation';
+import { getHomeSections } from '../lib/home';
 
 const onHome = Astro.url.pathname === '/';
 const href = (hash: string) => (onHome ? `#${hash}` : `/#${hash}`);
-const item = (id: string, label: string, hash: string) =>
-  sectionHref({ id, label, hash }, onHome, undefined, Astro.url.pathname);
+const available = await getHomeSections();
+
+const sections = [
+  available.releases && { href: href('releases'), label: 'New releases' },
+  available.live && { href: href('live'), label: 'Live in Europe' },
+  available.channels && { href: href('from-our-channels'), label: 'From our channels' },
+  available.articles && { href: href('articles'), label: 'Latest articles' },
+].filter((item): item is { href: string; label: string } => Boolean(item));
 ---
 
-<footer class="foot" id="submit-music">
-  <div class="horizon">
-    {/* Same unlicensed placeholder photograph as the masthead. Replace before launch. */}
-    <img
-      src="/brand/night-europe.jpg"
-      alt="Placeholder night photograph of Europe. Licensing is unconfirmed and this image must be replaced."
-      title="Placeholder image, licensing unconfirmed"
-    />
+<footer class="foot">
+  <div class="horizon" aria-hidden="true">
+    {/* night-europe.jpg: CME's own image, rights-cleared. Decorative background. */}
+    <img src="/brand/night-europe.jpg" alt="" />
   </div>
   <div class="foot-overlay" aria-hidden="true"></div>
   <div class="wrap">
@@ -22,25 +24,24 @@ const item = (id: string, label: string, hash: string) =>
       <div style="grid-column:1/5">
         <img src="/brand/logo-full-light.png" style="width:300px" alt="Christian Music Europe" />
       </div>
-      <div style="grid-column:6/8">
-        <h5>Sections</h5>
-        <ul>
-          <li><a href={item('news', 'News', 'latest')}>News</a></li>
-          <li><a href={href('features')}>Features</a></li>
-          <li><a href={href('interviews')}>Interviews</a></li>
-          <li><a href={href('reviews')}>Reviews</a></li>
-          <li><a href={href('releases')}>New releases</a></li>
-        </ul>
-      </div>
+      {sections.length > 0 && (
+        <div style="grid-column:6/8">
+          <h5>Sections</h5>
+          <ul>
+            {sections.map((item) => (
+              <li><a href={item.href}>{item.label}</a></li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div style="grid-column:8/10">
         <h5>Discover</h5>
         <ul>
-          <li><a href={href('countries')}>Countries</a></li>
-          <li>Genres</li>
-          <li><a href={href('discovery-lab')}>Discovery Lab</a></li>
-          <li><a href={href('live')}>Live in Europe</a></li>
+          <li><a href={href('countries')}>Country map</a></li>
+          <li><a href="/countries/">All countries</a></li>
         </ul>
       </div>
+      {/* Plain labels until official CME profile URLs are published. "Follow CME" on the homepage points here. */}
       <div style="grid-column:10/13" id="follow-cme">
         <h5>Follow</h5>
         <ul>
@@ -53,7 +54,6 @@ const item = (id: string, label: string, hash: string) =>
     </div>
     <div class="legal">
       <span class="meta">&copy; Christian Music Europe</span>
-      <span class="meta">About · Contact · Submit music · Privacy</span>
     </div>
   </div>
 </footer>

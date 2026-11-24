@@ -1,7 +1,8 @@
 ---
-import { compactNav, homeNav, sectionHref, swipeNav } from '../content/navigation';
+import { compactNav, homeNav, sectionHref, swipeNav, visibleNav } from '../content/navigation';
 import { europeEditionLabel } from '../lib/dates';
 import { newsletterEnabled } from '../lib/flags';
+import { getHomeSections } from '../lib/home';
 
 interface Props {
   variant?: 'home' | 'compact';
@@ -10,7 +11,9 @@ interface Props {
 
 const { variant = 'home', current } = Astro.props;
 const onHome = Astro.url.pathname === '/';
-const items = variant === 'home' ? homeNav : compactNav;
+const available = await getHomeSections();
+const items = visibleNav(variant === 'home' ? homeNav : compactNav, available);
+const swipeItems = visibleNav(swipeNav, available);
 const edition = europeEditionLabel();
 ---
 
@@ -23,9 +26,6 @@ const edition = europeEditionLabel();
           <img class="w" src="/brand/wordmark-straight-white.png" alt="Christian Music Europe" />
         </a>
         <div class="icons">
-          <button class="icon-btn" type="button" aria-label="Search">
-            <svg class="ico"><use href="#i-search" /></svg>
-          </button>
           <a class="icon-btn menu-btn" href="#menu" data-menu-open aria-expanded="false" aria-controls="menu" aria-label="Open menu">
             <svg class="ico"><use href="#i-menu" /></svg>
           </a>
@@ -36,21 +36,15 @@ const edition = europeEditionLabel();
         <div class="wrap">
           <span class="meta">{edition}</span>
           <div class="r">
-            <button class="meta" type="button">Search</button>
+            {/* Search and Submit your music are hidden until they work. */}
             {newsletterEnabled && <a class="meta" href="#newsletter" style="color:#fff">Newsletter</a>}
-            <a class="btn pur" href="#submit-music">Submit your music</a>
           </div>
         </div>
       </div>
 
       <div class="mast">
-        {/* night-europe.jpg is an approved mockup asset with unconfirmed licensing. Replace before launch. */}
-        <img
-          class="sat"
-          src="/brand/night-europe.jpg"
-          alt="Placeholder night photograph of Europe. Licensing is unconfirmed and this image must be replaced."
-        />
-        <span class="mast-flag ph">Placeholder image</span>
+        {/* night-europe.jpg: CME's own image, rights-cleared. Decorative background. */}
+        <img class="sat" src="/brand/night-europe.jpg" alt="" />
         <img class="logo" src="/brand/logo-full-light.png" alt="Christian Music Europe" />
         <div class="tag d-only">
           <p>Christian music from every corner of Europe: artists, releases and live dates.</p>
@@ -72,9 +66,6 @@ const edition = europeEditionLabel();
             ))}
           </ul>
           <div class="icons">
-            <button class="icon-btn" type="button" aria-label="Search">
-              <svg class="ico"><use href="#i-search" /></svg>
-            </button>
             <a class="icon-btn" href="#menu" data-menu-open aria-expanded="false" aria-controls="menu" aria-label="Open menu">
               <svg class="ico"><use href="#i-menu" /></svg>
             </a>
@@ -83,7 +74,7 @@ const edition = europeEditionLabel();
       </nav>
 
       <nav class="swipe m-only" aria-label="Sections">
-        {swipeNav.map((item) => (
+        {swipeItems.map((item) => (
           <a
             href={sectionHref(item, onHome, current, Astro.url.pathname)}
             class={item.id === current ? 'on' : undefined}
@@ -114,9 +105,6 @@ const edition = europeEditionLabel();
           ))}
         </ul>
         <div class="icons">
-          <button class="icon-btn" type="button" aria-label="Search">
-            <svg class="ico"><use href="#i-search" /></svg>
-          </button>
           {newsletterEnabled && <a class="btn pur" href="/#newsletter">Newsletter</a>}
         </div>
       </div>
@@ -133,9 +121,6 @@ const edition = europeEditionLabel();
         <img class="w" src="/brand/wordmark-straight-white.png" alt="Christian Music Europe" />
       </a>
       <div class="icons">
-        <button class="icon-btn" type="button" aria-label="Search">
-          <svg class="ico"><use href="#i-search" /></svg>
-        </button>
         <a class="icon-btn menu-btn" href="#menu" data-menu-open aria-expanded="false" aria-controls="menu" aria-label="Open menu">
           <svg class="ico"><use href="#i-menu" /></svg>
         </a>

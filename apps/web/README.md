@@ -11,7 +11,9 @@ Artist and catalogue-backed article pages read from Sanity unless you opt into t
 
 Copy `apps/web/.env.example` to `apps/web/.env` for local values. The example project id is public. Do not put secrets in `PUBLIC_` variables.
 
-The homepage and `/articles/placeholder-interview` are the approved page templates. Placeholder badges mark example copy. They are not catalogue records.
+`/articles/placeholder-interview` is the approved article template. Placeholder badges mark example copy. They are not catalogue records.
+
+The homepage (`src/pages/index.astro`, data in `src/lib/home.ts`) uses published Sanity documents only, in this order: Artist Spotlight (current by `startDate`), New releases (same window and sort as artist pages, 6 max), Live in Europe (upcoming non-cancelled events, festival events grouped, 6 rows max), From our channels (latest 4 social posts), the country map, and Latest articles (6 max). Each block hides when empty. Header, menu, tab bar and footer links are filtered with `getHomeSections()` so they only point at blocks that render. Search and Submit your music are hidden until they work.
 
 Photos are rendered only when `rightsStatus` is `cleared`, unless `PUBLIC_CME_ALLOW_PENDING_IMAGES=true` on a dev or preview build. That flag also shows `restricted` photos and adds a Permission pending label. Production builds ignore the flag. A published artist with no photo, biography, releases, or events still builds: those sections use empty states.
 

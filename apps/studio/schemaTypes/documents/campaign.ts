@@ -142,13 +142,6 @@ export const campaign = defineType({
       type: 'editorialVerification',
       group: 'verification',
     }),
-    defineField({
-      name: 'internalNotes',
-      title: 'Internal editorial notes',
-      type: 'text',
-      group: 'editorial',
-      rows: 4,
-    }),
   ],
   preview: {
     select: {

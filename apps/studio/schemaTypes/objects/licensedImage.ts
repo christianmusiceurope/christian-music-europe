@@ -48,15 +48,6 @@ export const licensedImage = defineType({
       options: {list: [...IMAGE_LICENCES], layout: 'dropdown'},
     }),
     defineField({
-      name: 'permissionNotes',
-      title: 'Permission notes',
-      type: 'text',
-      rows: 3,
-      description:
-        "Who gave permission and where the proof is kept. For example the Google Drive folder 'CME Media' or the 'CME Photo log' sheet.",
-      hidden: ({document}) => document?._type === 'artist',
-    }),
-    defineField({
       name: 'expiresAt',
       title: 'Permission expires',
       type: 'date',

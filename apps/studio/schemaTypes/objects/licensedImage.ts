@@ -54,6 +54,7 @@ export const licensedImage = defineType({
       rows: 3,
       description:
         "Who gave permission and where the proof is kept. For example the Google Drive folder 'CME Media' or the 'CME Photo log' sheet.",
+      hidden: ({document}) => document?._type === 'artist',
     }),
     defineField({
       name: 'expiresAt',

@@ -28,6 +28,7 @@ export const editorialVerification = defineType({
       title: 'Notes',
       type: 'text',
       rows: 3,
+      hidden: ({document}) => document?._type === 'artist',
     }),
   ],
 })

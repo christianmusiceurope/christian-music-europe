@@ -28,7 +28,6 @@ export type LicensedImage = {
   sourceType?: string;
   sourceUrl?: string;
   licence?: string;
-  permissionNotes?: string;
   expiresAt?: string;
   rightsStatus?: string;
 };

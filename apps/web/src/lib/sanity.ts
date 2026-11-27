@@ -46,7 +46,6 @@ export const LICENSED_IMAGE_FIELDS = /* groq */ `
   sourceType,
   sourceUrl,
   licence,
-  permissionNotes,
   expiresAt,
   rightsStatus,
   "url": asset->url

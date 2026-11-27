@@ -111,8 +111,6 @@ export function linDFixture(): ArtistPageData {
       sourceUrl: 'https://www.lin-d.com/',
       licence: 'other',
       rightsStatus: 'restricted',
-      permissionNotes:
-        "Permission from LIN D's management is pending. Approved for the development site only until written clearance. Asset image-5141d58598c9508542ba5bfd7951a3ba9aac94a7-2500x3750-webp on drafts.artist-lin-d.",
     },
     countries,
     genres: genreViews,

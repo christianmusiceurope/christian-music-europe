@@ -23,11 +23,5 @@ export const editorialVerification = defineType({
       title: 'Verified by',
       type: 'string',
     }),
-    defineField({
-      name: 'notes',
-      title: 'Notes',
-      type: 'text',
-      rows: 3,
-    }),
   ],
 })

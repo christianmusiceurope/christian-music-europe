@@ -173,7 +173,6 @@ async function main() {
       ],
       website: 'https://example.com/northern-lights-collective',
       inclusionStatus: 'in_scope',
-      internalNotes: 'Seed artist. Do not publish as a real act.',
       sources: [
         {
           _type: 'sourceReference',
@@ -185,7 +184,6 @@ async function main() {
       verification: {
         _type: 'editorialVerification',
         status: 'verified',
-        notes: 'Seeded development record.',
       },
     },
     {
@@ -207,7 +205,6 @@ async function main() {
       ],
       website: 'https://example.com/cedar-harbor',
       inclusionStatus: 'in_scope',
-      internalNotes: 'Seed artist. Nationality is US via country association only.',
       verification: {_type: 'editorialVerification', status: 'verified'},
     },
     {

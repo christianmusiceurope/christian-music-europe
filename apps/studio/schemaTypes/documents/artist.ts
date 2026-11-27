@@ -200,13 +200,6 @@ export const artist = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'internalNotes',
-      title: 'Internal editorial notes',
-      type: 'text',
-      group: 'editorial',
-      rows: 4,
-    }),
-    defineField({
       name: 'sources',
       title: 'Sources',
       type: 'array',

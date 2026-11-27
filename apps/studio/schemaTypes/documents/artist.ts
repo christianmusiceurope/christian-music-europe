@@ -95,6 +95,17 @@ export const artist = defineType({
       of: [defineArrayMember({type: 'licensedImage'})],
     }),
     defineField({
+      name: 'videos',
+      title: 'Videos',
+      type: 'array',
+      group: 'editorial',
+      description:
+        'YouTube videos shown in the Videos section of this artist page. Drag to set the order. These do not appear in the biography.',
+      of: [defineArrayMember({type: 'youtubeEmbed'})],
+      validation: (rule) =>
+        rule.max(12).warning('More than 12 videos will make this artist page quite long.'),
+    }),
+    defineField({
       name: 'website',
       title: 'Official website',
       type: 'url',

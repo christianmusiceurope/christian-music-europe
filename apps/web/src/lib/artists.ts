@@ -8,9 +8,10 @@ import {
   sanityClient,
 } from './sanity';
 import { filterAndSortArtistReleases, releaseWindow } from './releases';
-import { videosInPortableText } from './text';
+import { collectArtistVideos } from './artist-videos';
+import { fillYoutubeTitles } from './youtube';
 import { mapSocialPost, type RawSocialPost } from './social';
-import type { ArtistPageData, ArtistVideo, LicensedImage, PortableTextBlock } from './types';
+import type { ArtistPageData, LicensedImage, PortableTextBlock } from './types';
 
 type SanityArtist = {
   _id?: string;
@@ -83,36 +84,19 @@ type SanityArtist = {
     festival?: { name?: string; slug?: string; website?: string } | null;
   } | null>;
   socialPosts?: Array<RawSocialPost | null>;
+  videos?: Array<{ _key?: string; url?: string; title?: string } | null>;
   videoGroups?: Array<{ embeds?: Array<{ _key?: string; url?: string; title?: string } | null> | null } | null>;
 };
-
-function dedupeVideos(videos: ArtistVideo[]): ArtistVideo[] {
-  const seen = new Set<string>();
-  return videos.filter((video) => {
-    if (seen.has(video.url)) return false;
-    seen.add(video.url);
-    return true;
-  });
-}
 
 function asArray<T>(value: T[] | null | undefined): T[] {
   return Array.isArray(value) ? value.filter((item) => item != null) : [];
 }
 
-function fromSanity(doc: SanityArtist): ArtistPageData | null {
+async function fromSanity(doc: SanityArtist): Promise<ArtistPageData | null> {
   if (!doc.name || !doc.slug) return null;
   const biography = presentPortableText(doc.biography);
-  const relatedVideos = asArray(doc.videoGroups).flatMap((group) =>
-    asArray(group?.embeds).flatMap((embed) => {
-      if (!embed?.url) return [];
-      return [
-        {
-          key: embed._key ?? embed.url,
-          url: embed.url,
-          title: embed.title?.trim() || 'YouTube video',
-        },
-      ];
-    }),
+  const videos = await fillYoutubeTitles(
+    collectArtistVideos({curated: doc.videos, articleGroups: doc.videoGroups}),
   );
 
   return {
@@ -228,7 +212,7 @@ function fromSanity(doc: SanityArtist): ArtistPageData | null {
       const mapped = mapSocialPost(post ?? undefined);
       return mapped ? [mapped] : [];
     }),
-    videos: dedupeVideos([...videosInPortableText(biography), ...relatedVideos]),
+    videos,
     relatedArtists: asArray(doc.relatedArtists).flatMap((artist) => {
       if (!artist?.name || !artist._id) return [];
       return [
@@ -286,5 +270,5 @@ export async function getArtist(slug: string): Promise<ArtistPageData | null> {
     until: window.until,
   });
   if (!doc) return null;
-  return fromSanity(doc);
+  return await fromSanity(doc);
 }

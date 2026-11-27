@@ -56,3 +56,42 @@ export function spotifyArtistUrl(artistId: string | undefined): string | undefin
   if (!artistId || !/^[A-Za-z0-9]+$/.test(artistId)) return undefined;
   return `https://open.spotify.com/artist/${artistId}`;
 }
+
+const oEmbedTitles = new Map<string, Promise<string | undefined>>();
+
+/** Fetches the public YouTube title for a video URL. No API key. Cached per video id for the process. */
+export async function youtubeOEmbedTitle(url: string | undefined): Promise<string | undefined> {
+  const id = youtubeVideoId(url);
+  if (!id) return undefined;
+
+  const cached = oEmbedTitles.get(id);
+  if (cached) return cached;
+
+  const request = (async () => {
+    const endpoint = `https://www.youtube.com/oembed?url=${encodeURIComponent(`https://www.youtube.com/watch?v=${id}`)}&format=json`;
+    try {
+      const response = await fetch(endpoint, {signal: AbortSignal.timeout(5000)});
+      if (!response.ok) return undefined;
+      const data: unknown = await response.json();
+      if (!data || typeof data !== 'object' || !('title' in data)) return undefined;
+      const title = data.title;
+      return typeof title === 'string' && title.trim() ? title.trim() : undefined;
+    } catch {
+      return undefined;
+    }
+  })();
+
+  oEmbedTitles.set(id, request);
+  return request;
+}
+
+export async function fillYoutubeTitles<T extends {url: string; title: string}>(videos: T[]): Promise<T[]> {
+  return Promise.all(
+    videos.map(async (video) => {
+      if (video.title.trim()) return video;
+      const fetched = await youtubeOEmbedTitle(video.url);
+      return {...video, title: fetched || 'YouTube video'};
+    }),
+  );
+}
+

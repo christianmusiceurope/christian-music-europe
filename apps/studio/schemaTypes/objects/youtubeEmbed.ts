@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {validateYoutubeVideoUrl} from '../validation'
 
 export const youtubeEmbed = defineType({
   name: 'youtubeEmbed',
@@ -9,7 +10,10 @@ export const youtubeEmbed = defineType({
       name: 'url',
       title: 'YouTube URL',
       type: 'url',
-      validation: (rule) => rule.required().uri({scheme: ['http', 'https']}),
+      validation: (rule) => [
+        rule.required().uri({scheme: ['http', 'https']}),
+        rule.custom((value) => validateYoutubeVideoUrl(typeof value === 'string' ? value : undefined)),
+      ],
     }),
     defineField({
       name: 'title',

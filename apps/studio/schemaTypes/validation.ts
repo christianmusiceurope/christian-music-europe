@@ -83,3 +83,42 @@ export function validateCountryAssociations(
 
   return true
 }
+
+const YOUTUBE_VIDEO_ID = /^[A-Za-z0-9_-]{11}$/
+
+/** Accept only watch, shorts, live, embed, or youtu.be video links. Empty values are fine. */
+export function validateYoutubeVideoUrl(value: string | undefined) {
+  if (!value?.trim()) return true
+  let parsed: URL
+  try {
+    parsed = new URL(value)
+  } catch {
+    return 'Use a full YouTube video URL, starting with https://'
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return 'Use a full YouTube video URL, starting with https://'
+  }
+
+  const host = parsed.hostname.replace(/^www\./, '').toLowerCase()
+  let id: string | null = null
+
+  if (host === 'youtu.be') {
+    id = parsed.pathname.split('/').filter(Boolean)[0] ?? null
+  } else if (host === 'youtube.com' || host === 'youtube-nocookie.com' || host === 'm.youtube.com') {
+    if (parsed.pathname === '/watch') {
+      id = parsed.searchParams.get('v')
+    } else {
+      const [kind, videoId] = parsed.pathname.split('/').filter(Boolean)
+      if (videoId && (kind === 'embed' || kind === 'shorts' || kind === 'live' || kind === 'v')) {
+        id = videoId
+      }
+    }
+  } else {
+    return 'This does not look like a YouTube link.'
+  }
+
+  if (!id || !YOUTUBE_VIDEO_ID.test(id)) {
+    return 'Paste a YouTube video link (watch, shorts, live, or youtu.be). Channel links are not accepted.'
+  }
+  return true
+}

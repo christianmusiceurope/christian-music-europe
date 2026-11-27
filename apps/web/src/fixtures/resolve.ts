@@ -2,7 +2,6 @@ import genresJson from './genres.json';
 import linDProposal from './lin-d-proposal.json';
 import { artistTypeLabel, relationshipLabel } from '../lib/labels';
 import { sizedSanityImage } from '../lib/images';
-import { videosInPortableText } from '../lib/text';
 import type { ArtistPageData, PortableTextBlock } from '../lib/types';
 
 type GenreDoc = {
@@ -144,7 +143,7 @@ export function linDFixture(): ArtistPageData {
     }),
     socialPosts: [],
     relatedArtists: [],
-    videos: videosInPortableText(biography),
+    videos: [],
     sources: (doc.sources ?? []).flatMap((source) => {
       if (!source.label) return [];
       return [

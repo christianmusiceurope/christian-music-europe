@@ -95,6 +95,11 @@ export const ARTIST_BY_SLUG_QUERY = defineQuery(/* groq */ `
       url,
       accessedAt
     },
+    videos[]{
+      _key,
+      url,
+      title
+    },
     "articles": *[_type == "article" && references(^._id)] | order(publishedAt desc)[0...6]{
       _id,
       title,
